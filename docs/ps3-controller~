@@ -1,0 +1,46 @@
+https://help.ubuntu.com/community/Sixaxis
+http://www.pygame.org/docs/ref/joystick.html
+https://dhoium3009.wordpress.com/raspberry-pi-connecting-multiple-ps3-controllers-via-bluetooth/
+
+Ubuntu
+sudo apt-add-repository ppa:falk-t-j/qtsixa
+sudo apt-get update
+sudo apt-get install sixad
+Connect PS3 Controller on USB port
+sudo sixpair
+Remove PS3 Controller from USB port
+sixad --start
+
+Raspbian
+sudo apt-get install bluez libusb-dev libbluetooth-dev joystick
+hciconfig
+wget http://www.pabr.org/sixlinux/sixpair.c
+gcc -o sixpair sixpair.c -lusb
+git clone https://github.com/falkTX/qtsixa.git
+cd qtsixa/sixad
+sudo make
+sudo make install
+
+sudo ./sixpair
+sudo sixad --start
+sudo sixad --boot-yes
+reboot
+
+sudo jstest /dev/input/js0
+sudo jstest-gtk
+
+MAC: 00:1a:7d:da:71:08
+
+Bluetooth test
+
+If Bluetooth is Inactive state
+> sudo service bluetooth status
+    Active: inactive (dead)
+> sudo service bluetooth start
+    Job for bluetooth.service failed. See 'systemctl status bluetooth.service' and 'journalctl -xn' for details.
+> ls -l /usr/sbin/bluetoothd 
+    lrwxrwxrwx 1 root root 27 Feb 25 03:39 /usr/sbin/bluetoothd -> ../lib/bluetooth/bluetoothd
+> sudo chmod +x /usr/sbin/bluetoothd
+
+
+

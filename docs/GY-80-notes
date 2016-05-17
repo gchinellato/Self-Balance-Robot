@@ -1,0 +1,25 @@
+GY-80
+
+The GY-80 is tiny, only about 27x17mm in size, and has following I2C sensors:
+	-	HMC5883L (3-Axis Digital Compass), I2C Address 0x1E
+	-	ADXL345 (3-Axis Digital Accelerometer), I2C Address 0x53
+	-	L3G4200D (3-Axis Angular Rate Sensor / Gyro), I2C Address 0x69
+	-	BMP085 (Barometric Pressure / Temperature Sensor), I2C Address 0x77
+
+Hardware mapping
+	VCC_IN <--> Unused
+	VCC_3.3V <--> Raspberry Pi GPIO pin 1, 3.3V
+	GND <--> Raspberry Pi GPIO pin 6, Ground
+	SCL <--> Raspberry Pi GPIO pin 5, I2C serial clock (SCL)
+	SDA <--> Raspberry Pi GPIO pin 3, I2C serial data (SDA)
+	M_DRDY (interrupt from HMC5883L magnetometer) <--> Unused
+	A_INT1 (interrupt from ADXL345 accelerometer) <--> Unused
+	T_INT1 (interrupt from L3G4200 gyroscope) <--> Unused
+	P_XCLR (clear BMP085 barometer) <--> Unused
+	P_EOC (end of conversion for BMP085 barometer) <--> Unused
+
+Examples
+http://astrobeano.blogspot.com.br/2014/01/gy-80-orientation-sensor-on-raspberry-pi.html
+git clone https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code.git
+https://github.com/bashardawood/L3G4200D-Python.git
+http://blog.bitify.co.uk/

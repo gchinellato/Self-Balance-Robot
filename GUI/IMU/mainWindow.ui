@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>952</width>
+    <height>599</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QGroupBox" name="groupBox_Accel">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>291</width>
+      <height>141</height>
+     </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>false</bool>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>Accelerometer</string>
+    </property>
+    <widget class="QLabel" name="label_AccRawX">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>30</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>AccRawX:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_AccRawY">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>60</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>AccRawY:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_AccRawZ">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>90</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>AccRawZ:</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_AccRawX">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>20</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_AccRawY">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>50</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_AccRawZ">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>80</y>
+       <width>113</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QSplitter" name="splitter">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>160</y>
+      <width>148</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+    <widget class="QPushButton" name="pushButton">
+     <property name="text">
+      <string>Update</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_EnableUDPServer">
+     <property name="text">
+      <string>Enable UDP Server</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_DisableUDPServer">
+     <property name="text">
+      <string>Disable UDP Server</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>splitter</zorder>
+   <zorder>groupBox_Accel</zorder>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>952</width>
+     <height>25</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -1,0 +1,50 @@
+-- VERSION_4
+-- START DISKCACHE_2
+/home/gchinellato/GitHub/self_balance/GUI/.metadata/.plugins/org.eclipse.core.resources/.projects/IMU/com.python.pydev.analysis/v2_indexcache
+mainWindow|1457486307000000000|/home/gchinellato/GitHub/self_balance/GUI/IMU/mainWindow.py
+-- END DISKCACHE
+-- START DICTIONARY
+3
+2=Ui_MainWindow.setupUi
+1=mainWindow
+3=Ui_MainWindow
+-- END DICTIONARY
+-- START TREE 1
+8
+_en|1|_encoding!11@
+_fr|2|_fromUtf8!10@_fromUtf8!11@
+_tr|1|_translate!10@
+mai|0|
+que|0|
+udp|0|
+ui_|1|Ui_MainWindow!9@
+wor|0|
+-- END TREE
+-- START TREE 2
+25
+__i|0|
+_sl|0|
+_st|0|
+cen|1|centralwidget!2&11@
+cou|0|
+dat|0|
+gro|1|groupBox_Accel!2&11@
+joi|0|
+lab|3|label_AccRawY!2&11@label_AccRawZ!2&11@label_AccRawX!2&11@
+lin|3|lineEdit_AccRawY!2&11@lineEdit_AccRawX!2&11@lineEdit_AccRawZ!2&11@
+lis|1|listWidget!2&11@
+men|1|menubar!2&11@
+nam|0|
+par|0|
+pus|3|pushButton!2&11@pushButton_DisableUDPServer!2&11@pushButton_EnableUDPServer!2&11@
+ret|1|retranslateUi!3&10@
+run|0|
+set|1|setupUi!3&10@
+soc|0|
+spl|1|splitter!2&11@
+sta|1|statusbar!2&11@
+thr|0|
+udp|0|
+ui|0|
+wid|1|widget!2&11@
+-- END TREE

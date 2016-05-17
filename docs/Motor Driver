@@ -1,0 +1,69 @@
+Moto Driver - VNH2SP30
+
+Pin definitions and functions (IC)
+
+1, 25, 30 -  OUT A , Heat Slug3: Source of high side switch A / Drain of low side switch A
+2, 4, 7, 12, 14, 17, 22, 24, 29 -  NC: Not connected
+3, 13, 23 - VCC , Heat Slug1: Drain of high side switches and power supply voltage
+6 - EN A /DIAG A: Status of high side and low side switches A; open drain output
+5 - IN A: Clockwise input
+8 - PWM: PWM input
+9 - CS: Output of current sense
+11 - IN B: Counter clockwise input
+10 - EN B /DIAG B: Status of high side and low side switches B; open drain output
+15, 16, 21 - OUT B , Heat Slug2: Source of high side switch B / Drain of low side switch B
+26, 27, 28 - GND A: Source of low side switch A (1)
+18, 19, 20 - GND B: Source of low side switch B (1)
+
+(1) GND A and GND B must be externally connected together.
+
+Board pin
+
+A1: OUT1 A 
+B1: OUT1 B
+A2: OUT2 A 
+B2: OUT2 B
++: VCC
+-: GND
+
+RST:
++3.3V:
++5V:
+GND:
+GND:
+VIN:
+
+Analog In
+0: EN1: Status of switches output (Analog pin)
+1: EN2: Status of switches output (Analog pin)
+2: CS1: Current sense ANALOG input
+3: CS2: Current sense ANALOG input
+4:
+5:
+
+TX:
+RX:
+2: 
+3: 
+4: INA2: Clockwise Input
+5: PWM1: PWM input
+6: PWM2: PWM input
+7: INA1: Clockwise Input
+8: INB1: Counter-clockwise input
+9: INB2: Counter-clockwise input
+10:
+11:
+12:
+13:
+GND:
+AREF:
+
+
+
+
+
+
+ 
+
+
+
