@@ -15,15 +15,6 @@ import Queue
 from constants import *
 from Utils.traces.trace import *
 
-SERVO_V_GPIO = 23 #servo vertical move
-SERVO_H_GPIO = 24 #servo horizontal move
-
-POS_MAX = 12.5 # Max position 180 degree
-POS_MIN = 2.5 # Min position 0 degree
-POS_NEUTRAL = 7.5 # Default position 90 degreee (neutral)
-
-FREQ = 50 # PWM frequency
-
 class PanTiltThread(threading.Thread):
     def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False):
         threading.Thread.__init__(self, group=group, target=target, name=name)
@@ -40,10 +31,11 @@ class PanTiltThread(threading.Thread):
         self._stopEvent = threading.Event()
         self._sleepPeriod = 0.0
 
-        self.dutyCycleVertical = 0.0
-        self.dutyCycleHorizontal = 0.0 
-        self.angleVertical = 0.0
-        self.angleHorizontal = 0.0 
+        #Absolute and relatives angles
+        self.relativeAngleV = 0.0
+        self.relativeAngleH = 0.0 
+        self.absoluteAngleV = 0.0
+        self.absoluteAngleH = 0.0 
 
         GPIO.setwarnings(False) # disable warnings
         GPIO.setmode(GPIO.BCM) # set up BCM GPIO numbering 
@@ -58,11 +50,7 @@ class PanTiltThread(threading.Thread):
          5.0       1.0         45   
          7.5       1.5         90
          10.0      2.0         135
-         12.5      2.5         180
-
-        one degree = (12.5-2.5)/(180-0) = 0.05555
-        DutyCycle=((POS_MAX-POS_MIN)/(180-0))*Angle + POS_MIN
-        Angle = (DutyCycle - POS_MIN) / ((POS_MAX-POS_MIN)/(180-0))'''        
+         12.5      2.5         180'''
 
         #PWM output for f=50Hz / t=20ms 
         self.pwmV = GPIO.PWM(SERVO_V_GPIO, FREQ) 
@@ -90,24 +78,28 @@ class PanTiltThread(threading.Thread):
                 if event != None:
                     if self.status == 1:
                         if event[0] != None:
-                            #Ensure the data is into an acceptable range: 9.5% ~ 12.5% / 126deg ~ 180deg
-                            self.angleVertical = event[0]
-                            self.dutyCycleVertical = self._constraint(event[0], 12.5, 9.5)                            
-                            self._changeV(self.dutyCycleVertical)
+                            headV = self.convertRange(event[0])
+                            dutyCycleVertical = self._constraint(headV, VERTICAL_MAX, VERTICAL_MIN) 
+                            self.absoluteAngleV = self.convertDutyCycleToDegree(dutyCycleVertical)
+                            self.relativeAngleV = self.convertDutyCycleToDegree(dutyCycleVertical,upperLimit=VERTICAL_MAX,lowerLimit=VERTICAL_MIN)                            
+                            self._changeV(dutyCycleVertical)
 
                             if (self.debug):
-                                logging.debug("PWM Vertical: " + str(self.dutyCycleVertical))
-                                logging.debug("Angle Vertical: " + str(self.angleVertical))
+                                logging.debug("PWM Vertical: " + str(dutyCycleVertical))
+                                logging.debug("Relative Angle Vertical: " + str(self.relativeAngleV))
+                                logging.debug("Absolute Angle Vertical: " + str(self.absoluteAngleV))
 
                         if event[1] != None:
-                            #Ensure the data is into an acceptable range: 4.5% ~ 8.5% / 36deg ~ 108deg
-                            self.angleHorizontal = event[1] 
-                            self.dutyCycleHorizontal = self._constraint(event[1], 8.5, 4.5)                                               
-                            self._changeH(self.dutyCycleHorizontal)
+                            headH = self.convertRange(event[1])  
+                            dutyCycleHorizontal = self._constraint(headH, HORIZONTAL_MAX, HORIZONTAL_MIN) 
+                            self.absoluteAngleH = self.convertDutyCycleToDegree(dutyCycleHorizontal)
+                            self.relativeAngleH = self.convertDutyCycleToDegree(dutyCycleHorizontal,upperLimit=HORIZONTAL_MAX,lowerLimit=HORIZONTAL_MIN)                                               
+                            self._changeH(dutyCycleHorizontal)
 
                             if (self.debug):
-                                logging.debug("PWM Horizontal: " + str(self.dutyCycleHorizontal)) 
-                                logging.debug("Angle Horizontal: " + str(self.angleHorizontal))
+                                logging.debug("PWM Horizontal: " + str(dutyCycleHorizontal)) 
+                                logging.debug("Angle Horizontal: " + str(self.relativeAngleH))
+                                logging.debug("Absolute Angle Vertical: " + str(self.absoluteAngleH))
 
             except Queue.Empty:
                 if (self.debug):
@@ -130,10 +122,10 @@ class PanTiltThread(threading.Thread):
 
     def putEvent(self, event):     
         #Bypass if full, to not block the current thread
-        if not self._workQueue.full():       
+        if not self._workQueue.full():     
             self._workQueue.put(event)
 
-    # As Raspberry does not have hardware PWM pins, it is used a software one, then it is necessary do a workaround.
+    # As Raspberry does not have hardware PWM pins, it is used a software one, then it is necessary to do a workaround.
     def pause(self):
         self.status = 0
         self._changeV(0)
@@ -142,44 +134,53 @@ class PanTiltThread(threading.Thread):
     def resume(self): 
         self.status = 1 
 
-    def getAngles(self):
-        return self.angleVertical, self.angleHorizontal
-    
-    def getDutyCycles(self):
-        return self.dutyCycleVertical, self.dutyCycleHorizontal
+    def getRelativeAngles(self):
+        #Get angles relative the upper and lower limits (upperLimit and lowerLimit)
+        return self.relativeAngleV, self.relativeAngleH
 
-    def convertDutyCycleInDegree(self, dutyCycle):
-        return (dutyCycle-POS_MIN)/((POS_MAX-POS_MIN)/(180-0))
+    def getAbsoluteAngles(self):
+        #Get angles relative the max and min positions (POS_MAX and POS_MIN)
+        return self.absoluteAngleV, self.absoluteAngleH
+ 
+    def convertDutyCycleToDegree(self, dutyCycle, upperLimit=POS_MAX, lowerLimit=POS_MIN):
+        #Convert duty cycle value to degree according the boundary
+        return (dutyCycle-lowerLimit)/((upperLimit-lowerLimit)/(ANGLE_MAX-ANGLE_MIN))
 
-    def convertDegreeInDutyCycle(self, degree):
-        return ((POS_MAX-POS_MIN)/(180-0))*degree + POS_MIN
+    def convertDegreeToDutyCycle(self, degree, upperLimit=POS_MAX, lowerLimit=POS_MIN):
+        #Convert degree value to duty cycle according the boundary
+        return ((upperLimit-lowerLimit)/(ANGLE_MAX-ANGLE_MIN))*degree + lowerLimit
 
-    def convertDegreeInAnalogValue(self, degree):
-        return ((1.0-(-1.0))/(180-0))*degree + (-1.0)
+    def convertDutyCycleToAnalogValue(self, dutyCycle, upperLimit=POS_MAX, lowerLimit=POS_MIN):
+        #Convert duty cycle value to analog value according the boundary
+        # (duty cycle - midLimit) / (upperLimit - midLimit)
+        return (dutyCycle-(upperLimit-(upperLimit-lowerLimit)/2))/(upperLimit-(upperLimit-(upperLimit-lowerLimit)/2))
 
-    def convertRange(self, value):
-        #convert analog value (+1.0 ~ -1.0) to dutyCycle (12.5% ~ 2.5%)
-        if value <= 1.0 and value >= -1.0:
-            if value > 0:
-                value = (value*(POS_MAX-POS_NEUTRAL))+POS_NEUTRAL
-            elif value < 0:
-                value = (value*(POS_MIN-POS_NEUTRAL))-POS_NEUTRAL
-            else:
-                value = POS_NEUTRAL
-        else:
-            value = POS_NEUTRAL
+    def convertDegreeToAnalogValue(self, degree, upperLimit=ANGLE_MAX, lowerLimit=ANGLE_MIN):
+        #Convert degree to analog value according the boundary
+        # (degree - midLimit) / (upperLimit - midLimit)
+        return (degree-(upperLimit-(upperLimit-lowerLimit)/2))/(upperLimit-(upperLimit-(upperLimit-lowerLimit)/2))
+
+    def convertRange(self, analogValue):
+        #Convert analog value (+1.0 ~ -1.0) to dutyCycle (12.5% ~ 2.5%)
+        if not analogValue >= ANALOG_MIN and analogValue <= ANALOG_MAX:        
             logging.warning("Value out of the range (Max:1.0, Min:-1.0)")
-
-        return abs(value)  
+            if analogValue > ANALOG_MAX:
+                analogValue = ANALOG_MAX
+            elif analogValue < ANALOG_MIN:
+                analogValue = ANALOG_MIN
+        return (analogValue*(POS_MAX-POS_NEUTRAL))+POS_NEUTRAL  
 
     def _constraint(self, value, upperLimit=POS_MAX, lowerLimit=POS_MIN): 
-        #Proporcional value to reach upper and lower limit      
-        value = lowerLimit + (upperLimit-lowerLimit)*((value-POS_MIN)/(POS_MAX-POS_MIN))
+        #Limitation of the panTilt movement 
+        #Proporcional value to reach upper and lower limits
+        #For instance, value=7.5 (50%) and full range 2.5(0%) up to 12.5(100%), but it is necessary to restrict the lower part to 8.5,
+        #then the new range is 8.5(0%) up to 12.5(100%), however to keep the same percentage (50%) the value should be 10.5.
+        value = lowerLimit + (upperLimit-lowerLimit) * ((value-POS_MIN)/(POS_MAX-POS_MIN))
 
         #Ensure the data is into an acceptable range
         if value > upperLimit:
             value = upperLimit
-        if value < lowerLimit:
+        elif value < lowerLimit:
             value = lowerLimit
 
         return value

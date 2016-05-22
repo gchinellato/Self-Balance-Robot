@@ -12,7 +12,7 @@
 import imutils
 import cv2
 from picamera.array import PiRGBArray
-from picamera import PiCamera
+import picamera
 import time
 import threading
 import multiprocessing
@@ -33,8 +33,8 @@ class ComputerVisionThread(threading.Thread):
         
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self.stop = threading.Event()
-        self._sleepPeriod = 0.01 
+        self.block = threading.Event()
+        self._sleepPeriod = 0.02 
 
         self.width=640
         self.height=480      
@@ -43,15 +43,14 @@ class ComputerVisionThread(threading.Thread):
 
     #Override method
     def run(self):
-        # define the lower and upper boundaries of the "green"
-        # ball in the HSV color space, then initialize the
-        # list of tracked points
+        #define the lower and upper boundaries
+        #the HSV color space, then initialize the list of tracked points
         greenLower = (29, 86, 6)
         greenUpper = (64, 255, 255)
         blueLower = (110, 50, 50)
-        blueUpper = (130, 255, 255)
+        blueUpper = (110, 255, 255)
 
-        camera = PiCamera()
+        camera = picamera.PiCamera()
         camera.resolution = (self.width, self.height)
         camera.framerate = 32
         rawCapture = PiRGBArray(camera, size=(self.width, self.height)) 
@@ -60,22 +59,22 @@ class ComputerVisionThread(threading.Thread):
 
         lastTime = 0.0
 
-        while not self._stopEvent.wait(self._sleepPeriod):
-            try:
-                for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-                    if self.stop.isSet() != True:
-                        currentTime = time.time()
+        try:
+            for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+                if self._stopEvent.isSet() != True:
+                    currentTime = time.time()
 
-                        #Calculate time since the last time it was called
-                        #if (self.debug):
-                        #    logging.debug("Duration: " + str(currentTime - lastTime))
-                        
+                    #Calculate time since the last time it was called
+                    #if (self.debug):
+                    #    logging.debug("Duration: " + str(currentTime - lastTime))
+
+                    #Event to sync the thread with main thread
+                    if self.block.isSet() != True:
                         frame = frame.array
-                        #logging.debug(frame)
 
-                        # resize the frame, blur it, and convert it to the HSV color space
+                        #resize the frame, blur it, and convert it to the HSV color space
                         frame = imutils.resize(frame, width=self.width, height=self.height)
-                        # blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+                        #blurred = cv2.GaussianBlur(frame, (11, 11), 0)
                         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
                         # construct a mask for the color "green", then perform a series of dilations and erosions to remove any small blobs left in the mask
@@ -91,7 +90,7 @@ class ComputerVisionThread(threading.Thread):
                         #Center of the window
                         cv2.circle(frame, (int(self.width/2), int(self.height/2)), 5, (0, 0, 255), -1)
 
-                        # only proceed if at least one contour was found
+                        #only proceed if at least one contour was found
                         if len(cnts) > 0:
                             # find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
                             c = max(cnts, key=cv2.contourArea)
@@ -108,27 +107,27 @@ class ComputerVisionThread(threading.Thread):
                                 logging.debug(("Position obj X: " + str(center[0]) + ", Y: " + str(center[1])))
                                 logging.debug(("Distance center X: " + str(dWidth) + ", Y: " + str(dHeight)))
 
-                            #+1.0 ~ -1.0
-                            #dWidth = (dWidth/float((self.width/2)))
-                            #dHeight = (dHeight/float((self.height/2)))
                             self.putEvent(self.name, (dWidth, dHeight))
 
-                            # only proceed if the radius meets a minimum size
+                            #only proceed if the radius meets a minimum size
                             if radius > 5:
-                                # draw the circle and centroid on the frame,then update the list of tracked points
-                                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                                #draw the circle and centroid on the frame,then update the list of tracked points
+                                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
                                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-                        # show the frame
+                        #show the frame
                         #cv2.imshow("Frame", frame)
-                    #key = cv2.waitKey(10) & 0xFF
-                    logging.debug("reading frames")
-                     
-                    # clear the stream in preparation for the next frame
-                    rawCapture.truncate(0) 
+                        #cv2.waitKey(1) & 0xFF
+                        #logging.debug("reading frames")                 
+                    #clear the stream in preparation for the next frame
+                    rawCapture.truncate(0)
                     lastTime = currentTime 
-            except KeyboardInterrupt:
-                break               
+                    self._stopEvent.wait(self._sleepPeriod) 
+                else:
+                    break
+        except picamera.PiCameraValueError:
+            logging.error("PiCameraValueError")
+            pass         
         
     #Override method  
     def join(self, timeout=None):

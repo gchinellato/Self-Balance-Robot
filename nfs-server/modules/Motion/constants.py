@@ -28,5 +28,9 @@ COMPENSATION = 12.0 #15.0 # min value to pwm move the motors
 #PID
 WINDUP_GUARD = 100.0
 
+#Analog Constrains
+ANALOG_MAX = 1.0
+ANALOG_MIN = -1.0
+
 
 
