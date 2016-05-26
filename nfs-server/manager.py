@@ -67,11 +67,11 @@ def Manager():
         #Computer Vision thread
         tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
         tracking.daemon = True
-        threads.append(tracking)
-        tracking.start()
+        #threads.append(tracking)
+        #tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=False)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=True)
         panTilt.daemon = True
         threads.append(panTilt)
         panTilt.start() 
@@ -79,9 +79,7 @@ def Manager():
         #Initialize Pan-Tilt
         headV = 0.0
         headH = 0.0
-        panTilt.putEvent((headV, headH))        
-        time.sleep(1)        
-        panTilt.pause()
+        #panTilt.putEvent((headV, headH))        
 
         runSpeed = 0.0
         turnSpeed = 0.0
@@ -102,14 +100,12 @@ def Manager():
                     if event[0] == PS3_CTRL_NAME and joy.joyStatus != None:
                         if (event[1].type == pygame.JOYAXISMOTION) and (event[1].axis != joy.A_ACC_X) and (event[1].axis != joy.A_ACC_Y) and (event[1].axis != joy.A_ACC_Z):
                             if event[1].axis == joy.A_R3_V:
-                                panTilt.resume()
                                 headV = event[1].value
-                                panTilt.putEvent((headV, None))
+                                #panTilt.putEvent((headV, None))
                                 #logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
                             if event[1].axis == joy.A_R3_H:
-                                panTilt.resume()
                                 headH = -event[1].value 
-                                panTilt.putEvent((None, headH))
+                                #panTilt.putEvent((None, headH))
                                 #logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
 
                             if event[1].axis == joy.A_L3_V:
@@ -124,9 +120,7 @@ def Manager():
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                             #logging.debug(joy.parseEvent(event[1]))
                             if event[1].button == joy.B_SQR:
-                                panTilt.pause()
-                            if event[1].button == joy.B_CIRC: 
-                                panTilt.resume()
+                                logging.debug("Button Square")
                     #IP controller
                     #elif event[0] == SERVER_UDP_NAME:                
                     #OpenCV controller            
@@ -136,8 +130,6 @@ def Manager():
                         #Delta measure from object up to center of the vision
                         dWidth, dHeight = event[1]   
                         logging.debug(("Distance center X: {0}, Y: {1}".format(dWidth, dHeight)))  
-                                         
-                        panTilt.resume()
 
                         #Get relative angles
                         angleV, angleH = panTilt.getRelativeAngles()  
@@ -153,7 +145,7 @@ def Manager():
                                 if dHeight > 200:
                                     angle = 20.0
                             headV = panTilt.convertDegreeToAnalogValue(angleV+angle)
-                            panTilt.putEvent((headV, None))
+                            #panTilt.putEvent((headV, None))
 
                         #Horizontal
                         if dWidth < -100 or dWidth > 100:
@@ -166,7 +158,7 @@ def Manager():
                                 if dWidth > 200:
                                     angle = -20.0
                             headH = panTilt.convertDegreeToAnalogValue(angleH+angle)
-                            panTilt.putEvent((None, headH))
+                            #panTilt.putEvent((None, headH))
 
                         logging.debug(("Angles relative: " + str(panTilt.getRelativeAngles())))
                         #logging.debug(("Angles absolute: " + str(panTilt.getAbsoluteAngles())))
