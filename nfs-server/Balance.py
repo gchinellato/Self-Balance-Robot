@@ -53,8 +53,8 @@ class BalanceThread(threading.Thread):
             currentTime = time.time()
 
             #Calculate time since last time was called
-            if (self.debug):
-                logging.info("Duration: " + str(currentTime - lastTime))
+            #if (self.debug):
+            #    logging.info("Duration: " + str(currentTime - lastTime))
             
             #
             # Complementary filter
@@ -70,10 +70,10 @@ class BalanceThread(threading.Thread):
                 #Get event for motion, ignore if empty queue
                 event = self.getEvent()
                 if event != None:
-                    if event[0] != None:
-                        runSpeed = event[0]
+                    if event[0] != None:                        
+                        runSpeed = self.motion.convertRange(event[0]) 
                     if event[1] != None:
-                        turnSpeed = event[1]
+                        turnSpeed = self.motion.convertRange(event[1])
 
                 speedL = pitchPID + runSpeed - turnSpeed
                 speedR = pitchPID + runSpeed + turnSpeed 
@@ -81,7 +81,6 @@ class BalanceThread(threading.Thread):
             else:
                 self.motion.motorStop()
 
-            #
             #UDP message   
             #(timestamp),(data1)(data2),(data3)(#)
             UDP_MSG = str(datetime.datetime.now()) + "," + \

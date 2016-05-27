@@ -102,7 +102,7 @@ class PS3_ControllerThread(threading.Thread):
                     for event in events:
                         #self.putEvent(self.name, event)
                         #Do not send Accelerometer events to reduce overhead
-                        if (event.type == pygame.JOYAXISMOTION) and (event.axis != self.A_ACC_X) and (event.axis != self.A_ACC_Y) and (event.axis != self.A_ACC_Z): 
+                        if (event.type == pygame.JOYAXISMOTION) and (event.axis != self.A_ACC_X) and (event.axis != self.A_ACC_Y) and (event.axis != self.A_ACC_Z):                                     
                             self.putEvent(self.name, event)
                             #logging.debug(event)
                         if (event.type == pygame.JOYBUTTONDOWN) or (event.type == pygame.JOYBUTTONUP):

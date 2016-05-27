@@ -12,7 +12,7 @@
 """
 
 #Define output from motors A & B
-MA_FORWARD_GPIO = 18 #RIGHT SIDE
+MA_FORWARD_GPIO = 24 #RIGHT SIDE
 MA_BACKWARD_GPIO = 17 
 MB_FORWARD_GPIO = 22 #LEFT SIDE
 MB_BACKWARD_GPIO = 27 
@@ -27,6 +27,10 @@ COMPENSATION = 12.0 #15.0 # min value to pwm move the motors
 
 #PID
 WINDUP_GUARD = 100.0
+
+#Analog Constrains
+ANALOG_MAX = 1.0
+ANALOG_MIN = -1.0
 
 
 

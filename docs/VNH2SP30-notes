@@ -28,8 +28,8 @@ B2: OUT2 B
 
 RST:
 +3.3V:
-+5V:
-GND:
++5V: +5V
+GND: GND
 GND:
 VIN:
 

@@ -106,18 +106,22 @@ class Motion():
         #limitedSpeedL += COMPENSATION
         #limitedSpeedR += COMPENSATION
 
+        #Clockwise
         if speedL > 0:
             self.mLeftBackward.ChangeDutyCycle(0)
             self.mLeftForward.ChangeDutyCycle(limitedSpeedL)
+        #Anti-Clockwise
         elif speedL < 0: 
             self.mLeftForward.ChangeDutyCycle(0)
             self.mLeftBackward.ChangeDutyCycle(limitedSpeedL)
         else:
             self._motorLStop()
 
+        #Clockwise
         if speedR > 0:
             self.mRightBackward.ChangeDutyCycle(0)
             self.mRightForward.ChangeDutyCycle(limitedSpeedR)
+        #Anti-Clockwise
         elif speedR < 0: 
             self.mRightForward.ChangeDutyCycle(0)
             self.mRightBackward.ChangeDutyCycle(limitedSpeedR)
@@ -135,22 +139,18 @@ class Motion():
         self.mLeftBackward.stop()
         GPIO.cleanup()
 
-    def convertRange(self, value):
-        #convert analog value (+1.0 ~ -1.0) to dutyCycle (-100.0% ~ 100.0%)
-        if value <= 1.0 and value >= -1.0:
-            if value > 0:
-                value = value * 100.0 * -1
-            elif value < 0:
-                value = value * 100.0 * -1
-            else:
-                value = 0
-        else:            
-            value = 0
+    def convertRange(self, analogValue):
+        #convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)
+        if not analogValue >= ANALOG_MIN and analogValue <= ANALOG_MAX:        
             logging.warning("Value out of the range (Max:1.0, Min:-1.0)")
+            if analogValue > ANALOG_MAX:
+                analogValue = ANALOG_MAX
+            elif analogValue < ANALOG_MIN:
+                analogValue = ANALOG_MIN
+        return analogValue * 100.0 
 
-        return value   
-
-    def _constraint(self, value, upperLimit=PWM_MAX, lowerLimit=PWM_MIN):
+    def _constraint(self, value, upperLimit=PWM_MAX, lowerLimit=PWM_MIN):        
+        #Limitation of the motor velocity
         #Ensure the data is into an acceptable range
         if value > upperLimit:
             value = upperLimit

@@ -15,6 +15,7 @@ from Balance import BalanceThread
 from PanTilt.panTilt import PanTiltThread
 from CV.cv import ComputerVisionThread
 from IMU.constants import *
+from PanTilt.constants import *
 from Utils.traces.trace import *
 import time
 import RPi.GPIO as GPIO
@@ -26,7 +27,7 @@ CLIENT_UDP_NAME = "Client-UDP-Thread"
 BALANCE_NAME = "Balance-Thread"
 PAN_TILT_NAME = "PanTilt-Thread"
 PS3_CTRL_NAME = "PS3-Controller-Thread"
-CV_NAME = "OpenCV-Process"
+TRACKING_NAME = "Tracking-Process"
 
 def queueSize(q1, q2, q3, q4):
     logging.info("Queue Size - Client UDP: " + str(q1.qsize()))
@@ -39,10 +40,8 @@ def Manager():
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
         eventQueue = Queue.Queue()
-        #eventQueue = multiprocessing.Queue()
         balanceQueue = Queue.Queue(16)
         panTiltQueue = Queue.Queue()
-        cvQueue = Queue.Queue()
 
         logging.info("Starting threads and process...")
         threads = []        
@@ -66,23 +65,16 @@ def Manager():
         balance.start()
 
         #Computer Vision thread
-        cv = ComputerVisionThread(name=CV_NAME, queue=eventQueue, debug=False)
-        cv.daemon = True
-        threads.append(cv)
-        cv.start()
+        tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
+        tracking.daemon = True
+        threads.append(tracking)
+        tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=False)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, debug=True)
         panTilt.daemon = True
         threads.append(panTilt)
-        panTilt.start() 
-
-        #Initialize Pan-Tilt
-        headV = panTilt.convertRange(0.0)
-        headH = panTilt.convertRange(0.0)
-        panTilt.putEvent((headV, headH))        
-        time.sleep(1)        
-        panTilt.pause()
+        panTilt.start()      
 
         runSpeed = 0.0
         turnSpeed = 0.0
@@ -103,59 +95,68 @@ def Manager():
                     if event[0] == PS3_CTRL_NAME and joy.joyStatus != None:
                         if (event[1].type == pygame.JOYAXISMOTION) and (event[1].axis != joy.A_ACC_X) and (event[1].axis != joy.A_ACC_Y) and (event[1].axis != joy.A_ACC_Z):
                             if event[1].axis == joy.A_R3_V:
-                                panTilt.resume()
-                                headV = panTilt.convertRange(event[1].value)
+                                headV = event[1].value
                                 panTilt.putEvent((headV, None))
                                 #logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
                             if event[1].axis == joy.A_R3_H:
-                                panTilt.resume()
-                                headH = panTilt.convertRange(-event[1].value) 
+                                headH = -event[1].value 
                                 panTilt.putEvent((None, headH))
                                 #logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
 
                             if event[1].axis == joy.A_L3_V:
-                                runSpeed = balance.motion.convertRange(event[1].value)
+                                runSpeed = event[1].value
                                 balance.putEvent((runSpeed, None)) 
                                 #logging.debug(("L3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, runSpeed)))
                             if event[1].axis == joy.A_L3_H: 
-                                turnSpeed = balance.motion.convertRange(event[1].value)
+                                turnSpeed = event[1].value
                                 balance.putEvent((None, turnSpeed)) 
                                 #logging.debug(("L3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, turnSpeed)))
                         
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                             #logging.debug(joy.parseEvent(event[1]))
                             if event[1].button == joy.B_SQR:
-                                panTilt.pause()
-                            if event[1].button == joy.B_CIRC: 
-                                panTilt.resume()
-                    #TCP controller
+                                logging.debug("Button Square")
+                    #IP controller
                     #elif event[0] == SERVER_UDP_NAME:                
                     #OpenCV controller            
-                    elif event[0] == CV_NAME:
-                        ''' TO DO FIX CV EVENT HANDLER '''
+                    elif event[0] == TRACKING_NAME:                        
+                        tracking.block.set() 
+
                         #Delta measure from object up to center of the vision
-                        cv.stop.set() 
-
                         dWidth, dHeight = event[1]   
-                        logging.debug(("Distance center X: " + str(dWidth)))  
-                                         
-                        panTilt.resume()
+                        logging.debug(("Distance center X: {0}, Y: {1}".format(dWidth, dHeight)))  
 
-                        dtV, dtH = panTilt.getAngles()                        
-                        degH = panTilt.convertDutyCycleInDegree(dtH)
-                        dtH = panTilt.convertDegreeInAnalogValue(degH)
+                        #Get angles
+                        angleV, angleH = panTilt.getScaledAngles() 
+                        logging.debug("Angles current: " + str((angleV, angleH)))
 
-                        if dWidth < -100:
-                            headH = panTilt.convertRange(dtH+0.1) 
-                            logging.debug(("headH negative: " + str(headH))) 
-                            panTilt.putEvent((None, headH)) 
-                        elif dWidth > 100:
-                            headH = panTilt.convertRange(dtH-0.1) 
-                            logging.debug(("headH positive: " + str(headH))) 
+                        #Vertical
+                        if dHeight < -100 or dHeight > 100:
+                            if dHeight < -100:
+                                angle = -10.0
+                                if dHeight < -200:
+                                    angle = -20.0  
+                            elif dHeight > 100:
+                                angle = 10.0
+                                if dHeight > 200:
+                                    angle = 20.0
+                            headV = panTilt.convertTo(angleV+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
+                            panTilt.putEvent((headV, None))
+
+                        #Horizontal
+                        if dWidth < -100 or dWidth > 100:
+                            if dWidth < -100:
+                                angle = 10.0
+                                if dWidth < -200:
+                                    angle = 20.0                             
+                            elif dWidth > 100:
+                                angle = -10.0
+                                if dWidth > 200:
+                                    angle = -20.0
+                            headH = panTilt.convertTo(angleH+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             panTilt.putEvent((None, headH))
-                        
-                        dtV, dtH = panTilt.getAngles() 
-                        cv.stop.clear()
+
+                        tracking.block.clear()
               
             except Queue.Empty:
                 #logging.debug("Queue Empty")
