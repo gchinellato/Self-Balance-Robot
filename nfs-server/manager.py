@@ -15,6 +15,7 @@ from Balance import BalanceThread
 from PanTilt.panTilt import PanTiltThread
 from CV.cv import ComputerVisionThread
 from IMU.constants import *
+from PanTilt.constants import *
 from Utils.traces.trace import *
 import time
 import RPi.GPIO as GPIO
@@ -41,7 +42,8 @@ def Manager():
         eventQueue = Queue.Queue()
         #eventQueue = multiprocessing.Queue()
         balanceQueue = Queue.Queue(16)
-        panTiltQueue = Queue.Queue()
+        #panTiltQueue = Queue.Queue()
+        panTiltQueue = multiprocessing.Queue()
 
         logging.info("Starting threads and process...")
         threads = []        
@@ -67,19 +69,14 @@ def Manager():
         #Computer Vision thread
         tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
         tracking.daemon = True
-        #threads.append(tracking)
-        #tracking.start()
+        threads.append(tracking)
+        tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=True)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, debug=True)
         panTilt.daemon = True
         threads.append(panTilt)
-        panTilt.start() 
-
-        #Initialize Pan-Tilt
-        headV = 0.0
-        headH = 0.0
-        #panTilt.putEvent((headV, headH))        
+        panTilt.start()      
 
         runSpeed = 0.0
         turnSpeed = 0.0
@@ -101,11 +98,11 @@ def Manager():
                         if (event[1].type == pygame.JOYAXISMOTION) and (event[1].axis != joy.A_ACC_X) and (event[1].axis != joy.A_ACC_Y) and (event[1].axis != joy.A_ACC_Z):
                             if event[1].axis == joy.A_R3_V:
                                 headV = event[1].value
-                                #panTilt.putEvent((headV, None))
+                                panTilt.putEvent((headV, None))
                                 #logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
                             if event[1].axis == joy.A_R3_H:
                                 headH = -event[1].value 
-                                #panTilt.putEvent((None, headH))
+                                panTilt.putEvent((None, headH))
                                 #logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
 
                             if event[1].axis == joy.A_L3_V:
@@ -131,8 +128,9 @@ def Manager():
                         dWidth, dHeight = event[1]   
                         logging.debug(("Distance center X: {0}, Y: {1}".format(dWidth, dHeight)))  
 
-                        #Get relative angles
-                        angleV, angleH = panTilt.getRelativeAngles()  
+                        #Get angles
+                        angleV, angleH = panTilt.getScaledAngles() 
+                        logging.debug("Angles current: " + str((angleV, angleH)))
 
                         #Vertical
                         if dHeight < -100 or dHeight > 100:
@@ -144,7 +142,7 @@ def Manager():
                                 angle = 10.0
                                 if dHeight > 200:
                                     angle = 20.0
-                            headV = panTilt.convertDegreeToAnalogValue(angleV+angle)
+                            headV = panTilt.convertTo(angleV+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             #panTilt.putEvent((headV, None))
 
                         #Horizontal
@@ -157,11 +155,9 @@ def Manager():
                                 angle = -10.0
                                 if dWidth > 200:
                                     angle = -20.0
-                            headH = panTilt.convertDegreeToAnalogValue(angleH+angle)
+                            headH = panTilt.convertTo(angleH+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             #panTilt.putEvent((None, headH))
 
-                        logging.debug(("Angles relative: " + str(panTilt.getRelativeAngles())))
-                        #logging.debug(("Angles absolute: " + str(panTilt.getAbsoluteAngles())))
                         tracking.block.clear()
               
             except Queue.Empty:

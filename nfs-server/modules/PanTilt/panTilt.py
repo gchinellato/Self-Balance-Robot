@@ -12,12 +12,13 @@ import time
 import os
 import threading
 import Queue
+import multiprocessing
 from constants import *
 from Utils.traces.trace import *
 
-class PanTiltThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False):
-        threading.Thread.__init__(self, group=group, target=target, name=name)
+class PanTiltThread(multiprocessing.Process):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=multiprocessing.Queue(), debug=False):
+        multiprocessing.Process.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
         self.name = name
@@ -25,38 +26,33 @@ class PanTiltThread(threading.Thread):
 
         #Queue to communicate between threads
         self._workQueue = queue
-        self._lock = threading.Lock()
         
         #Event to signalize between threads
-        self._stopEvent = threading.Event()
+        self._stopEvent = multiprocessing.Event()
         self._sleepPeriod = 0.0
 
-        #Absolute and relatives angles
-        self.relativeAngleV = 0.0
-        self.relativeAngleH = 0.0 
-        self.absoluteAngleV = 0.0
-        self.absoluteAngleH = 0.0 
+        #Angles
+        self.angleV = 1.0
+        self.angleH = 2.0
+        self.scaledAngleV = 3.0
+        self.scaledAngleH = 4.0
 
-        #ServoBlaster is what we use to control the servo motors
-        self.servoBlaster = open('/dev/servoblaster', 'w')
-        logging.debug("PWM Horizontal init: " + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + "%")
-        self.servoBlaster.write(SERVO_H + '=' + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + '%' + '\n')
-        self.servoBlaster.flush()
-        logging.debug("PWM Vertical init: " + str(VERTICAL_MAX) + "%")
-        self.servoBlaster.write(SERVO_V + '=' + str(VERTICAL_MAX) + '%' + '\n')
-        self.servoBlaster.flush()
-        time.sleep(0.1) 
+        os.system('sudo servod')
+        time.sleep(0.1)
 
         logging.info("Pan-Tilt Thread initialized")
 
     #Override method
     def run(self):
+        #Initial position
+        self._changeV((VERTICAL_MAX-VERTICAL_MIN)/2 + VERTICAL_MIN)
+        self._changeH((HORIZONTAL_MAX-HORIZONTAL_MIN)/2 + HORIZONTAL_MIN)
+        time.sleep(0.1) 
+
         lastTime = 0.0
 
         while not self._stopEvent.wait(self._sleepPeriod):
             try:
-                self._lock.acquire()
-
                 currentTime = time.time()
 
                 #Calculate time since the last time it was called
@@ -66,35 +62,40 @@ class PanTiltThread(threading.Thread):
                 event = self.getEvent()
                 if event != None:
                     if event[0] != None:
-                        pwmVertical = self.convertRange(event[0])
-                        pwmVertical = self._constraint(pwmVertical, VERTICAL_MAX, VERTICAL_MIN)                           
+                        pwmVertical = self.convertTo(event[0], ANALOG_MAX, ANALOG_MIN, VERTICAL_MAX, VERTICAL_MIN) 
+                        self.angleV = self.convertTo(pwmVertical, POS_MAX, POS_MIN, ANGLE_MAX, ANGLE_MIN)
+                        self.scaledAngleV = self.convertTo(pwmVertical, VERTICAL_MAX, VERTICAL_MIN, ANGLE_MAX, ANGLE_MIN)                           
                         self._changeV(pwmVertical)
 
                         if (self.debug):
-                            logging.debug("PWM Vertical: " + str(pwmVertical)) + "%"
+                            logging.debug("PWM Vertical: " + str(pwmVertical) + "%")
+                            logging.debug("Angle Vertical: " + str(self.angleV) + "deg")
+                            logging.debug("Angle Scaled Vertical: " + str(self.scaledAngleV) + "deg")
 
                     if event[1] != None:
-                        pwmHorizontal = self.convertRange(event[1])  
-                        pwmHorizontal = self._constraint(pwmHorizontal, HORIZONTAL_MAX, HORIZONTAL_MIN)                                              
+                        pwmHorizontal = self.convertTo(event[1], ANALOG_MAX, ANALOG_MIN, HORIZONTAL_MAX, HORIZONTAL_MIN) 
+                        self.angleH = self.convertTo(pwmHorizontal, POS_MAX, POS_MIN, ANGLE_MAX, ANGLE_MIN)
+                        self.scaledAngleH = self.convertTo(pwmHorizontal, HORIZONTAL_MAX, HORIZONTAL_MIN, ANGLE_MAX, ANGLE_MIN)                                           
                         self._changeH(pwmHorizontal)
 
                         if (self.debug):
-                            logging.debug("PWM Horizontal: " + str(pwmHorizontal)) + "%"
-
+                            logging.debug("PWM Horizontal: " + str(pwmHorizontal) + "%")
+                            logging.debug("Angle Horizontal: " + str(self.angleH) + "deg")
+                            logging.debug("Angle Scaled Horizontal: " + str(self.scaledAngleH) + "deg")
+        
             except Queue.Empty:
                 if (self.debug):
                     logging.debug("Queue Empty")
                 pass
             finally:
-                lastTime = currentTime                
-                self._lock.release()                      
+                lastTime = currentTime 
         
     #Override method  
     def join(self, timeout=None):
         #Stop the thread and wait for it to end        
         self._stopEvent.set()
-        self.servoBlaster.close()
-        threading.Thread.join(self, timeout=timeout) 
+        os.system('sudo killall servod')
+        multiprocessing.Process.join(self, timeout=timeout) 
 
     def getEvent(self, timeout=1):
         return self._workQueue.get(timeout=timeout)
@@ -104,36 +105,34 @@ class PanTiltThread(threading.Thread):
         if not self._workQueue.full():     
             self._workQueue.put(event)
 
-    def convertRange(self, analogValue):
-        #Convert analog value (+1.0 ~ -1.0) to pwm (0% ~ 100%)
-        if not analogValue >= ANALOG_MIN and analogValue <= ANALOG_MAX:        
-            logging.warning("Value out of the range (Max:1.0, Min:-1.0)")
-            if analogValue > ANALOG_MAX:
-                analogValue = ANALOG_MAX
-            elif analogValue < ANALOG_MIN:
-                analogValue = ANALOG_MIN
-        return (analogValue*(POS_MAX-POS_NEUTRAL))+POS_NEUTRAL  
+    def getAbsoluteAngles(self):
+        #Get absolute angle - real angle
+        return self.angleV, self.angleH
 
-    def _constraint(self, value, upperLimit=POS_MAX, lowerLimit=POS_MIN): 
-        #Limitation of the panTilt movement 
-        #Proporcional value to reach upper and lower limits
-        #For instance, value=7.5 (50%) and full range 2.5(0%) up to 12.5(100%), but it is necessary to restrict the lower part to 8.5,
-        #then the new range is 8.5(0%) up to 12.5(100%), however to keep the same percentage (50%) the value should be 10.5.
-        value = lowerLimit + (upperLimit-lowerLimit) * ((value-POS_MIN)/(POS_MAX-POS_MIN))
+    def getScaledAngles(self):
+        #Get angle relative the limits
+        return self.scaledAngleV, self.scaledAngleH
 
-        #Ensure the data is into an acceptable range
-        if value > upperLimit:
-            value = upperLimit
-        elif value < lowerLimit:
-            value = lowerLimit
+    def convertTo(self, value, fromMax, fromMin, toMax, toMin):
+        if not value >= fromMin and value <= fromMax:        
+            logging.warning("Value out of the range (Max:"+str(fromMax)+" , Min:"+str(fromMin)+")")
+            if value > fromMax:
+                value = fromMax
+            elif value < fromMin:
+                value = fromMin
 
-        return value
+        factor = (value-fromMin)/(fromMax-fromMin)
+        return factor*(toMax-toMin)+toMin 
 
     def _changeV(self, percentage):
-        self.servoBlaster.write(SERVO_V + '=' + str(percentage) + '%' + '\n')
-        self.servoBlaster.flush()
+        servoBlaster = open('/dev/servoblaster', 'w')
+        servoBlaster.write(SERVO_V + '=' + str(percentage) + '%' + '\n')
+        servoBlaster.flush()
+        servoBlaster.close()
 
     def _changeH(self, percentage):
-        self.servoBlaster.write(SERVO_V + '=' + str(percentage) + '%' + '\n')
-        self.servoBlaster.flush()
+        servoBlaster = open('/dev/servoblaster', 'w')
+        servoBlaster.write(SERVO_H + '=' + str(percentage) + '%' + '\n')
+        servoBlaster.flush()
+        servoBlaster.close()
 
