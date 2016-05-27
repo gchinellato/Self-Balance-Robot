@@ -2,23 +2,22 @@
 """
 *************************************************
 * @Project: Self Balance                         
-* @Description: Pan Tilt - Micro Servo motors API
+* @Description: Pan Tilt - Micro Servo motors API with Servoblaster
 * @Owner: Guilherme Chinellato                   
 * @Email: guilhermechinellato@gmail.com                              
 *************************************************
 """
 
-import time
 import os
+import time
 import threading
 import Queue
-import multiprocessing
 from constants import *
 from Utils.traces.trace import *
 
-class PanTiltThread(multiprocessing.Process):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=multiprocessing.Queue(), debug=False):
-        multiprocessing.Process.__init__(self, group=group, target=target, name=name)
+class PanTiltThread(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False):
+        threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
         self.name = name
@@ -28,14 +27,14 @@ class PanTiltThread(multiprocessing.Process):
         self._workQueue = queue
         
         #Event to signalize between threads
-        self._stopEvent = multiprocessing.Event()
+        self._stopEvent = threading.Event()
         self._sleepPeriod = 0.0
 
         #Angles
-        self.angleV = 1.0
-        self.angleH = 2.0
-        self.scaledAngleV = 3.0
-        self.scaledAngleH = 4.0
+        self.angleV = 0.0
+        self.angleH = 0.0
+        self.scaledAngleV = 0.0
+        self.scaledAngleH = 0.0
 
         os.system('sudo servod')
         time.sleep(0.1)
@@ -45,8 +44,16 @@ class PanTiltThread(multiprocessing.Process):
     #Override method
     def run(self):
         #Initial position
-        self._changeV((VERTICAL_MAX-VERTICAL_MIN)/2 + VERTICAL_MIN)
-        self._changeH((HORIZONTAL_MAX-HORIZONTAL_MIN)/2 + HORIZONTAL_MIN)
+        pwmVertical = self.convertTo(0, ANALOG_MAX, ANALOG_MIN, VERTICAL_MAX, VERTICAL_MIN) 
+        self.angleV = self.convertTo(pwmVertical, POS_MAX, POS_MIN, ANGLE_MAX, ANGLE_MIN)
+        self.scaledAngleV = self.convertTo(pwmVertical, VERTICAL_MAX, VERTICAL_MIN, ANGLE_MAX, ANGLE_MIN)  
+        self._changeV(pwmVertical)
+
+        pwmHorizontal = self.convertTo(0, ANALOG_MAX, ANALOG_MIN, HORIZONTAL_MAX, HORIZONTAL_MIN) 
+        self.angleH = self.convertTo(pwmHorizontal, POS_MAX, POS_MIN, ANGLE_MAX, ANGLE_MIN)
+        self.scaledAngleH = self.convertTo(pwmHorizontal, HORIZONTAL_MAX, HORIZONTAL_MIN, ANGLE_MAX, ANGLE_MIN)                                           
+        self._changeH(pwmHorizontal)
+
         time.sleep(0.1) 
 
         lastTime = 0.0
@@ -95,7 +102,7 @@ class PanTiltThread(multiprocessing.Process):
         #Stop the thread and wait for it to end        
         self._stopEvent.set()
         os.system('sudo killall servod')
-        multiprocessing.Process.join(self, timeout=timeout) 
+        threading.Thread.join(self, timeout=timeout) 
 
     def getEvent(self, timeout=1):
         return self._workQueue.get(timeout=timeout)

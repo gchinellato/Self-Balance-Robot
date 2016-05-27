@@ -40,10 +40,8 @@ def Manager():
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
         eventQueue = Queue.Queue()
-        #eventQueue = multiprocessing.Queue()
         balanceQueue = Queue.Queue(16)
-        #panTiltQueue = Queue.Queue()
-        panTiltQueue = multiprocessing.Queue()
+        panTiltQueue = Queue.Queue()
 
         logging.info("Starting threads and process...")
         threads = []        
@@ -143,7 +141,7 @@ def Manager():
                                 if dHeight > 200:
                                     angle = 20.0
                             headV = panTilt.convertTo(angleV+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
-                            #panTilt.putEvent((headV, None))
+                            panTilt.putEvent((headV, None))
 
                         #Horizontal
                         if dWidth < -100 or dWidth > 100:
@@ -156,7 +154,7 @@ def Manager():
                                 if dWidth > 200:
                                     angle = -20.0
                             headH = panTilt.convertTo(angleH+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
-                            #panTilt.putEvent((None, headH))
+                            panTilt.putEvent((None, headH))
 
                         tracking.block.clear()
               

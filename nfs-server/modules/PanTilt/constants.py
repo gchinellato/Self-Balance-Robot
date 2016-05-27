@@ -10,8 +10,8 @@
 """
 
 #Define output from servo V and H
-SERVO_V_GPIO = 23 #servo vertical move
-SERVO_H_GPIO = 24 #servo horizontal move
+SERVO_V_GPIO = 18 #servo vertical move
+SERVO_H_GPIO = 23 #servo horizontal move
 
 '''Servo mapping:
      0 on P1-7           GPIO-4

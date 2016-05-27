@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import cv2
 import urllib
 import numpy as np

@@ -26,7 +26,7 @@ WARNING = 30
 ERROR = 40
 CRITICAL = 50
 
-#logging.basicConfig(level=logging.INFO, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
-logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
+logging.basicConfig(level=logging.INFO, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
+#logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
 #logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) (%(filename)s) (Fct: %(funcName)s) (Line:%(lineno)d) %(message)s')
 
