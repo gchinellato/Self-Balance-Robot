@@ -1,0 +1,27 @@
+NFS Configuration
+
+Host: 192.168.1.35 (ubuntu-pc)
+Target: 192.168.1.49 (raspberrypi)
+
+> NFS Server
+sudo apt-get install nfs-kernel-server
+sudo nano /etc/exports
+	/home/gchinellato/raspberrypi/nfs-server/ 192.168.1.49(rw,no_root_squash,no_subtree_check)
+sudo exportfs
+sudo service nfs-kernel-server restart
+
+> NFS Client
+sudo apt-get install nfs-common
+mkdir /mnt/nfs
+sudo mount 192.168.1.35:/home/gchinellato/GitHub/self_balance/nfs-server /mnt/nfs
+
+    > Start on boot
+    Add the line below into the /etc/fstab:
+    sudo nano /etc/fstab
+        ...
+        #Mount NFS client directory
+        # device      mountpoint                                        fs-type     options      dump fsckorder
+        192.168.1.35:/home/gchinellato/GitHub/self_balance/nfs-server /mnt/nfs nfs         rw           0    0
+
+References:
+http://www.htpcguides.com/configure-nfs-server-and-nfs-client-raspberry-pi/
