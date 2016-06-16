@@ -2,7 +2,7 @@
 _DIY study project_
 
 ## Description
-Mr. Robot is a DIY project based on the self balance robot concept using sensors to get orientation (pitch, roll and yaw) with some additional features like wireless controller by IP or bluetooth clients, computer vision functions like object tracking, video streaming to be used such as Google Cardboard VR for Android application and upcoming features.
+Mr. Robot is a DIY project based on the self balance robot concept using sensors to get orientation (pitch, roll and yaw) and an PID controller to set the motor speed. Beside that, there are some additional features like wireless controllers by IP or bluetooth clients, computer vision functions like object tracking, video streaming to be used such as Google Cardboard VR for Android application and upcoming features.
 
 ## Study topics
 This project is based on the following topics:
