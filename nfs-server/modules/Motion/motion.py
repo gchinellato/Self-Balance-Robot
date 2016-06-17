@@ -38,7 +38,7 @@ class Motion():
         GPIO.setup(MB_FORWARD_GPIO, GPIO.OUT)
         GPIO.setup(MB_BACKWARD_GPIO, GPIO.OUT)
 
-        #Set GPIO as PWM output - 50Hz
+        #Set GPIO as PWM output
         self.mRightForward = GPIO.PWM(MA_FORWARD_GPIO, PWM_FREQ) 
         self.mRightBackward = GPIO.PWM(MA_BACKWARD_GPIO, PWM_FREQ)
         self.mLeftForward = GPIO.PWM(MB_FORWARD_GPIO, PWM_FREQ) 
@@ -68,10 +68,12 @@ class Motion():
         #Calculate delta error
         de = error - self.lastError
  
-        #Calculate PID terms        
-        self.Cp = error #Proportional Term  
+        #Calculate PID terms
+        #Proportional Term          
+        self.Cp = error
       
-        self.Ci += error*dt #Integral Term
+        #Integral Term
+        self.Ci += error*dt
  
         #Windup guard for Integral term do not reach very large values
         if self.Ci > WINDUP_GUARD:
@@ -80,8 +82,10 @@ class Motion():
             self.Ci = -WINDUP_GUARD
        
         self.Cd = 0
-        if dt > 0:  #no div by zero
-            self.Cd = de/dt #Derivative term
+        #to avoid division by zero
+        if dt > 0:
+            #Derivative term
+            self.Cd = de/dt 
 
         #Save for the next iteration
         self.lastError = error

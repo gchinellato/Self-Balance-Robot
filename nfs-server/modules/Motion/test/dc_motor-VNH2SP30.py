@@ -15,7 +15,7 @@ MB_ANTICLOCKWISE_GPIO = 21
 GPIO.setwarnings(False) # disable warnings
 GPIO.setmode(GPIO.BCM) # set up BCM GPIO numbering 
 
-# set GPIO as output
+#set GPIO as output
 GPIO.setup(MA_PWM_GPIO, GPIO.OUT) 
 GPIO.setup(MB_PWM_GPIO, GPIO.OUT)
 GPIO.setup(MA_CLOCKWISE_GPIO, GPIO.OUT)
@@ -30,7 +30,7 @@ GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
 
 FREQ = 50 # PWM frequency (20ms = 50Hz)
 
-#set gpio as PWM output - 50Hz
+#set gpio as PWM output
 maPWM = GPIO.PWM(MA_PWM_GPIO, FREQ) 
 mbPWM = GPIO.PWM(MB_PWM_GPIO, FREQ)
 
@@ -39,7 +39,7 @@ maPWM.start(0)
 mbPWM.start(0)
 
 DT = 100
-SLEEP = 0.02
+SLEEP = 0.1
 
 def motorMove(pwmA, pwmB):
     #Clockwise
@@ -49,7 +49,7 @@ def motorMove(pwmA, pwmB):
     elif pwmA < 0: 
         _motorA(direction="CCW", pwm=abs(pwmA))
     else:
-        _motorStopA()
+        _motorA()
 
     #Clockwise
     if pwmB > 0:
@@ -58,11 +58,10 @@ def motorMove(pwmA, pwmB):
     elif pwmB < 0: 
         _motorB(direction="CCW", pwm=abs(pwmB))
     else:
-        _motorStopB()   
+        _motorB()   
 
 def motorStop():
-    _motorStopA()
-    _motorStopB()
+    motorMove(0, 0)
 
 def motorShutDown():
     motorStop()
@@ -70,7 +69,7 @@ def motorShutDown():
     mbPWM.stop()
     GPIO.cleanup()
 
-def _motorA(direction, pwm=0):
+def _motorA(direction="", pwm=0):
     if direction == "CW":
         GPIO.output(MA_CLOCKWISE_GPIO, True)
         GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
@@ -82,12 +81,7 @@ def _motorA(direction, pwm=0):
         GPIO.output(MA_ANTICLOCKWISE_GPIO, False)        
     maPWM.ChangeDutyCycle(pwm)
 
-def _motorStopA():
-    GPIO.output(MA_CLOCKWISE_GPIO, False)
-    GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
-    maPWM.ChangeDutyCycle(0)
-
-def _motorB(direction, pwm=0):
+def _motorB(direction="", pwm=0):
     if direction == "CW":
         GPIO.output(MB_CLOCKWISE_GPIO, True)
         GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
@@ -99,14 +93,9 @@ def _motorB(direction, pwm=0):
         GPIO.output(MB_ANTICLOCKWISE_GPIO, False)        
     mbPWM.ChangeDutyCycle(pwm)
 
-def _motorStopB():
-    GPIO.output(MB_CLOCKWISE_GPIO, False)
-    GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
-    mbPWM.ChangeDutyCycle(0)
-
 def test():    
-    GPIO.output(MA_CLOCKWISE_GPIO, True)
-    GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
+    GPIO.output(MA_CLOCKWISE_GPIO, False)
+    GPIO.output(MA_ANTICLOCKWISE_GPIO, True)
     GPIO.output(MB_CLOCKWISE_GPIO, True)
     GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
     maPWM.ChangeDutyCycle(100)  
@@ -116,34 +105,42 @@ def test():
 def main():
     try:
         while True:
+            print "wd: gira direita frente"
+            print "sd: gira direita tras"
+            print "aw: gira esquerda frente"
+            print "sa: gira esquerda tras"
+            print "w: frente"
+            print "s: tras"
+            print "f: stop"
+
             key = raw_input("Insert command: ")
-            if key == 'wd' or key == 'dw': #gira direita frente
-                for i in range(DT):
+            if key == 'wd' or key == 'dw': #gira direita frente                
+                for i in reversed(range(DT)):
                     motorMove(i, 0)
                     time.sleep(SLEEP) 
                 
             if key == 'sd' or key == 'ds': #gira direita tras
-                for i in range(DT):
+                for i in reversed(range(DT)):
                     motorMove(-i, 0)
                     time.sleep(SLEEP)
 
             if key == 'aw' or key == 'wa': #gira esquerda frente
-                for i in range(DT):
+                for i in reversed(range(DT)):
                     motorMove(0, i)
                     time.sleep(SLEEP)        
                 
             if key == 'sa' or key == 'as': #gira esquerda tras
-                for i in range(DT):
+                for i in reversed(range(DT)):
                     motorMove(0, -i)
                     time.sleep(SLEEP)
 
             if key == 'w': # frente
-                for i in range(DT):
+                for i in reversed(range(DT)):
                     motorMove(i, i)
                     time.sleep(SLEEP)
 
             if key == 's': # tras
-                for i in range(DT):
+                for i in reversed(range(DT)):
                     motorMove(-i, -i)
                     time.sleep(SLEEP)
 
@@ -159,8 +156,8 @@ def main():
 
 if __name__ == '__main__':
     try:
-        #main()
-        test()
+        main()
+        #test()
 
     except KeyboardInterrupt:
         print "Quit"

@@ -11,9 +11,9 @@
 
 from Comm.UDP.UDP_Client import UDP_ClientThread
 from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
-from Balance import BalanceThread
+from Balance.balance import BalanceThread
 from PanTilt.panTilt import PanTiltThread
-from CV.cv import ComputerVisionThread
+from ComputerVison.tracking import ComputerVisionThread
 from IMU.constants import *
 from PanTilt.constants import *
 from Utils.traces.trace import *
@@ -28,12 +28,6 @@ BALANCE_NAME = "Balance-Thread"
 PAN_TILT_NAME = "PanTilt-Thread"
 PS3_CTRL_NAME = "PS3-Controller-Thread"
 TRACKING_NAME = "Tracking-Process"
-
-def queueSize(q1, q2, q3, q4):
-    logging.info("Queue Size - Client UDP: " + str(q1.qsize()))
-    logging.info("Queue Size - Event: " + str(q2.qsize()))
-    logging.info("Queue Size - Balance: " + str(q3.qsize()))
-    logging.info("Queue Size - PanTilt: " + str(q4.qsize()))
 
 def Manager():
     try:
@@ -88,32 +82,29 @@ def Manager():
 
                 #Calculate time since the last time it was called
                 #logging.debug("Duration: " + str(currentTime - lastTime))
-                
-                #queueSize(clientUDPQueue, eventQueue, balanceQueue, panTiltQueue)
+ 
                 event = eventQueue.get(timeout=2) 
                 if event != None: 
                     if event[0] == PS3_CTRL_NAME and joy.joyStatus != None:
                         if (event[1].type == pygame.JOYAXISMOTION) and (event[1].axis != joy.A_ACC_X) and (event[1].axis != joy.A_ACC_Y) and (event[1].axis != joy.A_ACC_Z):
+                            #Head Vertical
                             if event[1].axis == joy.A_R3_V:
                                 headV = event[1].value
                                 panTilt.putEvent((headV, None))
-                                #logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
+                            #Head Horizontal
                             if event[1].axis == joy.A_R3_H:
                                 headH = -event[1].value 
                                 panTilt.putEvent((None, headH))
-                                #logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
-
+                            #Body run speed
                             if event[1].axis == joy.A_L3_V:
                                 runSpeed = event[1].value
                                 balance.putEvent((runSpeed, None)) 
-                                #logging.debug(("L3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, runSpeed)))
+                            #Body turn speed
                             if event[1].axis == joy.A_L3_H: 
                                 turnSpeed = event[1].value
                                 balance.putEvent((None, turnSpeed)) 
-                                #logging.debug(("L3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, turnSpeed)))
                         
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
-                            #logging.debug(joy.parseEvent(event[1]))
                             if event[1].button == joy.B_SQR:
                                 logging.debug("Button Square")
                     #IP controller
@@ -124,13 +115,17 @@ def Manager():
 
                         #Delta measure from object up to center of the vision
                         dWidth, dHeight = event[1]   
-                        logging.debug(("Distance center X: {0}, Y: {1}".format(dWidth, dHeight)))  
+                        logging.debug(("Distance to center X: {0}, Y: {1}".format(dWidth, dHeight)))  
 
-                        #Get angles
+                        #Radius from object
+                        radius = event[2]   
+                        logging.debug(("Distance to center X: {0}, Y: {1}".format(dWidth, dHeight)))  
+
+                        #Get current head angles
                         angleV, angleH = panTilt.getScaledAngles() 
                         logging.debug("Angles current: " + str((angleV, angleH)))
 
-                        #Vertical
+                        #Head Vertical
                         if dHeight < -100 or dHeight > 100:
                             if dHeight < -100:
                                 angle = -10.0
@@ -143,7 +138,7 @@ def Manager():
                             headV = panTilt.convertTo(angleV+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             panTilt.putEvent((headV, None))
 
-                        #Horizontal
+                        #Head Horizontal
                         if dWidth < -100 or dWidth > 100:
                             if dWidth < -100:
                                 angle = 10.0
