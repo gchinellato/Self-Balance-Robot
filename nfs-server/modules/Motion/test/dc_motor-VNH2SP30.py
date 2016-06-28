@@ -70,6 +70,7 @@ def motorShutDown():
     GPIO.cleanup()
 
 def _motorA(direction="", pwm=0):
+    print "Motor A: " + str(direction) + " ,pwm: " + str(pwm)
     if direction == "CW":
         GPIO.output(MA_CLOCKWISE_GPIO, True)
         GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
@@ -82,6 +83,7 @@ def _motorA(direction="", pwm=0):
     maPWM.ChangeDutyCycle(pwm)
 
 def _motorB(direction="", pwm=0):
+    print "Motor A: " + str(direction) + " ,pwm: " + str(pwm)
     if direction == "CW":
         GPIO.output(MB_CLOCKWISE_GPIO, True)
         GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
@@ -94,8 +96,8 @@ def _motorB(direction="", pwm=0):
     mbPWM.ChangeDutyCycle(pwm)
 
 def test():    
-    GPIO.output(MA_CLOCKWISE_GPIO, False)
-    GPIO.output(MA_ANTICLOCKWISE_GPIO, True)
+    GPIO.output(MA_CLOCKWISE_GPIO, True)
+    GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
     GPIO.output(MB_CLOCKWISE_GPIO, True)
     GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
     maPWM.ChangeDutyCycle(100)  
@@ -104,7 +106,7 @@ def test():
 
 def main():
     try:
-        while True:
+        while True: 
             print "wd: gira direita frente"
             print "sd: gira direita tras"
             print "aw: gira esquerda frente"
@@ -115,32 +117,33 @@ def main():
 
             key = raw_input("Insert command: ")
             if key == 'wd' or key == 'dw': #gira direita frente                
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(i, 0)
                     time.sleep(SLEEP) 
                 
             if key == 'sd' or key == 'ds': #gira direita tras
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(-i, 0)
                     time.sleep(SLEEP)
 
             if key == 'aw' or key == 'wa': #gira esquerda frente
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(0, i)
                     time.sleep(SLEEP)        
                 
             if key == 'sa' or key == 'as': #gira esquerda tras
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(0, -i)
                     time.sleep(SLEEP)
 
             if key == 'w': # frente
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(i, i)
+                    print "Value: " + str(i)
                     time.sleep(SLEEP)
 
             if key == 's': # tras
-                for i in reversed(range(DT)):
+                for i in range(DT):
                     motorMove(-i, -i)
                     time.sleep(SLEEP)
 

@@ -105,7 +105,7 @@ class ComputerVisionThread(threading.Thread):
                                 cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 5)
                                 cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-                               if (self.debug):
+                                if (self.debug):
                                     logging.debug(("Position X: " + str(center[0]) + ", Y: " + str(center[1])))
                                     logging.debug(("Distance to center X: " + str(dWidth) + ", Y: " + str(dHeight)))
                                     logging.debug(("Radius: " + str(radius)))

@@ -32,12 +32,12 @@ class BalanceThread(threading.Thread):
         
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.01
+        self._sleepPeriod = 0.05
 
         #Create objects
         self.clientUDP = clientUDP
         self.imu = GY80_IMU(debug=False)
-        self.motion = Motion(debug=False)
+        self.motion = Motion(debug=True)
 
         logging.info("Balance Thread initialized")      
 
@@ -46,6 +46,7 @@ class BalanceThread(threading.Thread):
         lastTime = 0.0
         runSpeed = 0.0
         turnSpeed = 0.0
+        pitchPID = 0.0
 
         while not self._stopEvent.wait(self._sleepPeriod):
             self._lock.acquire()           
@@ -55,7 +56,7 @@ class BalanceThread(threading.Thread):
             #Calculate time since last time was called
             #if (self.debug):
             #    logging.info("Duration: " + str(currentTime - lastTime))
-            
+
             #
             # Complementary filter
             #
@@ -66,7 +67,7 @@ class BalanceThread(threading.Thread):
             # Motion
             #
             if (self.imu.CFanglePitch < 60.0) and (self.imu.CFanglePitch > -50.0):
-                pitchPID = self.motion.PID(setPoint=8.0, newValue=self.imu.CFanglePitch, Kp=5.0, Ki=0.1, Kd=0.1)
+                #pitchPID = self.motion.PID(setPoint=10.0, newValue=self.imu.CFanglePitch, Kp=5.0, Ki=0.1, Kd=0.1)
 
                 #Get event for motion, ignore if empty queue
                 event = self.getEvent()

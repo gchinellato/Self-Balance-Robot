@@ -13,7 +13,6 @@
 
 import RPi.GPIO as GPIO
 import time
-import datetime
 from constants import *
 from Utils.traces.trace import *
 
@@ -33,22 +32,25 @@ class Motion():
         GPIO.setmode(GPIO.BCM) 
 
         #Set GPIO as output
-        GPIO.setup(MA_FORWARD_GPIO, GPIO.OUT)
-        GPIO.setup(MA_BACKWARD_GPIO, GPIO.OUT)
-        GPIO.setup(MB_FORWARD_GPIO, GPIO.OUT)
-        GPIO.setup(MB_BACKWARD_GPIO, GPIO.OUT)
+        GPIO.setup(MA_PWM_GPIO, GPIO.OUT) 
+        GPIO.setup(MB_PWM_GPIO, GPIO.OUT)
+        GPIO.setup(MA_CLOCKWISE_GPIO, GPIO.OUT)
+        GPIO.setup(MA_ANTICLOCKWISE_GPIO, GPIO.OUT)
+        GPIO.setup(MB_CLOCKWISE_GPIO, GPIO.OUT)
+        GPIO.setup(MB_ANTICLOCKWISE_GPIO, GPIO.OUT)
+
+        GPIO.output(MA_CLOCKWISE_GPIO, False)
+        GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
+        GPIO.output(MB_CLOCKWISE_GPIO, False)
+        GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
 
         #Set GPIO as PWM output
-        self.mRightForward = GPIO.PWM(MA_FORWARD_GPIO, PWM_FREQ) 
-        self.mRightBackward = GPIO.PWM(MA_BACKWARD_GPIO, PWM_FREQ)
-        self.mLeftForward = GPIO.PWM(MB_FORWARD_GPIO, PWM_FREQ) 
-        self.mLeftBackward = GPIO.PWM(MB_BACKWARD_GPIO, PWM_FREQ)
+        self._maPWM = GPIO.PWM(MA_PWM_GPIO, PWM_FREQ) 
+        self._mbPWM = GPIO.PWM(MB_PWM_GPIO, PWM_FREQ)
 
         #Start PWM (stopped)
-        self.mRightForward.start(0)
-        self.mRightBackward.start(0)
-        self.mLeftForward.start(0)
-        self.mLeftBackward.start(0)
+        self._maPWM.start(0)
+        self._mbPWM.start(0)
 
         logging.info("Motion module initialized") 
 
@@ -94,54 +96,74 @@ class Motion():
         #Sum terms
         output = (self.Cp * Kp) + (self.Ci * Ki) + (self.Cd * Kd)
 
-        if (self.debug):
-            logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
+        #if (self.debug):
+            #logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
 
         return output
 
     def motorStop(self):
-        self._motorLStop()
-        self._motorRStop()
+        self.motorMove(0, 0)
 
-    def motorMove(self, speedL, speedR):
-        limitedSpeedL = self._constraint(abs(speedL))
-        limitedSpeedR = self._constraint(abs(speedR))
+    def motorMove(self, speedA, speedB):
+        limitedSpeedA = self._constraint(abs(speedA))
+        limitedSpeedB = self._constraint(abs(speedB))
 
-        #limitedSpeedL += COMPENSATION
-        #limitedSpeedR += COMPENSATION
-
-        #Clockwise
-        if speedL > 0:
-            self.mLeftBackward.ChangeDutyCycle(0)
-            self.mLeftForward.ChangeDutyCycle(limitedSpeedL)
-        #Anti-Clockwise
-        elif speedL < 0: 
-            self.mLeftForward.ChangeDutyCycle(0)
-            self.mLeftBackward.ChangeDutyCycle(limitedSpeedL)
-        else:
-            self._motorLStop()
+        #limitedSpeedA += COMPENSATION
+        #limitedSpeedB += COMPENSATION
 
         #Clockwise
-        if speedR > 0:
-            self.mRightBackward.ChangeDutyCycle(0)
-            self.mRightForward.ChangeDutyCycle(limitedSpeedR)
+        if speedA > 0:
+            self._motorA(direction="CW", pwm=abs(limitedSpeedA))
         #Anti-Clockwise
-        elif speedR < 0: 
-            self.mRightForward.ChangeDutyCycle(0)
-            self.mRightBackward.ChangeDutyCycle(limitedSpeedR)
+        elif speedA < 0: 
+            self._motorA(direction="CCW", pwm=abs(limitedSpeedA))
+        #Stop        
         else:
-            self._motorRStop()
+            self._motorA()
+
+        #Clockwise
+        if speedB > 0:
+            self._motorB(direction="CW", pwm=abs(limitedSpeedB))
+        #Anti-Clockwise
+        elif speedB < 0: 
+            self._motorB(direction="CCW", pwm=abs(limitedSpeedB))
+        #Stop        
+        else:
+            self._motorB() 
 
         if (self.debug):
-            logging.debug(("Motor speed: LEFT: %0.2f, RIGHT: %0.2f" % (speedL, speedR)))
-            logging.debug(("Motor speed [LIMITED]: LEFT: %0.2f, RIGHT: %0.2f" % (limitedSpeedL, limitedSpeedR)))
+            logging.debug(("Motor speed: A: %0.2f, B: %0.2f" % (speedA, speedB)))
+            logging.debug(("Motor speed [LIMITED]: A: %0.2f, B: %0.2f" % (limitedSpeedA, limitedSpeedB)))
 
     def motorShutDown(self):
-        self.mRightForward.stop()
-        self.mRightBackward.stop()
-        self.mLeftForward.stop()
-        self.mLeftBackward.stop()
+        self.motorStop()
+        self._maPWM.stop()
+        self._mbPWM.stop()
         GPIO.cleanup()
+
+    def _motorA(self, direction="", pwm=0):
+        if direction == "CW":
+            GPIO.output(MA_CLOCKWISE_GPIO, True)
+            GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
+        elif direction == "CCW":
+            GPIO.output(MA_CLOCKWISE_GPIO, False)
+            GPIO.output(MA_ANTICLOCKWISE_GPIO, True)
+        else:
+            GPIO.output(MA_CLOCKWISE_GPIO, False)
+            GPIO.output(MA_ANTICLOCKWISE_GPIO, False)           
+        self._maPWM.ChangeDutyCycle(pwm)
+
+    def _motorB(self, direction="", pwm=0):
+        if direction == "CW":
+            GPIO.output(MB_CLOCKWISE_GPIO, True)
+            GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
+        elif direction == "CCW":
+            GPIO.output(MB_CLOCKWISE_GPIO, False)
+            GPIO.output(MB_ANTICLOCKWISE_GPIO, True)
+        else:
+            GPIO.output(MB_CLOCKWISE_GPIO, False)
+            GPIO.output(MB_ANTICLOCKWISE_GPIO, False)        
+        self._mbPWM.ChangeDutyCycle(pwm)
 
     def convertRange(self, analogValue):
         #convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)
@@ -160,14 +182,4 @@ class Motion():
             value = upperLimit
         elif value < lowerLimit:
             value = lowerLimit
-
         return value 
-
-    def _motorLStop(self):
-        self.mLeftForward.ChangeDutyCycle(0)
-        self.mLeftBackward.ChangeDutyCycle(0)
-
-    def _motorRStop(self):
-        self.mRightForward.ChangeDutyCycle(0)
-        self.mRightBackward.ChangeDutyCycle(0)   
-

@@ -11,19 +11,23 @@
 *************************************************
 """
 
-#Define output from motors A & B
-MA_FORWARD_GPIO = 24 #RIGHT SIDE
-MA_BACKWARD_GPIO = 17 
-MB_FORWARD_GPIO = 22 #LEFT SIDE
-MB_BACKWARD_GPIO = 27 
+#Define output for motors A & B
+MA_PWM_GPIO = 17 #Motor A PWM
+MB_PWM_GPIO = 27 #Motor B PWM
 
-#PWM frequency (10ms = 100Hz)
-PWM_FREQ = 100
+MA_CLOCKWISE_GPIO = 5
+MA_ANTICLOCKWISE_GPIO = 6 
+
+MB_CLOCKWISE_GPIO = 20
+MB_ANTICLOCKWISE_GPIO = 21
+
+#PWM frequency (20ms = 50)
+PWM_FREQ = 50
 
 #PWM Constrains
 PWM_MAX = 100.0
 PWM_MIN = 0.0
-COMPENSATION = 12.0 #15.0 # min value to pwm move the motors
+COMPENSATION = 12.0 #min value to pwm move the motors
 
 #PID
 WINDUP_GUARD = 100.0

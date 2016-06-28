@@ -59,10 +59,10 @@ def Manager():
         balance.start()
 
         #Computer Vision thread
-        tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
-        tracking.daemon = True
-        threads.append(tracking)
-        tracking.start()
+        #tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
+        #tracking.daemon = True
+        #threads.append(tracking)
+        #tracking.start()
 
         #Pan-Tilt thread
         panTilt = PanTiltThread(name=PAN_TILT_NAME, debug=True)
