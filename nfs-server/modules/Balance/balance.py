@@ -32,12 +32,17 @@ class BalanceThread(threading.Thread):
         
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.05
+        self._sleepPeriod = 0.02
 
         #Create objects
         self.clientUDP = clientUDP
         self.imu = GY80_IMU(debug=False)
-        self.motion = Motion(debug=True)
+        self.motion = Motion(debug=False)
+
+        #PID Parameters
+        self.Kp = 5.1 #5.1
+        self.Ki = 0.2 #0.2
+        self.Kd = 0.1 #0.1
 
         logging.info("Balance Thread initialized")      
 
@@ -67,8 +72,7 @@ class BalanceThread(threading.Thread):
             # Motion
             #
             if (self.imu.CFanglePitch < 60.0) and (self.imu.CFanglePitch > -50.0):
-                #pitchPID = self.motion.PID(setPoint=10.0, newValue=self.imu.CFanglePitch, Kp=5.0, Ki=0.1, Kd=0.1)
-
+                pitchPID = self.motion.PID(setPoint=10.0, newValue=self.imu.CFanglePitch, Kp=self.Kp, Ki=self.Ki, Kd=self.Kd)
                 #Get event for motion, ignore if empty queue
                 event = self.getEvent()
                 if event != None:
@@ -77,8 +81,8 @@ class BalanceThread(threading.Thread):
                     if event[1] != None:
                         turnSpeed = self.motion.convertRange(event[1])
 
-                speedL = pitchPID + runSpeed - turnSpeed
-                speedR = pitchPID + runSpeed + turnSpeed 
+                speedL = pitchPID + runSpeed/4 - turnSpeed/4
+                speedR = pitchPID + runSpeed/4 + turnSpeed/4 
                 self.motion.motorMove(speedL, speedR)
             else:
                 self.motion.motorStop()
@@ -89,10 +93,15 @@ class BalanceThread(threading.Thread):
                       str(self.imu.CFangleRoll) + "," + \
                       str(self.imu.CFanglePitch) + "," + \
                       str(self.imu.CFangleYaw) + "," + \
-                      str(pitchPID) + "#"
+                      str(round(pitchPID,2)) + "," + \
+                      str(round(runSpeed,2)) + "," + \
+                      str(round(turnSpeed,2)) + "," + \
+                      str(round(speedL,2)) + "," + \
+                      str(round(speedR,2)) + "#"
        
             # Sending UDP packets...
-            self.clientUDP.putMessage(UDP_MSG) 
+            if (self.clientUDP != None):
+                self.clientUDP.putMessage(UDP_MSG) 
         
             lastTime = currentTime
             self._lock.release()

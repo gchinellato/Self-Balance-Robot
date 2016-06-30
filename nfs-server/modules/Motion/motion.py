@@ -69,8 +69,7 @@ class Motion():
 
         #Calculate delta error
         de = error - self.lastError
- 
-        #Calculate PID terms
+
         #Proportional Term          
         self.Cp = error
       
@@ -96,8 +95,8 @@ class Motion():
         #Sum terms
         output = (self.Cp * Kp) + (self.Ci * Ki) + (self.Cd * Kd)
 
-        #if (self.debug):
-            #logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
+        if (self.debug):
+            logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
 
         return output
 
@@ -132,7 +131,7 @@ class Motion():
             self._motorB() 
 
         if (self.debug):
-            logging.debug(("Motor speed: A: %0.2f, B: %0.2f" % (speedA, speedB)))
+            #logging.debug(("Motor speed: A: %0.2f, B: %0.2f" % (speedA, speedB)))
             logging.debug(("Motor speed [LIMITED]: A: %0.2f, B: %0.2f" % (limitedSpeedA, limitedSpeedB)))
 
     def motorShutDown(self):

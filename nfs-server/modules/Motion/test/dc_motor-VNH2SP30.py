@@ -3,8 +3,8 @@
 import RPi.GPIO as GPIO
 import time
 
-MA_PWM_GPIO = 17 #Motor A PWM
-MB_PWM_GPIO = 27 #Motor B PWM
+MA_PWM_GPIO = 19 #Motor A PWM
+MB_PWM_GPIO = 26 #Motor B PWM
 
 MA_CLOCKWISE_GPIO = 5
 MA_ANTICLOCKWISE_GPIO = 6 

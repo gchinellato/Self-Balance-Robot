@@ -45,7 +45,7 @@ class ComputerVisionThread(threading.Thread):
     #Override method
     def run(self):
         #define the lower and upper boundaries in the HSV color space
-        lower, upper = findHSVfromRGB(0,255,0)
+        lower, upper = self.findHSVfromRGB(0,0,255)
 
         camera = picamera.PiCamera()
         camera.resolution = (self.width, self.height)
@@ -74,7 +74,7 @@ class ComputerVisionThread(threading.Thread):
                         #blurred = cv2.GaussianBlur(frame, (11, 11), 0)
                         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-                        # construct a mask for the color "green", then perform a series of dilations and erosions to remove any small blobs left in the mask
+                        # construct a mask for the color, then perform a series of dilations and erosions to remove any small blobs left in the mask
                         mask = cv2.inRange(hsv, lower, upper)
                         #mask = cv2.erode(mask, None, iterations=2)
                         #mask = cv2.dilate(mask, None, iterations=2)
@@ -110,11 +110,11 @@ class ComputerVisionThread(threading.Thread):
                                     logging.debug(("Distance to center X: " + str(dWidth) + ", Y: " + str(dHeight)))
                                     logging.debug(("Radius: " + str(radius)))
 
-                                self.putEvent(self.name, (dWidth, dHeight), radius)
+                                self.putEvent(self.name, (dWidth, dHeight, radius))
 
                         #show the frame
-                        #cv2.imshow("Frame", frame)
-                        #cv2.waitKey(10) & 0xFF
+                        cv2.imshow("Frame", frame)
+                        cv2.waitKey(10) & 0xFF
                         #logging.debug("reading frames")                 
                     #clear the stream in preparation for the next frame
                     rawCapture.truncate(0)
@@ -140,7 +140,7 @@ class ComputerVisionThread(threading.Thread):
         if not self._workQueue.full():     
             self._workQueue.put((name, event))
 
-    def findHSVfromRGB(R, G, B):
+    def findHSVfromRGB(self, R, G, B):
         bgrColor = np.uint8([[[B,G,R]]])
         hsvColor = cv2.cvtColor(bgrColor,cv2.COLOR_BGR2HSV)
         upper = (hsvColor[0][0][0]+10, 255, 255)

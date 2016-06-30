@@ -9,6 +9,7 @@
 *************************************************
 """
 
+from Comm.UDP.UDP_Server import UDP_ServerThread
 from Comm.UDP.UDP_Client import UDP_ClientThread
 from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
 from Balance.balance import BalanceThread
@@ -24,6 +25,7 @@ import multiprocessing
 import pygame
 
 CLIENT_UDP_NAME = "Client-UDP-Thread"
+SERVER_UDP_NAME = "Server-UDP-Thread"
 BALANCE_NAME = "Balance-Thread"
 PAN_TILT_NAME = "PanTilt-Thread"
 PS3_CTRL_NAME = "PS3-Controller-Thread"
@@ -34,7 +36,7 @@ def Manager():
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
         eventQueue = Queue.Queue()
-        balanceQueue = Queue.Queue(16)
+        balanceQueue = Queue.Queue()
         panTiltQueue = Queue.Queue()
 
         logging.info("Starting threads and process...")
@@ -45,6 +47,12 @@ def Manager():
         clientUDP.daemon = True
         threads.append(clientUDP)
         clientUDP.start()
+
+        #UDP Server thread
+        serverUDP = UDP_ServerThread(name=SERVER_UDP_NAME, queue=eventQueue, debug=False, UDP_IP="", UDP_PORT=5001)
+        serverUDP.daemon = True
+        threads.append(serverUDP)
+        serverUDP.start()
 
         #Joystick thread
         joy = PS3_ControllerThread(name=PS3_CTRL_NAME, queue=eventQueue, debug=False)
@@ -59,13 +67,13 @@ def Manager():
         balance.start()
 
         #Computer Vision thread
-        #tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=False)
+        #tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=True)
         #tracking.daemon = True
         #threads.append(tracking)
         #tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, debug=True)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=False)
         panTilt.daemon = True
         threads.append(panTilt)
         panTilt.start()      
@@ -82,7 +90,7 @@ def Manager():
 
                 #Calculate time since the last time it was called
                 #logging.debug("Duration: " + str(currentTime - lastTime))
- 
+
                 event = eventQueue.get(timeout=2) 
                 if event != None: 
                     if event[0] == PS3_CTRL_NAME and joy.joyStatus != None:
@@ -108,18 +116,23 @@ def Manager():
                             if event[1].button == joy.B_SQR:
                                 logging.debug("Button Square")
                     #IP controller
-                    #elif event[0] == SERVER_UDP_NAME:                
+                    elif event[0] == SERVER_UDP_NAME:
+                        logging.debug(event[1])
+                        if event[1][1] == "PID": 
+                            balance.Kp = float(event[1][2])
+                            balance.Ki = float(event[1][3])
+                            balance.Kd = float(event[1][4])
+                            logging.debug(("PID: Kp: " + str(balance.Kp)))
+                            logging.debug(("PID: Ki: " + str(balance.Ki)))
+                            logging.debug(("PID: Kd: " + str(balance.Kd)))
+                
                     #OpenCV controller            
                     elif event[0] == TRACKING_NAME:                        
                         tracking.block.set() 
 
                         #Delta measure from object up to center of the vision
-                        dWidth, dHeight = event[1]   
-                        logging.debug(("Distance to center X: {0}, Y: {1}".format(dWidth, dHeight)))  
-
-                        #Radius from object
-                        radius = event[2]   
-                        logging.debug(("Distance to center X: {0}, Y: {1}".format(dWidth, dHeight)))  
+                        dWidth, dHeight, radius = event[1]   
+                        logging.debug(("Distance to center X: {0}, Y: {1}, Radius:{2}".format(dWidth, dHeight, radius)))  
 
                         #Get current head angles
                         angleV, angleH = panTilt.getScaledAngles() 
