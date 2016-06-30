@@ -16,7 +16,7 @@ import logging
 from Utils.traces.trace import *
 
 class UDP_ServerThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False, UDP_IP="", UDP_PORT=5000):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False, UDP_IP="", UDP_PORT=5001):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
@@ -51,12 +51,12 @@ class UDP_ServerThread(threading.Thread):
 
                 currentTime = time.time()
                 #Calculate time since the last time it was called
-                if (self.debug):
-                    logging.debug("Duration: " + str(currentTime - lastTime))
+                #if (self.debug):
+                #    logging.debug("Duration: " + str(currentTime - lastTime))
 
                 strData, addr = self.sock.recvfrom(128)     
                 data = self.parseData(strData) 
-                self.putMessage(data)
+                self.putMessage(self.name, data)
             except Queue.Full:
                 logging.warning("Queue Full")
                 pass 
@@ -76,10 +76,10 @@ class UDP_ServerThread(threading.Thread):
     def getMessage(self, timeout=2):
         return self._workQueue.get(timeout=timeout)
 
-    def putMessage(self, msg):
+    def putMessage(self, name, msg):
         #Bypass if full, to not block the current thread
         if not self._workQueue.full():       
-            self._workQueue.put(msg)
+            self._workQueue.put((name, msg))
 
     def parseData(self, strData):
         #Check if message is completed    

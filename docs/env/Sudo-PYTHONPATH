@@ -1,0 +1,11 @@
+PYTHONPATH for sudo user
+
+> sudo nano ~/.bashrc
+
+#PYTHONPATH
+export PYTHONPATH=$PYTHONPATH:/mnt/nfs/modules/
+
+> sudo nano /etc/sudoers
+Defaults        env_reset
+Defaults        env_keep += "PYTHONPATH"
+

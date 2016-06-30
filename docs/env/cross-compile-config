@@ -1,0 +1,36 @@
+Cross Compilation Configuration
+
+Download the raspberry's toolchain and export to PATH variable
+	sudo apt-get install build-essential git
+	mkdir raspberrypi
+	cd raspberrypi
+	git clone git://github.com/raspberrypi/tools.git
+	cd ~/raspberrypi/tools/arm-bcm2708
+		gcc-linaro-arm-linux-gnueabihf-raspbian
+		gcc-linaro-arm-linux-gnueabihf-raspbian-x64
+	cd ~/
+	nano .bashrc
+		export PATH=$PATH:$HOME/raspberrypi/toolchain/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/bin
+	source .bashrc
+
+Testing
+	- arm-linux-gnueabihf-gcc -v
+
+	- Create a sample file main.c:
+		#include <stdio.h>
+		int main()
+		{
+			printf("Hello embedded world!\n");
+			return 0;
+		}
+	- arm-linux-gnueabihf-gcc main.c -o main
+	- file main
+		main: ELF 32-bit LSB  executable, ARM, EABI5 version 1 (SYSV), dynamically linked (uses shared libs), for GNU/Linux 2.6.26, BuildID[sha1]=ea1fc3c515ec7ceeb539f7429c429ba90199097e, not stripped
+
+References:
+http://www.hertaville.com/development-environment-raspberry-pi-cross-compiler.html
+
+
+
+
+
