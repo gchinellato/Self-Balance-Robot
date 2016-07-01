@@ -16,13 +16,13 @@ from constants import *
 from Utils.traces.trace import *
 
 class GY80_IMU():
-    def __init__(self, debug=False, magCal=False):
+    def __init__(self, debug=0, magCal=False):
         self.debug = debug
 
         #Enable Accelerometer, Gyro and Mag
-        self.accel = GY80_Accelerometer_ADXL345()
-        self.gyro = GY80_Gyro_L3G42000D()
-        self.mag = GY80_Magnetometer_HMC5883L(cal=magCal)
+        self.accel = GY80_Accelerometer_ADXL345(debug=debug)
+        self.gyro = GY80_Gyro_L3G42000D(debug=debug)
+        self.mag = GY80_Magnetometer_HMC5883L(debug=debug, cal=magCal)
 
         #Complementary filter angles
         self.CFangleRoll = 0.0
@@ -96,7 +96,7 @@ class GY80_IMU():
         self.CFanglePitch = round(self.CFanglePitch, 2)
         self.CFangleYaw = round(self.CFangleYaw, 2)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU):
             logging.debug(("Filter: Roll(x): %0.2f, Pitch(y): %0.2f, Yaw(z): %0.2f" % (self.CFangleRoll, self.CFanglePitch, self.CFangleYaw)))   
  
     def quaternion(self):

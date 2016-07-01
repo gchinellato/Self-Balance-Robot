@@ -33,6 +33,9 @@ TRACKING_NAME = "Tracking-Process"
 
 def Manager():
     try:
+        #Set debug module level
+        debug = MODULE_MANAGER | MODULE_BALANCE | MODULE_MOTION | MODULE_IMU
+        
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
         eventQueue = Queue.Queue()
@@ -43,37 +46,37 @@ def Manager():
         threads = []        
 
         #UDP Client thread
-        clientUDP = UDP_ClientThread(name=CLIENT_UDP_NAME, queue=clientUDPQueue, debug=False, UDP_IP="192.168.1.35", UDP_PORT=5000)
+        clientUDP = UDP_ClientThread(name=CLIENT_UDP_NAME, queue=clientUDPQueue, debug=debug, UDP_IP="192.168.1.35", UDP_PORT=5000)
         clientUDP.daemon = True
         threads.append(clientUDP)
         clientUDP.start()
 
         #UDP Server thread
-        serverUDP = UDP_ServerThread(name=SERVER_UDP_NAME, queue=eventQueue, debug=False, UDP_IP="", UDP_PORT=5001)
+        serverUDP = UDP_ServerThread(name=SERVER_UDP_NAME, queue=eventQueue, debug=debug, UDP_IP="", UDP_PORT=5001)
         serverUDP.daemon = True
         threads.append(serverUDP)
         serverUDP.start()
 
         #Joystick thread
-        joy = PS3_ControllerThread(name=PS3_CTRL_NAME, queue=eventQueue, debug=False)
+        joy = PS3_ControllerThread(name=PS3_CTRL_NAME, queue=eventQueue, debug=debug)
         joy.daemon = True
         threads.append(joy)
         joy.start()
 
         #Balance thread
-        balance = BalanceThread(name=BALANCE_NAME, queue=balanceQueue, debug=False, clientUDP=clientUDP)
+        balance = BalanceThread(name=BALANCE_NAME, queue=balanceQueue, debug=debug, callbackUDP=clientUDP.putMessage)
         balance.daemon = True
         threads.append(balance)
         balance.start()
 
         #Computer Vision thread
-        #tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=True)
-        #tracking.daemon = True
-        #threads.append(tracking)
-        #tracking.start()
+        tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=debug)
+        tracking.daemon = True
+        threads.append(tracking)
+        tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=False)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug)
         panTilt.daemon = True
         threads.append(panTilt)
         panTilt.start()      
@@ -89,7 +92,8 @@ def Manager():
                 currentTime = time.time()
 
                 #Calculate time since the last time it was called
-                #logging.debug("Duration: " + str(currentTime - lastTime))
+                #if (debug & MODULE_MANAGER):
+                    #logging.debug("Duration: " + str(currentTime - lastTime))
 
                 event = eventQueue.get(timeout=2) 
                 if event != None: 
@@ -114,7 +118,7 @@ def Manager():
                         
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                             if event[1].button == joy.B_SQR:
-                                logging.debug("Button Square")
+                                logging.info("Button Square")
                     #IP controller
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
@@ -122,9 +126,10 @@ def Manager():
                             balance.Kp = float(event[1][2])
                             balance.Ki = float(event[1][3])
                             balance.Kd = float(event[1][4])
-                            logging.debug(("PID: Kp: " + str(balance.Kp)))
-                            logging.debug(("PID: Ki: " + str(balance.Ki)))
-                            logging.debug(("PID: Kd: " + str(balance.Kd)))
+                            logging.info("PID Paremeters updated:")
+                            logging.info(("PID: Kp: " + str(balance.Kp)))
+                            logging.info(("PID: Ki: " + str(balance.Ki)))
+                            logging.info(("PID: Kd: " + str(balance.Kd)))
                 
                     #OpenCV controller            
                     elif event[0] == TRACKING_NAME:                        
@@ -132,11 +137,13 @@ def Manager():
 
                         #Delta measure from object up to center of the vision
                         dWidth, dHeight, radius = event[1]   
-                        logging.debug(("Distance to center X: {0}, Y: {1}, Radius:{2}".format(dWidth, dHeight, radius)))  
 
                         #Get current head angles
                         angleV, angleH = panTilt.getScaledAngles() 
-                        logging.debug("Angles current: " + str((angleV, angleH)))
+
+                        if (debug & MODULE_MANAGER):    
+                            logging.debug(("Distance to center X: {0}, Y: {1}, Radius:{2}".format(dWidth, dHeight, radius))) 
+                            logging.debug("Angles current: " + str((angleV, angleH)))
 
                         #Head Vertical
                         if dHeight < -100 or dHeight > 100:
@@ -167,7 +174,8 @@ def Manager():
                         tracking.block.clear()
               
             except Queue.Empty:
-                #logging.debug("Queue Empty")
+                #if (debug & MODULE_MANAGER):
+                    #logging.debug("Queue Empty")
                 pass
             finally:
                 lastTime = currentTime

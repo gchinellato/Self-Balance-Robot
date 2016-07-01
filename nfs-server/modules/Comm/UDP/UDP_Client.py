@@ -16,7 +16,7 @@ import Queue
 from Utils.traces.trace import *
 
 class UDP_ClientThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False, UDP_IP="192.168.1.35", UDP_PORT=5000):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0, UDP_IP="192.168.1.35", UDP_PORT=5000):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
@@ -50,18 +50,19 @@ class UDP_ClientThread(threading.Thread):
                 currentTime = time.time()
 
                 #Calculate time since the last time it was called
-                if (self.debug):
-                    logging.debug("Duration: " + str(currentTime - lastTime))
+                #if (self.debug & MODULE_CLIENT_UDP):
+                #    logging.debug("Duration: " + str(currentTime - lastTime))
 
                 UDP_MSG = self.getMessage() 
                 if UDP_MSG != None:           
                     self.sock.sendto(UDP_MSG, (self.UDP_IP, self.UDP_PORT))
 
-                    if (self.debug):
+                    if (self.debug & MODULE_CLIENT_UDP):
                         logging.debug(UDP_MSG) 
 
             except Queue.Empty:
-                logging.warning("Queue Empty")
+                if (self.debug & MODULE_CLIENT_UDP):
+                    logging.debug("Queue Empty")
                 pass  
 
             finally:

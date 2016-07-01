@@ -48,7 +48,7 @@ class mainWindow(QtGui.QMainWindow):
         self.ui.pushButton_clientEnable.clicked.connect(self.pushButton_clientEnable_onClicked) 
         self.ui.pushButton_sendPID.clicked.connect(self.pushButton_sendPID_onClicked) 
         self.ui.pushButton_sendPID_Zero.clicked.connect(self.pushButton_sendPID_Zero_onClicked) 
-        self.ui.pushButton_killUDP.clicked.connect(self.pushButton_killUDP_onClicked) 
+        self.ui.pushButton_restartUDP.clicked.connect(self.pushButton_RestartUDP_onClicked) 
         
         self.threads = [] 
         
@@ -75,9 +75,9 @@ class mainWindow(QtGui.QMainWindow):
         self.clientUDP.start()
         
     def pushButton_sendPID_onClicked(self): 
-        Kp = self.ui.doubleSpinBox_Kp.value()
-        Ki = self.ui.doubleSpinBox_Ki.value()
-        Kd = self.ui.doubleSpinBox_Kd.value()
+        Kp = self.ui.doubleSpinBox_KpAngle.value()
+        Ki = self.ui.doubleSpinBox_KiAngle.value()
+        Kd = self.ui.doubleSpinBox_KdAngle.value()
         msg = str(datetime.datetime.now()) + "," + \
                   "PID" + "," + \
                   str(Kp) + "," + \
@@ -85,7 +85,7 @@ class mainWindow(QtGui.QMainWindow):
                   str(Kd) + "#"
         self.clientUDP.putMessage(msg)
         
-    def pushButton_killUDP_onClicked(self): 
+    def pushButton_RestartUDP_onClicked(self): 
         print "TO DO"
         
     def pushButton_sendPID_Zero_onClicked(self): 

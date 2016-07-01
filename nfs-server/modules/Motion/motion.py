@@ -17,7 +17,7 @@ from constants import *
 from Utils.traces.trace import *
 
 class Motion():
-    def __init__(self, debug=False):
+    def __init__(self, debug=0):
         self.debug = debug
 
         #PID parameters
@@ -95,7 +95,7 @@ class Motion():
         #Sum terms
         output = (self.Cp * Kp) + (self.Ci * Ki) + (self.Cd * Kd)
 
-        if (self.debug):
+        if (self.debug & MODULE_MOTION): 
             logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
 
         return output
@@ -130,7 +130,7 @@ class Motion():
         else:
             self._motorB() 
 
-        if (self.debug):
+        if (self.debug & MODULE_MOTION):
             #logging.debug(("Motor speed: A: %0.2f, B: %0.2f" % (speedA, speedB)))
             logging.debug(("Motor speed [LIMITED]: A: %0.2f, B: %0.2f" % (limitedSpeedA, limitedSpeedB)))
 

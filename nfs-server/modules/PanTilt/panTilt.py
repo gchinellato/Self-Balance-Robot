@@ -16,7 +16,7 @@ from constants import *
 from Utils.traces.trace import *
 
 class PanTiltThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
@@ -74,7 +74,7 @@ class PanTiltThread(threading.Thread):
                         self.scaledAngleV = self.convertTo(pwmVertical, VERTICAL_MAX, VERTICAL_MIN, ANGLE_MAX, ANGLE_MIN)                           
                         self._changeV(pwmVertical)
 
-                        if (self.debug):
+                        if (self.debug & MODULE_PANTILT):
                             logging.debug("PWM Vertical: " + str(pwmVertical) + "%")
                             logging.debug("Angle Vertical: " + str(self.angleV) + "deg")
                             logging.debug("Angle Scaled Vertical: " + str(self.scaledAngleV) + "deg")
@@ -85,13 +85,13 @@ class PanTiltThread(threading.Thread):
                         self.scaledAngleH = self.convertTo(pwmHorizontal, HORIZONTAL_MAX, HORIZONTAL_MIN, ANGLE_MAX, ANGLE_MIN)                                           
                         self._changeH(pwmHorizontal)
 
-                        if (self.debug):
+                        if (self.debug & MODULE_PANTILT):
                             logging.debug("PWM Horizontal: " + str(pwmHorizontal) + "%")
                             logging.debug("Angle Horizontal: " + str(self.angleH) + "deg")
                             logging.debug("Angle Scaled Horizontal: " + str(self.scaledAngleH) + "deg")
         
             except Queue.Empty:
-                if (self.debug):
+                if (self.debug & MODULE_PANTILT):
                     logging.debug("Queue Empty")
                 pass
             finally:

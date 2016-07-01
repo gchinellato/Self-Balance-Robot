@@ -57,7 +57,7 @@ class PS3_ControllerThread(threading.Thread):
     B_SQR = 15
     B_PS = 16
 
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=False):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
@@ -93,8 +93,8 @@ class PS3_ControllerThread(threading.Thread):
                 currentTime = time.time()
 
                 #Calculate time since the last time it was called
-                if (self.debug):
-                    logging.debug("Duration: " + str(currentTime - lastTime))
+                #if (self.debug & MODULE_BLUETOOTH):
+                #    logging.debug("Duration: " + str(currentTime - lastTime))
 
                 if self.joyStatus != None:                
                     # Check for any queued events and then processes each one 
@@ -114,7 +114,8 @@ class PS3_ControllerThread(threading.Thread):
                     time.sleep(5)
                     self.initJoy()
             except Queue.Full:
-                logging.warning("Queue Full")
+                if (self.debug & MODULE_BLUETOOTH):
+                    logging.debug("Queue Full")
                 pass
             finally:
                 lastTime = currentTime

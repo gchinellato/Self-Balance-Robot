@@ -17,7 +17,7 @@ import time
 from Utils.traces.trace import *
 
 class GY80_Gyro_L3G42000D():
-    def __init__(self, busnum=-1, debug=False):
+    def __init__(self, busnum=-1, debug=0):
         self.i2c = Adafruit_I2C(L3G42000D_ADDRESS, busnum, debug)
         self.debug = debug
 
@@ -57,7 +57,7 @@ class GY80_Gyro_L3G42000D():
         z = self.getSignedNumber(z)
         rawGyro.append(z)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_GYRO):
             logging.debug(("Gyro Raw: x:%d, y:%d, z:%d" % (rawGyro[X], rawGyro[Y], rawGyro[Z])))
 
         return rawGyro
@@ -69,7 +69,7 @@ class GY80_Gyro_L3G42000D():
         rateGyro[Y] = rawGyro[Y] * GYRO_SENSITIVITY
         rateGyro[Z] = rawGyro[Z] * GYRO_SENSITIVITY
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_GYRO):
             logging.debug(("Gyro Rate: x:%d, y:%d, z:%d (deg/s)" % (rateGyro[X], rateGyro[Y], rateGyro[Z])))
 
         self.rateGyro = rateGyro
@@ -81,7 +81,7 @@ class GY80_Gyro_L3G42000D():
         angleGyro[Y] += rateGyro[Y] * DT
         angleGyro[Z] += rateGyro[Z] * DT  
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_GYRO):
             logging.debug(("Gyro Angle: x:%0.2f, y:%0.2f, z:%0.2f" % (angleGyro[X], angleGyro[Y], angleGyro[Z])))
 
         return angleGyro      

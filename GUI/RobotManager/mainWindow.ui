@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>359</height>
+    <width>429</width>
+    <height>445</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -109,7 +109,7 @@
      <rect>
       <x>10</x>
       <y>130</y>
-      <width>121</width>
+      <width>251</width>
       <height>141</height>
      </rect>
     </property>
@@ -123,9 +123,9 @@
      <bool>true</bool>
     </property>
     <property name="title">
-     <string>PID parameters</string>
+     <string>PID - Angle and Speed Parameters</string>
     </property>
-    <widget class="QLabel" name="label_Kp">
+    <widget class="QLabel" name="label_KpAngle">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -138,7 +138,7 @@
       <string>Kp:</string>
      </property>
     </widget>
-    <widget class="QLabel" name="label_Ki">
+    <widget class="QLabel" name="label_KiAngle">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -151,10 +151,10 @@
       <string>Ki:</string>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox_Kp">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KpAngle">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>40</x>
        <y>20</y>
        <width>62</width>
        <height>27</height>
@@ -167,10 +167,10 @@
       <double>0.100000000000000</double>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox_Ki">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KiAngle">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>40</x>
        <y>50</y>
        <width>62</width>
        <height>27</height>
@@ -183,7 +183,7 @@
       <double>0.100000000000000</double>
      </property>
     </widget>
-    <widget class="QLabel" name="label_Kd">
+    <widget class="QLabel" name="label_KdAngle">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -196,10 +196,10 @@
       <string>Kd:</string>
      </property>
     </widget>
-    <widget class="QDoubleSpinBox" name="doubleSpinBox_Kd">
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KdAngle">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>40</x>
        <y>80</y>
        <width>62</width>
        <height>27</height>
@@ -215,7 +215,7 @@
     <widget class="QPushButton" name="pushButton_sendPID">
      <property name="geometry">
       <rect>
-       <x>0</x>
+       <x>120</x>
        <y>110</y>
        <width>101</width>
        <height>23</height>
@@ -225,12 +225,112 @@
       <string>Send...</string>
      </property>
     </widget>
+    <widget class="QLabel" name="label_KiSpeed">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>60</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Ki:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_KpSpeed">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>30</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Kp:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KiSpeed">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>50</y>
+       <width>62</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_KdSpeed">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>90</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Kd:</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KdSpeed">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>80</y>
+       <width>62</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_KpSpeed">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>20</y>
+       <width>62</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="decimals">
+      <number>1</number>
+     </property>
+     <property name="singleStep">
+      <double>0.100000000000000</double>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_sendPID_Zero">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>110</y>
+       <width>101</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Zero</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_Orientation">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>130</y>
+      <x>10</x>
+      <y>280</y>
       <width>121</width>
       <height>121</height>
      </rect>
@@ -320,7 +420,7 @@
    <widget class="QGroupBox" name="groupBox_Motor">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>270</x>
       <y>130</y>
       <width>121</width>
       <height>181</height>
@@ -541,30 +641,20 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton_sendPID_Zero">
+   <widget class="QPushButton" name="pushButton_restartUDP">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>270</y>
-      <width>101</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Zero</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_killUDP">
-    <property name="geometry">
-     <rect>
-      <x>140</x>
-      <y>270</y>
+      <x>280</x>
+      <y>360</y>
       <width>111</width>
       <height>23</height>
      </rect>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::PreventContextMenu</enum>
+    </property>
     <property name="text">
-     <string>Kill UDP...</string>
+     <string>Restart UDP...</string>
     </property>
    </widget>
   </widget>
@@ -573,7 +663,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>428</width>
+     <width>429</width>
      <height>25</height>
     </rect>
    </property>

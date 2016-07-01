@@ -19,7 +19,7 @@ import threading
 import Queue
 
 class BalanceThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(16), debug=False, clientUDP=None):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(16), debug=0, callbackUDP=None):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
@@ -32,12 +32,12 @@ class BalanceThread(threading.Thread):
         
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.02
+        self._sleepPeriod = 0.01
 
         #Create objects
-        self.clientUDP = clientUDP
-        self.imu = GY80_IMU(debug=False)
-        self.motion = Motion(debug=False)
+        self.callbackUDP = callbackUDP
+        self.imu = GY80_IMU(debug=debug)
+        self.motion = Motion(debug=debug)
 
         #PID Parameters
         self.Kp = 5.1 #5.1
@@ -59,7 +59,7 @@ class BalanceThread(threading.Thread):
             currentTime = time.time()
 
             #Calculate time since last time was called
-            #if (self.debug):
+            #if (debug & MODULE_BALANCE):
             #    logging.info("Duration: " + str(currentTime - lastTime))
 
             #
@@ -81,9 +81,9 @@ class BalanceThread(threading.Thread):
                     if event[1] != None:
                         turnSpeed = self.motion.convertRange(event[1])
 
-                speedL = pitchPID + runSpeed/4 - turnSpeed/4
-                speedR = pitchPID + runSpeed/4 + turnSpeed/4 
-                self.motion.motorMove(speedL, speedR)
+                speedL = pitchPID + runSpeed - turnSpeed
+                speedR = pitchPID + runSpeed + turnSpeed 
+                #self.motion.motorMove(speedL, speedR)
             else:
                 self.motion.motorStop()
 
@@ -100,8 +100,8 @@ class BalanceThread(threading.Thread):
                       str(round(speedR,2)) + "#"
        
             # Sending UDP packets...
-            if (self.clientUDP != None):
-                self.clientUDP.putMessage(UDP_MSG) 
+            if (self.callbackUDP != None):
+                self.callbackUDP(UDP_MSG) 
         
             lastTime = currentTime
             self._lock.release()
