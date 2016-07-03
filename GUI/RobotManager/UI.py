@@ -14,6 +14,7 @@ from PyQt4 import QtCore, QtGui
 from mainWindow import Ui_MainWindow 
 from Comm.UDP.UDP_Server import UDP_ServerThread
 from Comm.UDP.UDP_Client import UDP_ClientThread
+from Utils.traces.trace import *
 import datetime
 import time
 import Queue
@@ -43,6 +44,8 @@ class mainWindow(QtGui.QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         
+        setVerbosity("debug")
+        
         #Button actions
         self.ui.pushButton_serverEnable.clicked.connect(self.pushButton_serverEnable_onClicked)  
         self.ui.pushButton_clientEnable.clicked.connect(self.pushButton_clientEnable_onClicked) 
@@ -50,11 +53,11 @@ class mainWindow(QtGui.QMainWindow):
         self.ui.pushButton_sendPID_Zero.clicked.connect(self.pushButton_sendPID_Zero_onClicked) 
         self.ui.pushButton_restartUDP.clicked.connect(self.pushButton_RestartUDP_onClicked) 
         
-        self.threads = [] 
-        
-        self.serverUDPQueue = Queue.Queue(4)
-        
+        self.threads = []        
+        self.serverUDPQueue = Queue.Queue(4)        
         self.worker = Worker(self) 
+        self.clientUDP = None
+        self.serverUDP = None
         
     def pushButton_serverEnable_onClicked(self):  
         #Create and start UDP server thread
@@ -78,25 +81,33 @@ class mainWindow(QtGui.QMainWindow):
         Kp = self.ui.doubleSpinBox_KpAngle.value()
         Ki = self.ui.doubleSpinBox_KiAngle.value()
         Kd = self.ui.doubleSpinBox_KdAngle.value()
+        setpoint = self.ui.doubleSpinBox_SetpointAngle.value()
         msg = str(datetime.datetime.now()) + "," + \
                   "PID" + "," + \
                   str(Kp) + "," + \
                   str(Ki) + "," + \
-                  str(Kd) + "#"
+                  str(Kd) + "," + \
+                  str(setpoint) + "#"
         self.clientUDP.putMessage(msg)
         
     def pushButton_RestartUDP_onClicked(self): 
-        print "TO DO"
+        if self.clientUDP != None and self.clientUDP.is_alive():
+            self.clientUDP.join(timeout=1)
+        if self.serverUDP != None and self.serverUDP.is_alive():
+            self.serverUDP.join(timeout=1)
+        print "joined"
         
     def pushButton_sendPID_Zero_onClicked(self): 
         Kp = 0.0
         Ki = 0.0
         Kd = 0.0
+        setpoint = 0.0
         msg = str(datetime.datetime.now()) + "," + \
                   "PID" + "," + \
                   str(Kp) + "," + \
                   str(Ki) + "," + \
-                  str(Kd) + "#"
+                  str(Kd) + "," + \
+                  str(setpoint) + "#"
         self.clientUDP.putMessage(msg)
         
 if __name__ == "__main__":

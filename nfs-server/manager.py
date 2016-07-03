@@ -23,6 +23,7 @@ import RPi.GPIO as GPIO
 import Queue
 import multiprocessing
 import pygame
+import argparse
 
 CLIENT_UDP_NAME = "Client-UDP-Thread"
 SERVER_UDP_NAME = "Server-UDP-Thread"
@@ -31,10 +32,22 @@ PAN_TILT_NAME = "PanTilt-Thread"
 PS3_CTRL_NAME = "PS3-Controller-Thread"
 TRACKING_NAME = "Tracking-Process"
 
-def Manager():
+def argParse():
+    #Construct the argument parse and parse the arguments
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-v", "--verbosity", help="set verbosity level (info, debug, warning, error, critical)")
+    ap.add_argument("-m", "--module", type=int, default=0, help="set modules to print (see trace.py)")
+    return vars(ap.parse_args())
+
+def main(args):
     try:
-        #Set debug module level
-        debug = MODULE_MANAGER | MODULE_BALANCE | MODULE_MOTION | MODULE_IMU
+        #Set verbosity level (info, debug, warning, error, critical)
+        if args.get("verbosity") != None:  
+            setVerbosity(args.get("verbosity"))          
+            logging.info("Verboseity level: " + str(args.get("verbosity")))
+
+        #Set modules to print according verbosity level
+        debug = MODULE_MANAGER | MODULE_BALANCE #| MODULE_MOTION #| MODULE_IMU
         
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
@@ -72,8 +85,8 @@ def Manager():
         #Computer Vision thread
         tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=debug)
         tracking.daemon = True
-        threads.append(tracking)
-        tracking.start()
+        #threads.append(tracking)
+        #tracking.start()
 
         #Pan-Tilt thread
         panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug)
@@ -119,6 +132,7 @@ def Manager():
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                             if event[1].button == joy.B_SQR:
                                 logging.info("Button Square")
+                    
                     #IP controller
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
@@ -126,7 +140,9 @@ def Manager():
                             balance.Kp = float(event[1][2])
                             balance.Ki = float(event[1][3])
                             balance.Kd = float(event[1][4])
+                            balance.setpoint = float(event[1][5])
                             logging.info("PID Paremeters updated:")
+                            logging.info(("PID: Setpoint: " + str(balance.setpoint)))
                             logging.info(("PID: Kp: " + str(balance.Kp)))
                             logging.info(("PID: Ki: " + str(balance.Ki)))
                             logging.info(("PID: Kd: " + str(balance.Kd)))
@@ -188,6 +204,11 @@ def Manager():
             t.join()
         GPIO.cleanup()
         logging.info("GPIO cleanup...")
+        print("Booting down system...")
 
 if __name__ == '__main__':
-    Manager() 
+    print("##### Mr. Robot #####")
+    print("### by gchinellato ###\n")
+    print("Booting up system...")
+    args = argParse()
+    main(args) 

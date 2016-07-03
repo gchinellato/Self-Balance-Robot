@@ -4,8 +4,8 @@
 * @Project: Self Balance  
 * @Platform: Raspberry PI 2 B+                       
 * @Description: Motion 
-                DC Motor with gearbox
-                Motor driver L298N
+                DC Motor with gearbox/encoder
+                Motor driver VNH2SP30
 * @Owner: Guilherme Chinellato 
 * @Email: guilhermechinellato@gmail.com                                                
 *************************************************
@@ -14,6 +14,7 @@
 import RPi.GPIO as GPIO
 import time
 from constants import *
+from Utils.gpio_mapping import *
 from Utils.traces.trace import *
 
 class Motion():
@@ -23,6 +24,8 @@ class Motion():
         #PID parameters
         self.lastTime = 0
         self.lastError = 0
+        self.wheelPosition = 0
+        self.lastWheelPosition = 0
         self.Cp = 0
         self.Ci = 0
         self.Cd = 0
@@ -51,6 +54,20 @@ class Motion():
         #Start PWM (stopped)
         self._maPWM.start(0)
         self._mbPWM.start(0)
+
+        #Set GIPO as input
+        GPIO.setup(MA_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+        GPIO.setup(MA_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.setup(MB_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+        GPIO.setup(MB_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+
+        #Set GPIO as interrupt inputs with callback functions
+        GPIO.add_event_detect(MA_ENCODER_1, GPIO.FALLING, callback=self._encoderA)
+        GPIO.add_event_detect(MB_ENCODER_1, GPIO.FALLING, callback=self._encoderB)
+
+        #Initialize encoders count
+        self.countEncoderA = 0
+        self.countEncoderB = 0
 
         logging.info("Motion module initialized") 
 
@@ -163,6 +180,29 @@ class Motion():
             GPIO.output(MB_CLOCKWISE_GPIO, False)
             GPIO.output(MB_ANTICLOCKWISE_GPIO, False)        
         self._mbPWM.ChangeDutyCycle(pwm)
+
+    def _encoderA(self):  
+        #when the callback is called due interrup on MA_ENCODER_1 and MA_ENCODER_2 is true, then is clockwise, if not counter clockwise
+        logging.debug("Interrupcao")
+        if (GPIO.input(MA_ENCODER_2 == True)):
+            self.countEncoderA += 1
+        else:
+            self.countEncoderA -= 1
+
+    def _encoderB(self):  
+        if (GPIO.input(MB_ENCODER_2 == True)):
+            self.countEncoderB += 1
+        else:
+            self.countEncoderB -= 1
+
+    def readEncoderA(self):
+        return self.countEncoderA
+
+    def readEncoderB(self):
+        return self.countEncoderB
+
+    def getWheelsPosition(self):
+        return (self.countEncoderA + self.countEncoderB) / 2
 
     def convertRange(self, analogValue):
         #convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)

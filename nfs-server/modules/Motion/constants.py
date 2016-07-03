@@ -11,19 +11,6 @@
 *************************************************
 """
 
-#Define output for motors A & B
-MA_PWM_GPIO = 19 #Motor A PWM
-MB_PWM_GPIO = 26 #Motor B PWM
-
-MA_CLOCKWISE_GPIO = 5
-MA_ANTICLOCKWISE_GPIO = 6 
-
-MB_CLOCKWISE_GPIO = 20
-MB_ANTICLOCKWISE_GPIO = 21
-
-#PWM frequency (20ms = 50)
-PWM_FREQ = 50
-
 #PWM Constrains
 PWM_MAX = 100.0
 PWM_MIN = 0.0

@@ -13,6 +13,7 @@ import time
 import threading
 import Queue
 from constants import *
+from Utils.gpio_mapping import *
 from Utils.traces.trace import *
 
 class PanTiltThread(threading.Thread):

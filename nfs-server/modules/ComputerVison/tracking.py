@@ -18,6 +18,7 @@ import time
 import threading
 import multiprocessing
 import Queue
+import urllib
 from Utils.traces.trace import *
 
 class ComputerVisionThread(threading.Thread):

@@ -40,9 +40,10 @@ class BalanceThread(threading.Thread):
         self.motion = Motion(debug=debug)
 
         #PID Parameters
-        self.Kp = 5.1 #5.1
-        self.Ki = 0.2 #0.2
-        self.Kd = 0.1 #0.1
+        self.setpoint = 10.0
+        self.Kp = 5.1
+        self.Ki = 0.2
+        self.Kd = 0.1
 
         logging.info("Balance Thread initialized")      
 
@@ -71,9 +72,8 @@ class BalanceThread(threading.Thread):
             #
             # Motion
             #
-            if (self.imu.CFanglePitch < 60.0) and (self.imu.CFanglePitch > -50.0):
-                pitchPID = self.motion.PID(setPoint=10.0, newValue=self.imu.CFanglePitch, Kp=self.Kp, Ki=self.Ki, Kd=self.Kd)
-                #Get event for motion, ignore if empty queue
+            if (self.imu.CFanglePitch < 45.0) and (self.imu.CFanglePitch > -35.0):
+                #Get event for motion, ignore if empty queue                
                 event = self.getEvent()
                 if event != None:
                     if event[0] != None:                        
@@ -81,9 +81,13 @@ class BalanceThread(threading.Thread):
                     if event[1] != None:
                         turnSpeed = self.motion.convertRange(event[1])
 
-                speedL = pitchPID + runSpeed - turnSpeed
-                speedR = pitchPID + runSpeed + turnSpeed 
-                #self.motion.motorMove(speedL, speedR)
+                pitchPID = self.motion.PID(setPoint=self.setpoint, newValue=self.imu.CFanglePitch, Kp=self.Kp, Ki=self.Ki, Kd=self.Kd)
+                #setAngle = self.motion.PID(setPoint=, newValue=runSpeed, Kp=self.Kp, Ki=self.Ki, Kd=self.Kd)
+                #pitchPID = self.motion.PID(setPoint=setAngle, newValue=self.imu.CFanglePitch, Kp=self.Kp, Ki=self.Ki, Kd=self.Kd)
+
+                speedL = pitchPID + runSpeed - turnSpeed/8
+                speedR = pitchPID + runSpeed + turnSpeed/8 
+                self.motion.motorMove(speedL, speedR)
             else:
                 self.motion.motorStop()
 
@@ -98,7 +102,7 @@ class BalanceThread(threading.Thread):
                       str(round(turnSpeed,2)) + "," + \
                       str(round(speedL,2)) + "," + \
                       str(round(speedR,2)) + "#"
-       
+                   
             # Sending UDP packets...
             if (self.callbackUDP != None):
                 self.callbackUDP(UDP_MSG) 

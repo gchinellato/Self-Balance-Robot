@@ -73,6 +73,7 @@ class UDP_ClientThread(threading.Thread):
     def join(self, timeout=None):
         #Stop the thread and wait for it to end        
         self._stopEvent.set()
+        self.sock.close()
         threading.Thread.join(self, timeout=timeout)
 
     def getMessage(self, timeout=2):
