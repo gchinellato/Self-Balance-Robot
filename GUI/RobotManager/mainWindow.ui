@@ -73,8 +73,11 @@
      <property name="decimals">
       <number>1</number>
      </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
+     </property>
      <property name="singleStep">
-      <double>0.100000000000000</double>
+      <double>0.500000000000000</double>
      </property>
     </widget>
     <widget class="QDoubleSpinBox" name="doubleSpinBox_KiAngle">
@@ -88,6 +91,9 @@
      </property>
      <property name="decimals">
       <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>0.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
@@ -219,7 +225,7 @@
       <number>1</number>
      </property>
      <property name="singleStep">
-      <double>0.100000000000000</double>
+      <double>0.500000000000000</double>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_sendPID_Zero">
@@ -273,6 +279,9 @@
      <property name="decimals">
       <number>1</number>
      </property>
+     <property name="minimum">
+      <double>-100.000000000000000</double>
+     </property>
      <property name="singleStep">
       <double>1.000000000000000</double>
      </property>
@@ -314,6 +323,9 @@
      </property>
      <property name="decimals">
       <number>1</number>
+     </property>
+     <property name="minimum">
+      <double>-100.000000000000000</double>
      </property>
      <property name="singleStep">
       <double>1.000000000000000</double>

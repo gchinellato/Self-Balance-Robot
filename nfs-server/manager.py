@@ -15,6 +15,7 @@ from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
 from Balance.balance import BalanceThread
 from PanTilt.panTilt import PanTiltThread
 from ComputerVison.tracking import ComputerVisionThread
+from constants import *
 from IMU.constants import *
 from PanTilt.constants import *
 from Utils.traces.trace import *
@@ -24,13 +25,6 @@ import Queue
 import multiprocessing
 import pygame
 import argparse
-
-CLIENT_UDP_NAME = "Client-UDP-Thread"
-SERVER_UDP_NAME = "Server-UDP-Thread"
-BALANCE_NAME = "Balance-Thread"
-PAN_TILT_NAME = "PanTilt-Thread"
-PS3_CTRL_NAME = "PS3-Controller-Thread"
-TRACKING_NAME = "Tracking-Process"
 
 def argParse():
     #Construct the argument parse and parse the arguments
@@ -47,7 +41,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER | MODULE_BALANCE #| MODULE_MOTION #| MODULE_IMU
+        debug = MODULE_MANAGER | MODULE_MOTION #| MODULE_BALANCE #| MODULE_IMU
         
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
@@ -73,8 +67,8 @@ def main(args):
         #Joystick thread
         joy = PS3_ControllerThread(name=PS3_CTRL_NAME, queue=eventQueue, debug=debug)
         joy.daemon = True
-        threads.append(joy)
-        joy.start()
+        #threads.append(joy)
+        #joy.start()
 
         #Balance thread
         balance = BalanceThread(name=BALANCE_NAME, queue=balanceQueue, debug=debug, callbackUDP=clientUDP.putMessage)
@@ -137,15 +131,13 @@ def main(args):
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
                         if event[1][1] == "PID": 
-                            balance.Kp = float(event[1][2])
-                            balance.Ki = float(event[1][3])
-                            balance.Kd = float(event[1][4])
-                            balance.setpoint = float(event[1][5])
-                            logging.info("PID Paremeters updated:")
-                            logging.info(("PID: Setpoint: " + str(balance.setpoint)))
-                            logging.info(("PID: Kp: " + str(balance.Kp)))
-                            logging.info(("PID: Ki: " + str(balance.Ki)))
-                            logging.info(("PID: Kd: " + str(balance.Kd)))
+                            balance.anglePID.setSetpoint(float(event[1][5]))
+                            balance.anglePID.setTunings(float(event[1][2]), float(event[1][3]), float(event[1][4]))
+                            logging.info("PID Angle Parameters updated:")
+                            logging.info(("PID: Setpoint: " + str(float(event[1][5]))))
+                            logging.info(("PID: Kp: " + str(float(event[1][2]))))
+                            logging.info(("PID: Ki: " + str(float(event[1][3]))))
+                            logging.info(("PID: Kd: " + str(float(event[1][4]))))
                 
                     #OpenCV controller            
                     elif event[0] == TRACKING_NAME:                        

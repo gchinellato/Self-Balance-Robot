@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainWindow.ui'
 #
-# Created: Sat Jul  2 00:34:39 2016
+# Created: Fri Jul  8 01:19:03 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -44,11 +44,13 @@ class Ui_MainWindow(object):
         self.doubleSpinBox_KpAngle = QtGui.QDoubleSpinBox(self.groupBox_PID)
         self.doubleSpinBox_KpAngle.setGeometry(QtCore.QRect(40, 40, 62, 27))
         self.doubleSpinBox_KpAngle.setDecimals(1)
-        self.doubleSpinBox_KpAngle.setSingleStep(0.1)
+        self.doubleSpinBox_KpAngle.setMinimum(0.0)
+        self.doubleSpinBox_KpAngle.setSingleStep(0.5)
         self.doubleSpinBox_KpAngle.setObjectName(_fromUtf8("doubleSpinBox_KpAngle"))
         self.doubleSpinBox_KiAngle = QtGui.QDoubleSpinBox(self.groupBox_PID)
         self.doubleSpinBox_KiAngle.setGeometry(QtCore.QRect(40, 70, 62, 27))
         self.doubleSpinBox_KiAngle.setDecimals(1)
+        self.doubleSpinBox_KiAngle.setMinimum(0.0)
         self.doubleSpinBox_KiAngle.setSingleStep(0.1)
         self.doubleSpinBox_KiAngle.setObjectName(_fromUtf8("doubleSpinBox_KiAngle"))
         self.label_KdAngle = QtGui.QLabel(self.groupBox_PID)
@@ -84,7 +86,7 @@ class Ui_MainWindow(object):
         self.doubleSpinBox_KpSpeed = QtGui.QDoubleSpinBox(self.groupBox_PID)
         self.doubleSpinBox_KpSpeed.setGeometry(QtCore.QRect(180, 40, 62, 27))
         self.doubleSpinBox_KpSpeed.setDecimals(1)
-        self.doubleSpinBox_KpSpeed.setSingleStep(0.1)
+        self.doubleSpinBox_KpSpeed.setSingleStep(0.5)
         self.doubleSpinBox_KpSpeed.setObjectName(_fromUtf8("doubleSpinBox_KpSpeed"))
         self.pushButton_sendPID_Zero = QtGui.QPushButton(self.groupBox_PID)
         self.pushButton_sendPID_Zero.setGeometry(QtCore.QRect(60, 170, 101, 23))
@@ -98,6 +100,7 @@ class Ui_MainWindow(object):
         self.doubleSpinBox_SetpointAngle = QtGui.QDoubleSpinBox(self.groupBox_PID)
         self.doubleSpinBox_SetpointAngle.setGeometry(QtCore.QRect(70, 130, 62, 27))
         self.doubleSpinBox_SetpointAngle.setDecimals(1)
+        self.doubleSpinBox_SetpointAngle.setMinimum(-100.0)
         self.doubleSpinBox_SetpointAngle.setSingleStep(1.0)
         self.doubleSpinBox_SetpointAngle.setObjectName(_fromUtf8("doubleSpinBox_SetpointAngle"))
         self.label_3 = QtGui.QLabel(self.groupBox_PID)
@@ -106,11 +109,12 @@ class Ui_MainWindow(object):
         self.label_4 = QtGui.QLabel(self.groupBox_PID)
         self.label_4.setGeometry(QtCore.QRect(140, 140, 61, 17))
         self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.doubleSpinBox_SetpointSpeed_2 = QtGui.QDoubleSpinBox(self.groupBox_PID)
-        self.doubleSpinBox_SetpointSpeed_2.setGeometry(QtCore.QRect(210, 130, 62, 27))
-        self.doubleSpinBox_SetpointSpeed_2.setDecimals(1)
-        self.doubleSpinBox_SetpointSpeed_2.setSingleStep(1.0)
-        self.doubleSpinBox_SetpointSpeed_2.setObjectName(_fromUtf8("doubleSpinBox_SetpointSpeed_2"))
+        self.doubleSpinBox_SetpointSpeed = QtGui.QDoubleSpinBox(self.groupBox_PID)
+        self.doubleSpinBox_SetpointSpeed.setGeometry(QtCore.QRect(210, 130, 62, 27))
+        self.doubleSpinBox_SetpointSpeed.setDecimals(1)
+        self.doubleSpinBox_SetpointSpeed.setMinimum(-100.0)
+        self.doubleSpinBox_SetpointSpeed.setSingleStep(1.0)
+        self.doubleSpinBox_SetpointSpeed.setObjectName(_fromUtf8("doubleSpinBox_SetpointSpeed"))
         self.groupBox_Orientation = QtGui.QGroupBox(self.centralwidget)
         self.groupBox_Orientation.setGeometry(QtCore.QRect(10, 400, 121, 121))
         self.groupBox_Orientation.setMouseTracking(False)

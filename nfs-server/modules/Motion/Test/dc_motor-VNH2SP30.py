@@ -12,12 +12,6 @@ MA_ANTICLOCKWISE_GPIO = 6
 MB_CLOCKWISE_GPIO = 20
 MB_ANTICLOCKWISE_GPIO = 21
 
-#Enconders 1 & 2 for each motor
-MA_ENCODER_1 = 23
-MA_ENCODER_2 = 13
-MB_ENCODER_1 = 17
-MB_ENCODER_2 = 8
-
 GPIO.setwarnings(False) # disable warnings
 GPIO.setmode(GPIO.BCM) # set up BCM GPIO numbering 
 
@@ -34,7 +28,7 @@ GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
 GPIO.output(MB_CLOCKWISE_GPIO, False)
 GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
 
-FREQ = 50 # PWM frequency (20ms = 50Hz)
+FREQ = 1000 # PWM frequency (20ms = 50Hz)
 
 #set gpio as PWM output
 maPWM = GPIO.PWM(MA_PWM_GPIO, FREQ) 
@@ -44,37 +38,7 @@ mbPWM = GPIO.PWM(MB_PWM_GPIO, FREQ)
 maPWM.start(0)
 mbPWM.start(0)
 
-#Set GIPO as input
-GPIO.setup(MA_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-GPIO.setup(MA_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(MB_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-GPIO.setup(MB_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-def _encoderA(MA_ENCODER_1):  
-    #when the callback is called due interrup on MA_ENCODER_1 and MA_ENCODER_2 is true, then is clockwise, if not counter clockwise
-    print "interrupt"
-    if (GPIO.input(MA_ENCODER_2 == True)):
-        self.countEncoderA += 1
-    else:
-        self.countEncoderA -= 1
-
-def _encoderB(MB_ENCODER_1): 
-    print "interrupt" 
-    if (GPIO.input(MB_ENCODER_2 == True)):
-        countEncoderB += 1
-    else:
-        countEncoderB -= 1
-
-#Set GPIO as interrupt inputs with callback functions
-GPIO.add_event_detect(MA_ENCODER_1, GPIO.FALLING, callback=_encoderA)
-GPIO.add_event_detect(MB_ENCODER_1, GPIO.FALLING, callback=_encoderB)
-
-#Initialize encoders count
-countEncoderA = 0
-countEncoderB = 0
-
-
-DT = 20
+DT = 100
 SLEEP = 0.1
 
 def motorMove(pwmA, pwmB):
@@ -130,15 +94,6 @@ def _motorB(direction="", pwm=0):
         GPIO.output(MB_CLOCKWISE_GPIO, False)
         GPIO.output(MB_ANTICLOCKWISE_GPIO, False)        
     mbPWM.ChangeDutyCycle(pwm)
-
-def readEncoderA():
-    return countEncoderA
-
-def readEncoderB():
-    return countEncoderB
-
-def getWheelsPosition():
-    return (countEncoderA + countEncoderB) / 2
 
 def test():    
     GPIO.output(MA_CLOCKWISE_GPIO, True)

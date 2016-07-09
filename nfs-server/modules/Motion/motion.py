@@ -4,15 +4,16 @@
 * @Project: Self Balance  
 * @Platform: Raspberry PI 2 B+                       
 * @Description: Motion 
-                DC Motor with gearbox/encoder
-                Motor driver VNH2SP30
+*               DC Motor with gearbox/encoder
+*               Motor driver VNH2SP30
 * @Owner: Guilherme Chinellato 
 * @Email: guilhermechinellato@gmail.com                                                
 *************************************************
 """
 
-import RPi.GPIO as GPIO
 import time
+from Motion.Motor.motor import Motor
+from Motion.Encoder.encoder import Encoder
 from constants import *
 from Utils.gpio_mapping import *
 from Utils.traces.trace import *
@@ -21,191 +22,85 @@ class Motion():
     def __init__(self, debug=0):
         self.debug = debug
 
-        #PID parameters
-        self.lastTime = 0
-        self.lastError = 0
-        self.wheelPosition = 0
+        self._motorA = Motor("Left", MA_PWM_GPIO, MA_CLOCKWISE_GPIO, MA_ANTICLOCKWISE_GPIO, debug) 
+        self._motorB = Motor("Right", MB_PWM_GPIO, MB_CLOCKWISE_GPIO, MB_ANTICLOCKWISE_GPIO, debug) 
+
+        self._encoderA = Encoder("Left", MA_ENCODER_1, MA_ENCODER_2, TICKS_PER_TURN, WHEEL_RADIUS, debug)
+        self._encoderB = Encoder("Right", MB_ENCODER_1, MB_ENCODER_2, TICKS_PER_TURN, WHEEL_RADIUS, debug)
+
+        self.wheelVelocity = 0
         self.lastWheelPosition = 0
-        self.Cp = 0
-        self.Ci = 0
-        self.Cd = 0
 
-        #Set up BCM GPIO numbering 
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM) 
-
-        #Set GPIO as output
-        GPIO.setup(MA_PWM_GPIO, GPIO.OUT) 
-        GPIO.setup(MB_PWM_GPIO, GPIO.OUT)
-        GPIO.setup(MA_CLOCKWISE_GPIO, GPIO.OUT)
-        GPIO.setup(MA_ANTICLOCKWISE_GPIO, GPIO.OUT)
-        GPIO.setup(MB_CLOCKWISE_GPIO, GPIO.OUT)
-        GPIO.setup(MB_ANTICLOCKWISE_GPIO, GPIO.OUT)
-
-        GPIO.output(MA_CLOCKWISE_GPIO, False)
-        GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
-        GPIO.output(MB_CLOCKWISE_GPIO, False)
-        GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
-
-        #Set GPIO as PWM output
-        self._maPWM = GPIO.PWM(MA_PWM_GPIO, PWM_FREQ) 
-        self._mbPWM = GPIO.PWM(MB_PWM_GPIO, PWM_FREQ)
-
-        #Start PWM (stopped)
-        self._maPWM.start(0)
-        self._mbPWM.start(0)
-
-        #Set GIPO as input
-        GPIO.setup(MA_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-        GPIO.setup(MA_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(MB_ENCODER_1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
-        GPIO.setup(MB_ENCODER_2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
-        #Set GPIO as interrupt inputs with callback functions
-        GPIO.add_event_detect(MA_ENCODER_1, GPIO.FALLING, callback=self._encoderA)
-        GPIO.add_event_detect(MB_ENCODER_1, GPIO.FALLING, callback=self._encoderB)
-
-        #Initialize encoders count
-        self.countEncoderA = 0
-        self.countEncoderB = 0
+        #Start motor PWM
+        self.motorStart()
 
         logging.info("Motion module initialized") 
 
-    def PID(self, setPoint, newValue, Kp, Ki, Kd):
-        """ Performs a PID computation and returns a control value based on
-            the elapsed time (dt) and the error signal from a summing junction
-            (the error parameter).
-        """
-        currentTime = time.time()
+    def updateWheelVelocity(self):
+        wheelPosition = self._getWheelPosition()
+        #velocity: derivative of position (Pf - Pi)/dt
+        self.wheelVelocity = wheelPosition - self.lastWheelPosition 
+        self.lastWheelPosition = wheelPosition
 
-        #Calculate delta time
-        dt = currentTime - self.lastTime
+        if (self.debug & MODULE_MOTION):
+            logging.debug(("wheelVelocity: %0.2f" % (self.wheelVelocity)))
 
-        #Calculate error
-        error = setPoint - newValue
-
-        #Calculate delta error
-        de = error - self.lastError
-
-        #Proportional Term          
-        self.Cp = error
-      
-        #Integral Term
-        self.Ci += error*dt
- 
-        #Windup guard for Integral term do not reach very large values
-        if self.Ci > WINDUP_GUARD:
-            self.Ci = WINDUP_GUARD
-        elif self.Ci < -WINDUP_GUARD:
-            self.Ci = -WINDUP_GUARD
-       
-        self.Cd = 0
-        #to avoid division by zero
-        if dt > 0:
-            #Derivative term
-            self.Cd = de/dt 
-
-        #Save for the next iteration
-        self.lastError = error
-        self.lastTime = currentTime        
-
-        #Sum terms
-        output = (self.Cp * Kp) + (self.Ci * Ki) + (self.Cd * Kd)
-
-        if (self.debug & MODULE_MOTION): 
-            logging.debug(("PID output = %0.2f, newValue: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, newValue, error, self.Cp, self.Ci, self.Cd)))
-
-        return output
-
-    def motorStop(self):
-        self.motorMove(0, 0)
+    def _getWheelPosition(self):
+        return self._encoderA.getTicks() + self._encoderB.getTicks()
 
     def motorMove(self, speedA, speedB):
+        '''Set motor speed, checking the boundaries and adding compensations for each motor (if necessary)'''
         limitedSpeedA = self._constraint(abs(speedA))
         limitedSpeedB = self._constraint(abs(speedB))
 
-        #limitedSpeedA += COMPENSATION
-        #limitedSpeedB += COMPENSATION
+        limitedSpeedA += COMPENSATION_A
+        limitedSpeedB += COMPENSATION_B
 
         #Clockwise
         if speedA > 0:
-            self._motorA(direction="CW", pwm=abs(limitedSpeedA))
+            self._motorA.setSpeed(direction="CW", pwm=abs(limitedSpeedA))
         #Anti-Clockwise
         elif speedA < 0: 
-            self._motorA(direction="CCW", pwm=abs(limitedSpeedA))
+            self._motorA.setSpeed(direction="CCW", pwm=abs(limitedSpeedA))
         #Stop        
         else:
-            self._motorA()
+            self._motorA.setSpeed()
 
         #Clockwise
         if speedB > 0:
-            self._motorB(direction="CW", pwm=abs(limitedSpeedB))
+            self._motorB.setSpeed(direction="CW", pwm=abs(limitedSpeedB))
         #Anti-Clockwise
         elif speedB < 0: 
-            self._motorB(direction="CCW", pwm=abs(limitedSpeedB))
+            self._motorB.setSpeed(direction="CCW", pwm=abs(limitedSpeedB))
         #Stop        
         else:
-            self._motorB() 
+            self._motorB.setSpeed() 
 
         if (self.debug & MODULE_MOTION):
             #logging.debug(("Motor speed: A: %0.2f, B: %0.2f" % (speedA, speedB)))
             logging.debug(("Motor speed [LIMITED]: A: %0.2f, B: %0.2f" % (limitedSpeedA, limitedSpeedB)))
 
+    def motorStart(self):
+        '''Start motor speed stopped'''
+        self._motorA.start()
+        self._motorB.start()
+
+    def motorStop(self):
+        '''Set motor speed to zero, it is not necessary to restart the motor'''
+        self._motorA.stop()
+        self._motorB.stop()
+
     def motorShutDown(self):
-        self.motorStop()
-        self._maPWM.stop()
-        self._mbPWM.stop()
-        GPIO.cleanup()
+        '''Disable motor pwm, it is necessary to restart the motor by motor.start()'''
+        self._motorA.shutdown()
+        self._motorB.shutdown()
 
-    def _motorA(self, direction="", pwm=0):
-        if direction == "CW":
-            GPIO.output(MA_CLOCKWISE_GPIO, True)
-            GPIO.output(MA_ANTICLOCKWISE_GPIO, False)
-        elif direction == "CCW":
-            GPIO.output(MA_CLOCKWISE_GPIO, False)
-            GPIO.output(MA_ANTICLOCKWISE_GPIO, True)
-        else:
-            GPIO.output(MA_CLOCKWISE_GPIO, False)
-            GPIO.output(MA_ANTICLOCKWISE_GPIO, False)           
-        self._maPWM.ChangeDutyCycle(pwm)
-
-    def _motorB(self, direction="", pwm=0):
-        if direction == "CW":
-            GPIO.output(MB_CLOCKWISE_GPIO, True)
-            GPIO.output(MB_ANTICLOCKWISE_GPIO, False)
-        elif direction == "CCW":
-            GPIO.output(MB_CLOCKWISE_GPIO, False)
-            GPIO.output(MB_ANTICLOCKWISE_GPIO, True)
-        else:
-            GPIO.output(MB_CLOCKWISE_GPIO, False)
-            GPIO.output(MB_ANTICLOCKWISE_GPIO, False)        
-        self._mbPWM.ChangeDutyCycle(pwm)
-
-    def _encoderA(self):  
-        #when the callback is called due interrup on MA_ENCODER_1 and MA_ENCODER_2 is true, then is clockwise, if not counter clockwise
-        logging.debug("Interrupcao")
-        if (GPIO.input(MA_ENCODER_2 == True)):
-            self.countEncoderA += 1
-        else:
-            self.countEncoderA -= 1
-
-    def _encoderB(self):  
-        if (GPIO.input(MB_ENCODER_2 == True)):
-            self.countEncoderB += 1
-        else:
-            self.countEncoderB -= 1
-
-    def readEncoderA(self):
-        return self.countEncoderA
-
-    def readEncoderB(self):
-        return self.countEncoderB
-
-    def getWheelsPosition(self):
-        return (self.countEncoderA + self.countEncoderB) / 2
+    def getDistance(self):
+        '''Get distance from each motor, should be similar'''
+        return (self._encoderA.getDistance(), self._encoderB.getDistance())
 
     def convertRange(self, analogValue):
-        #convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)
+        '''Convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)'''
         if not analogValue >= ANALOG_MIN and analogValue <= ANALOG_MAX:        
             logging.warning("Value out of the range (Max:1.0, Min:-1.0)")
             if analogValue > ANALOG_MAX:
@@ -215,7 +110,7 @@ class Motion():
         return analogValue * 100.0 
 
     def _constraint(self, value, upperLimit=PWM_MAX, lowerLimit=PWM_MIN):        
-        #Limitation of the motor velocity
+        '''Limitation of the motor velocity'''
         #Ensure the data is into an acceptable range
         if value > upperLimit:
             value = upperLimit

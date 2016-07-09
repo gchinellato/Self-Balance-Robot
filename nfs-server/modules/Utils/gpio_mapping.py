@@ -16,10 +16,7 @@
 MA_PWM_GPIO = 19
 MB_PWM_GPIO = 26
 
-#PWM frequency (20ms = 50)
-PWM_FREQ = 50
-
-#Motor A & B enable outputs
+#Motor A & B enable outputs (BCM pinout)
 MA_CLOCKWISE_GPIO = 5
 MA_ANTICLOCKWISE_GPIO = 6 
 MB_CLOCKWISE_GPIO = 20
@@ -29,7 +26,7 @@ MB_ANTICLOCKWISE_GPIO = 21
 #Encoders GPIOs
 #
 
-#Enconders 1 & 2 for each motor
+#Enconders 1 & 2 for each motor (BCM pinout)
 MA_ENCODER_1 = 12
 MA_ENCODER_2 = 13
 MB_ENCODER_1 = 7
