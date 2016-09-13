@@ -14,7 +14,7 @@ import threading
 import Queue
 from Utils.traces.trace import *
 
-'''Todo: This class does not support hot plug event, if disconnected once, it is necessary restast the thread'''
+'''Todo: This class does not support hot plug event, if disconnected once, it is necessary to restast the thread'''
 
 class PS3_ControllerThread(threading.Thread):
     #Axes
@@ -79,10 +79,11 @@ class PS3_ControllerThread(threading.Thread):
         self.numAxes = None
         self.numButtons = None
 
-        logging.info("Joystick Thread initialized")
+        logging.info("Joystick Module initialized")
       
     #Override method
-    def run(self):        
+    def run(self): 
+        logging.info("Joystick Thread Started")       
         self.initJoy()
         lastTime = 0.0
 
@@ -96,23 +97,19 @@ class PS3_ControllerThread(threading.Thread):
                 #if (self.debug & MODULE_BLUETOOTH):
                 #    logging.debug("Duration: " + str(currentTime - lastTime))
 
-                if self.joyStatus != None:                
+                if self.joyStatus != None:            
                     # Check for any queued events and then processes each one 
                     events = pygame.event.get()
                     for event in events:
-                        #self.putEvent(self.name, event)
                         #Do not send Accelerometer events to reduce overhead
                         if (event.type == pygame.JOYAXISMOTION) and (event.axis != self.A_ACC_X) and (event.axis != self.A_ACC_Y) and (event.axis != self.A_ACC_Z):                                     
                             self.putEvent(self.name, event)
-                            #logging.debug(event)
                         if (event.type == pygame.JOYBUTTONDOWN) or (event.type == pygame.JOYBUTTONUP):
                             self.putEvent(self.name, event)
-                            #logging.debug(event)
-                        i = 1
                 else:
                     #Try to connect in the Bluetooth controller again
                     time.sleep(5)
-                    self.initJoy()
+                    #self.initJoy()
             except Queue.Full:
                 if (self.debug & MODULE_BLUETOOTH):
                     logging.debug("Queue Full")
@@ -123,7 +120,8 @@ class PS3_ControllerThread(threading.Thread):
         
     #Override method  
     def join(self, timeout=None):
-        #Stop the thread and wait for it to end       
+        #Stop the thread and wait for it to end  
+        logging.info("Killing Joystick Thread...")     
         self._stopEvent.set()
         pygame.quit()
         threading.Thread.join(self, timeout=timeout)  

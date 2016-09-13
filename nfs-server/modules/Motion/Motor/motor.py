@@ -91,10 +91,15 @@ def TestMotor():
         print "Start motor"
         motorA.start()
         motorB.start()
-        #motorA.setSpeed(direction="CW", pwm=15)
+        while True:
+            v = float((input("Inser PWM duty cycle: ")))
+            motorA.setSpeed(direction="CCW", pwm=v)
+            motorB.setSpeed(direction="CCW", pwm=v)
+           
+        #motorA.setSpeed(direction="CW", pwm=10)
         #motorB.setSpeed(direction="CW", pwm=10)
         #time.sleep(1000)
-        for i in range(100):
+        '''for i in range(100):
             print "Set speed CW: " + str(i)
             motorA.setSpeed(direction="CW", pwm=i)
             motorB.setSpeed(direction="CW", pwm=i)
@@ -103,7 +108,7 @@ def TestMotor():
             print "Set speed CCW: " + str(i)    
             motorA.setSpeed(direction="CCW", pwm=i)
             motorB.setSpeed(direction="CCW", pwm=i)
-            time.sleep(LP)    
+            time.sleep(LP)   ''' 
 
         print "Stop motor"
         motorA.setSpeed()

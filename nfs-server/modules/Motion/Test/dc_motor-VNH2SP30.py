@@ -159,8 +159,8 @@ def main():
 
 if __name__ == '__main__':
     try:
-        main()
-        #test()
+        #main()
+        test()
 
     except KeyboardInterrupt:
         print "Quit"

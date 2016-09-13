@@ -275,7 +275,7 @@ class GY80_Magnetometer_HMC5883L():
      
 def TestHMC5883L():
     # Enable Magnetometer and Accelerometer
-    mag = GY80_Magnetometer_HMC5883L(debug=True, cal=False)
+    mag = GY80_Magnetometer_HMC5883L(debug=True, cal=True)
     accel = GY80_Accelerometer_ADXL345()
 
     LP = 0.2

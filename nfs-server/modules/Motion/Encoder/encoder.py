@@ -84,7 +84,7 @@ class Encoder():
 
     def getDistance(self):
         '''Get the distance (cm) from the stacionary position, checking the current ticks multiplied by one complete wheel in tickes'''
-        return self.ticks * self.cmPerTick
+        return self.getTicks() * self.cmPerTick
 
     def eventCallback(self, channel):
         '''when the callback function is called due an interrup event on pinEncoder1 and pinEncoder2 is true, then is clockwise, if not it is counter-clockwise'''

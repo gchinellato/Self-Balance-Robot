@@ -17,14 +17,16 @@ eventQueue = Queue.Queue()
 panTiltQueue = Queue.Queue()
 
 #Joystick thread
-joy = PS3_ControllerThread(name="PS3", queue=eventQueue, debug=False)
+joy = PS3_ControllerThread(name="PS3", queue=eventQueue)
 joy.daemon = True
 joy.start()
 
 #Pan-Tilt thread
-panTilt = PanTiltThread(name="PanTilt", queue=panTiltQueue, debug=True)
+panTilt = PanTiltThread(name="PanTilt", queue=panTiltQueue)
 panTilt.daemon = True
 panTilt.start() 
+
+setVerbosity(("debug")) 
 
 try:
     while True:
@@ -36,11 +38,11 @@ try:
                         if event[1].axis == joy.A_R3_V:
                             headV = event[1].value
                             panTilt.putEvent((headV, None))
-                            #logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
+                            logging.debug(("R3 Vertical: {0}, {1}, {2}".format(event[1].axis, event[1].value, headV)))
                         if event[1].axis == joy.A_R3_H:
                             headH = -event[1].value 
                             panTilt.putEvent((None, headH))
-                            #logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
+                            logging.debug(("R3 Horizontal: {0}, {1}, {2}".format(event[1].axis, event[1].value, headH)))
                     
                     if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                         #logging.debug(joy.parseEvent(event[1]))

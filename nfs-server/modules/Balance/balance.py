@@ -40,26 +40,48 @@ class BalanceThread(threading.Thread):
         self.callbackUDP = callbackUDP
         self.imu = GY80_IMU(debug=debug)
         self.motion = Motion(debug=debug)
-        self.speedPID = PID("Speed", SPEED_SETPOINT, SPEED_KP, SPEED_KI, SPEED_KD, debug)  
-        self.anglePID = PID("Angle", ANGLE_SETPOINT, ANGLE_KP_CONS, ANGLE_KI_CONS, ANGLE_KD_CONS, debug) 
 
-        logging.info("Balance Thread initialized")      
+        self.speedKp = SPEED_KP
+        self.speedKi = SPEED_KD
+        self.speedKd = SPEED_KI
+        self.angleKpCons = ANGLE_KP_CONS
+        self.angleKiCons = ANGLE_KI_CONS
+        self.angleKdCons = ANGLE_KD_CONS
+        self.angleKpAggr = ANGLE_KP_AGGR
+        self.angleKiAggr = ANGLE_KI_AGGR
+        self.angleKdAggr = ANGLE_KD_AGGR
+
+        self.speedPID = PID("Speed", SPEED_SETPOINT, self.speedKp, self.speedKi, self.speedKd, debug)  
+        self.anglePID = PID("Angle", ANGLE_SETPOINT, self.angleKpCons, self.angleKiCons, self.angleKdCons, debug)
+        self.anglePIDmode = PID_CONSERVATIVE 
+
+        #apagar *************************
+        self.offset = 0
+
+        logging.info("Balance Module initialized")      
 
     #Override method
     def run(self):
+        logging.info("Balance Thread started") 
         lastTime = 0.0
         runSpeed = 0.0
         turnSpeed = 0.0
         pitchPID = 0.0
+        speedL = 0.0
+        speedR = 0.0
+        velocity = 0.0
+
+        maxTime = 0
+        duration = 0
 
         while not self._stopEvent.wait(self._sleepPeriod):
-            self._lock.acquire()           
+            self._lock.acquire() 
 
             currentTime = time.time()
 
             #Calculate time since last time was called
-            #if (debug & MODULE_BALANCE):
-            #    logging.info("Duration: " + str(currentTime - lastTime))
+            #if (self.debug & MODULE_BALANCE):
+            #    logging.debug("Duration: " + str(currentTime - lastTime))
 
             #
             # Complementary filter
@@ -72,8 +94,9 @@ class BalanceThread(threading.Thread):
             # Motion
             #
             
-            #Update wheel velocity each loop, then it is possible read wheelVelocity
-            self.motion.updateWheelVelocity()              
+            #Update wheel velocity each loop, then it is possible to getWheelVelocity
+            self.motion.updateWheelVelocity(dt=self._sleepPeriod)   
+            velocity = self.motion.getWheelVelocity()       
 
             #Get event for motion, ignore if empty queue                
             event = self.getEvent()
@@ -83,43 +106,44 @@ class BalanceThread(threading.Thread):
                 if event[1] != None:
                     turnSpeed = self.motion.convertRange(event[1])
 
-            self.speedPID.setpoint = runSpeed
-
-            pitchPID = self.anglePID.compute(self.imu.CFanglePitch,  self._sleepPeriod)
-            #self.anglePID.setpoint = self.speedPID.compute(self.motion.wheelVelocity,  self._sleepPeriod)
+            self.speedPID.setSetpoint(runSpeed)
+            output = self.speedPID.compute(velocity, self._sleepPeriod) 
+            self.anglePID.setSetpoint(output + self.offset)
 
             #Select PID mode and check angles boundaries
-            '''if ((self.anglePID.modePID == PID_AGGRESSIVE) and (abs(self.imu.CFanglePitch) < self.anglePID.anglePIDLimit)):
+            if ((self.anglePIDmode == PID_AGGRESSIVE) and (abs(self.imu.CFanglePitch) < ANGLE_LIMIT)):
                 #almost in the setpoint, change to conservative mode
-                self.anglePID.modePID = PID_CONSERVATIVE
-                self.anglePID.setTunings(ANGLE_KP_CONS, ANGLE_KI_CONS, ANGLE_KD_CONS)
-            elif ((self.anglePID.modePID == PID_CONSERVATIVE) and (abs(self.imu.CFanglePitch) >= self.anglePID.anglePIDLimit)):
+                self.anglePIDmode = PID_CONSERVATIVE
+                self.anglePID.setTunings(self.angleKpCons, self.angleKiCons, self.angleKdCons)
+            elif ((self.anglePIDmode == PID_CONSERVATIVE) and (abs(self.imu.CFanglePitch) >= ANGLE_LIMIT)):
                 #so far from the setpoint, change to aggressive mode
-                self.anglePID.modePID = PID_AGGRESSIVE
-                self.anglePID.setTunings(ANGLE_KP_AGGR, ANGLE_KI_AGGR, ANGLE_KD_AGGR)
-            elif (abs(self.imu.CFanglePitch) > ANGLE_IRRECOVERABLE):
+                self.anglePIDmode = PID_AGGRESSIVE
+                self.anglePID.setTunings(self.angleKpAggr, self.angleKiAggr, self.angleKdAggr)
+
+            if (abs(self.imu.CFanglePitch) > ANGLE_IRRECOVERABLE):
                 #so sorry, it is licking the floor :(
+                speedL = 0.0
+                speedR = 0.0
+                pitchPID = 0.0
                 self.motion.motorStop()
             else:
-                logging.debug("Keep the parameters")'''
-
-            #pitchPID = self.anglePID.compute(self.imu.CFanglePitch,  self._sleepPeriod)
-
-            speedL = pitchPID +runSpeed- turnSpeed/8
-            speedR = pitchPID +runSpeed+ turnSpeed/8 
-            self.motion.motorMove(speedL, speedR)
+                pitchPID = self.anglePID.compute(round(self.imu.CFanglePitch,2),  self._sleepPeriod)
+                speedL = pitchPID - turnSpeed
+                speedR = pitchPID + turnSpeed
+                self.motion.motorMove(speedL, speedR)
 
             #UDP message   
-            #(timestamp),(data1)(data2),(data3)(#)
-            UDP_MSG = str(datetime.datetime.now()) + "," + \
-                      str(self.imu.CFangleRoll) + "," + \
-                      str(self.imu.CFanglePitch) + "," + \
-                      str(self.imu.CFangleYaw) + "," + \
-                      str(round(pitchPID,2)) + "," + \
+            #(module)(timestamp),(data1)(data2),(data3)(...)(#)
+            UDP_MSG = "BALANCE" + "," + \
+                      str(datetime.datetime.now()) + "," + \
+                      str(round(self.imu.CFangleRoll,2)) + "," + \
+                      str(round(self.imu.CFanglePitch,2)) + "," + \
+                      str(round(self.imu.CFangleYaw,2)) + "," + \
                       str(round(runSpeed,2)) + "," + \
                       str(round(turnSpeed,2)) + "," + \
                       str(round(speedL,2)) + "," + \
-                      str(round(speedR,2)) + "#"
+                      str(round(speedR,2)) + "," + \
+                      str(round(velocity,2)) + "#"
                    
             # Sending UDP packets...
             if (self.callbackUDP != None):
@@ -131,6 +155,7 @@ class BalanceThread(threading.Thread):
     #Override method  
     def join(self, timeout=None):
         #Stop the thread and wait for it to end
+        logging.info("Killing Balance Thread...") 
         self._stopEvent.set()
         self.motion.motorShutDown() 
         threading.Thread.join(self, timeout=timeout) 

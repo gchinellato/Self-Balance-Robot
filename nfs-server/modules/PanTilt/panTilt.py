@@ -12,17 +12,19 @@ import os
 import time
 import threading
 import Queue
+import datetime
 from constants import *
 from Utils.gpio_mapping import *
 from Utils.traces.trace import *
 
 class PanTiltThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0, callbackUDP=None):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
         self.name = name
         self.debug = debug 
+        self.callbackUDP = callbackUDP
 
         #Queue to communicate between threads
         self._workQueue = queue
@@ -40,10 +42,12 @@ class PanTiltThread(threading.Thread):
         os.system('sudo servod')
         time.sleep(0.1)
 
-        logging.info("Pan-Tilt Thread initialized")
+        logging.info("Pan-Tilt Module initialized")
 
     #Override method
     def run(self):
+        logging.info("Pan-Tilt Thread started")
+
         #Initial position
         pwmVertical = self.convertTo(0, ANALOG_MAX, ANALOG_MIN, VERTICAL_MAX, VERTICAL_MIN) 
         self.angleV = self.convertTo(pwmVertical, POS_MAX, POS_MIN, ANGLE_MAX, ANGLE_MIN)
@@ -90,6 +94,17 @@ class PanTiltThread(threading.Thread):
                             logging.debug("PWM Horizontal: " + str(pwmHorizontal) + "%")
                             logging.debug("Angle Horizontal: " + str(self.angleH) + "deg")
                             logging.debug("Angle Scaled Horizontal: " + str(self.scaledAngleH) + "deg")
+
+                    #UDP message   
+                    #(module)(timestamp),(data1)(data2),(data3)(...)(#)
+                    UDP_MSG = "PAN_TILT" + "," + \
+                              str(datetime.datetime.now()) + "," + \
+                              str(round(pwmVertical,2)) + "," + \
+                              str(round(pwmHorizontal,2)) + "#"
+                           
+                    # Sending UDP packets...
+                    if (self.callbackUDP != None):
+                        self.callbackUDP(UDP_MSG) 
         
             except Queue.Empty:
                 if (self.debug & MODULE_PANTILT):
@@ -100,7 +115,8 @@ class PanTiltThread(threading.Thread):
         
     #Override method  
     def join(self, timeout=None):
-        #Stop the thread and wait for it to end        
+        #Stop the thread and wait for it to end 
+        logging.info("Killing PanTilt Thread...")       
         self._stopEvent.set()
         os.system('sudo killall servod')
         threading.Thread.join(self, timeout=timeout) 

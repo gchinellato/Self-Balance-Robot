@@ -14,11 +14,11 @@ import socket
 import logging
 import Queue
 from Comm.UDP.UDP_Server import UDP_ServerThread
-from constants import *
+from IMU.constants import *
 
 SCREEN_SIZE = (800, 600)
 
-serverUDPQueue = Queue.Queue()
+serverUDPQueue = Queue.Queue(4)
 serverThread = UDP_ServerThread(name="Thread-UDP-Server", queue=serverUDPQueue)
 serverThread.start()
 
@@ -52,7 +52,7 @@ def read_values():
     
     #Check if is a valid message
     if data != None:
-        logging.info(data)
+        print data
         return data 
     else:
         logging.info(None)
@@ -76,9 +76,9 @@ def run():
                 return
 
         values = read_values()
-        roll = -float(values[3])*DEG_TO_RAD
-        pitch = float(values[2])*DEG_TO_RAD
-        yaw = float(values[1])*DEG_TO_RAD
+        roll = -float(values[1][1])*DEG_TO_RAD
+        pitch = float(values[1][2])*DEG_TO_RAD
+        yaw = float(values[1][3])*DEG_TO_RAD
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 

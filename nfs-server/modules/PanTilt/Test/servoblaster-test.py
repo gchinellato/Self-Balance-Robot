@@ -21,11 +21,11 @@ SERVO_V = '5' #pin 16 BCM 23
     0% = 0 degree'''
 
 #Limits
-HORIZONTAL_MAX = 75
-HORIZONTAL_MIN = 20
+HORIZONTAL_MAX = 60
+HORIZONTAL_MIN = 25
 
-VERTICAL_MAX = 94
-VERTICAL_MIN = 61
+VERTICAL_MAX = 95
+VERTICAL_MIN = 60
 
 try: 
     os.system('sudo servod')
@@ -35,17 +35,19 @@ try:
     # ServoBlaster is what we use to control the servo motors
     ServoBlaster = open('/dev/servoblaster', 'w')	
 
-    ServoBlaster.write(SERVO_H + '=' + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + '%' + '\n')
+    ServoBlaster.write(SERVO_H + '=' + str(20) + '%' + '\n')
+    #ServoBlaster.write(SERVO_H + '=' + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + '%' + '\n')
     ServoBlaster.flush()
-    ServoBlaster.write(SERVO_V + '=' + str(VERTICAL_MAX) + '%' + '\n')
-    ServoBlaster.flush()
+    #ServoBlaster.write(SERVO_V + '=' + str(VERTICAL_MAX) + '%' + '\n')
+    #ServoBlaster.flush()
     time.sleep(0.1) 
 
     for i in range(HORIZONTAL_MIN, HORIZONTAL_MAX):
+        print "testeee"
         print "Horizontal: " + SERVO_H + '=' + str(i) + '%' + '\n'
         ServoBlaster.write(SERVO_H + '=' + str(i) + '%' + '\n')
         ServoBlaster.flush()
-        time.sleep(0.2) 
+        time.sleep(0.1) 
 
     time.sleep(1) 
 
@@ -61,7 +63,7 @@ try:
         print "Vertical: " + SERVO_V + '=' + str(i) + '%' + '\n'
         ServoBlaster.write(SERVO_V + '=' + str(i) + '%' + '\n')
         ServoBlaster.flush()
-        time.sleep(0.2) 
+        time.sleep(0.1) 
 
     time.sleep(1)
 
@@ -69,14 +71,14 @@ try:
         print "Vertical: " + SERVO_V + '=' + str(i) + '%' + '\n'
         ServoBlaster.write(SERVO_V + '=' + str(i) + '%' + '\n')
         ServoBlaster.flush()
-        time.sleep(0.1) 
+        time.sleep(0.1)
 
     time.sleep(1) 
 
-    ServoBlaster.write(SERVO_H + '=' + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + '%' + '\n')
-    ServoBlaster.flush()
-    ServoBlaster.write(SERVO_V + '=' + str(VERTICAL_MAX) + '%' + '\n')
-    ServoBlaster.flush()
+    #ServoBlaster.write(SERVO_H + '=' + str((HORIZONTAL_MAX-HORIZONTAL_MIN)/2) + '%' + '\n')
+    #ServoBlaster.flush()
+    #ServoBlaster.write(SERVO_V + '=' + str(VERTICAL_MAX) + '%' + '\n')
+    #ServoBlaster.flush()
     time.sleep(0.1) 
 
     ServoBlaster.close()

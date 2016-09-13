@@ -41,7 +41,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER | MODULE_MOTION #| MODULE_BALANCE #| MODULE_IMU
+        debug = MODULE_MANAGER | MODULE_BALANCE #| MODULE_CV# | MODULE_MOTION # #| MODULE_IMU
         
         #Message queues to communicate between threads
         clientUDPQueue = Queue.Queue()
@@ -67,8 +67,8 @@ def main(args):
         #Joystick thread
         joy = PS3_ControllerThread(name=PS3_CTRL_NAME, queue=eventQueue, debug=debug)
         joy.daemon = True
-        #threads.append(joy)
-        #joy.start()
+        threads.append(joy)
+        joy.start()
 
         #Balance thread
         balance = BalanceThread(name=BALANCE_NAME, queue=balanceQueue, debug=debug, callbackUDP=clientUDP.putMessage)
@@ -77,13 +77,13 @@ def main(args):
         balance.start()
 
         #Computer Vision thread
-        tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=debug)
-        tracking.daemon = True
+        #tracking = ComputerVisionThread(name=TRACKING_NAME, debug=debug)
+        #tracking.daemon = True
         #threads.append(tracking)
         #tracking.start()
 
         #Pan-Tilt thread
-        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug)
+        panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug, callbackUDP=clientUDP.putMessage)
         panTilt.daemon = True
         threads.append(panTilt)
         panTilt.start()      
@@ -130,18 +130,45 @@ def main(args):
                     #IP controller
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
-                        if event[1][1] == "PID": 
-                            balance.anglePID.setSetpoint(float(event[1][5]))
-                            balance.anglePID.setTunings(float(event[1][2]), float(event[1][3]), float(event[1][4]))
-                            logging.info("PID Angle Parameters updated:")
-                            logging.info(("PID: Setpoint: " + str(float(event[1][5]))))
-                            logging.info(("PID: Kp: " + str(float(event[1][2]))))
-                            logging.info(("PID: Ki: " + str(float(event[1][3]))))
-                            logging.info(("PID: Kd: " + str(float(event[1][4]))))
+                        if event[1][0] == "SET_PID_ANGLE":
+                            logging.info("Set PID Angle parameters!")    
+                            balance.angleKpCons = float(event[1][2])
+                            balance.angleKiCons = float(event[1][3])
+                            balance.angleKdCons = float(event[1][4])
+
+                            balance.angleKpAggr = float(event[1][5])
+                            balance.angleKiAggr = float(event[1][6])
+                            balance.angleKdAggr = float(event[1][7])
+
+                            balance.anglePID.setTunings(balance.angleKpCons, balance.angleKiCons, balance.angleKdCons)
+                            balance.offset = float(event[1][8])
+
+                        if event[1][0] == "SET_PID_SPEED": 
+                            logging.info("Set PID Speed parameters!")    
+                            balance.speedKp = float(event[1][2])
+                            balance.speedKi = float(event[1][3])
+                            balance.speedKd = float(event[1][4])
+
+                            balance.speedPID.setTunings(balance.speedKp, balance.speedKi, balance.speedKd)
+
+                        if event[1][0] == "SET_PAN_TILT": 
+                            headV = float(event[1][2])
+                            panTilt.putEvent((headV, None))
+
+                            headH = float(event[1][3])
+                            panTilt.putEvent((None, headH))
+
+                        if event[1][0] == "SET_BALANCE": 
+                            runSpeed = float(event[1][2])
+                            balance.putEvent((runSpeed, None)) 
+
+                            turnSpeed = float(event[1][3])
+                            balance.putEvent((None, turnSpeed)) 
                 
                     #OpenCV controller            
-                    elif event[0] == TRACKING_NAME:                        
-                        tracking.block.set() 
+                    elif event[0] == TRACKING_NAME:  
+                        pass                      
+                        '''tracking.block.set() 
 
                         #Delta measure from object up to center of the vision
                         dWidth, dHeight, radius = event[1]   
@@ -179,7 +206,7 @@ def main(args):
                             headH = panTilt.convertTo(angleH+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             panTilt.putEvent((None, headH))
 
-                        tracking.block.clear()
+                        tracking.block.clear()'''
               
             except Queue.Empty:
                 #if (debug & MODULE_MANAGER):

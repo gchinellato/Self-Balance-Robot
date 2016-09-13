@@ -28,25 +28,50 @@ class Motion():
         self._encoderA = Encoder("Left", MA_ENCODER_1, MA_ENCODER_2, TICKS_PER_TURN, WHEEL_RADIUS, debug)
         self._encoderB = Encoder("Right", MB_ENCODER_1, MB_ENCODER_2, TICKS_PER_TURN, WHEEL_RADIUS, debug)
 
-        self.wheelVelocity = 0
-        self.lastWheelPosition = 0
+        self.wheelVelocityAvg = 0
+        self.wheelVelocityA = 0
+        self.wheelVelocityB = 0
+        self.lastWheelPositionA = 0
+        self.lastWheelPositionB = 0
 
         #Start motor PWM
         self.motorStart()
 
-        logging.info("Motion module initialized") 
+        logging.info("Motion Module initialized") 
 
-    def updateWheelVelocity(self):
-        wheelPosition = self._getWheelPosition()
+    def updateWheelVelocity(self, dt=1.0):
+        '''wheelPosition = self.getWheelPosition()
         #velocity: derivative of position (Pf - Pi)/dt
-        self.wheelVelocity = wheelPosition - self.lastWheelPosition 
-        self.lastWheelPosition = wheelPosition
+        if (dt > 0):
+            self.wheelVelocity = (wheelPosition - self.lastWheelPosition)/dt
+        self.lastWheelPosition = wheelPosition'''
+
+        wheelDistanceA, wheelDistanceB = self.getDistance()
+        #velocity: derivative of position (Pf - Pi)/dt
+        if (dt > 0):
+            self.wheelVelocityA = (wheelDistanceA - self.lastWheelPositionA)/dt
+            self.wheelVelocityB = (wheelDistanceB - self.lastWheelPositionB)/dt
+        self.lastWheelPositionA = wheelDistanceA
+        self.lastWheelPositionB = wheelDistanceB
+
+        self.wheelVelocityAvg = (self.wheelVelocityA+self.wheelVelocityB)/2
 
         if (self.debug & MODULE_MOTION):
-            logging.debug(("wheelVelocity: %0.2f" % (self.wheelVelocity)))
+            logging.debug(("wheelVelocity Average: %0.2f, A: %0.2f, B: %0.2f" % (self.wheelVelocityAvg, self.wheelVelocityA, self.wheelVelocityB)))
 
-    def _getWheelPosition(self):
-        return self._encoderA.getTicks() + self._encoderB.getTicks()
+    def getWheelVelocity(self):
+        if (self.debug & MODULE_MOTION):
+            logging.debug(("wheelVelocity : [%0.2f cm/s] [%0.2f m/s] [%0.2f km/h]" % (self.wheelVelocityAvg, self.wheelVelocityAvg/100, (self.wheelVelocityAvg/100)*3.6)))
+        return self.wheelVelocityAvg
+
+    def getDistance(self):
+        '''Get distance from each motor, should be similar'''
+        return (self._encoderA.getDistance(), self._encoderB.getDistance())
+        #return self._encoderA.getDistance()
+
+    def getWheelPosition(self):
+        #return self._encoderA.getTicks() + self._encoderB.getTicks()
+        return (self._encoderA.getTicks(), self._encoderA.getTicks())
 
     def motorMove(self, speedA, speedB):
         '''Set motor speed, checking the boundaries and adding compensations for each motor (if necessary)'''
@@ -95,10 +120,6 @@ class Motion():
         self._motorA.shutdown()
         self._motorB.shutdown()
 
-    def getDistance(self):
-        '''Get distance from each motor, should be similar'''
-        return (self._encoderA.getDistance(), self._encoderB.getDistance())
-
     def convertRange(self, analogValue):
         '''Convert analog value (+1.0 ~ -1.0) to dutyCycle (100.0% ~ -100.0%)'''
         if not analogValue >= ANALOG_MIN and analogValue <= ANALOG_MAX:        
@@ -117,3 +138,28 @@ class Motion():
         elif value < lowerLimit:
             value = lowerLimit
         return value 
+
+def TestMotion():
+    try:
+        setVerbosity("debug")
+        motion = Motion() 
+
+        LP = 0.1
+
+        while True:
+            v = float((input("Inser PWM duty cycle: ")))
+            motion.motorMove(v, v)            
+            for i in range(25):
+                motion.updateWheelVelocity(dt=LP)
+                velo = motion.getWheelVelocity()
+                print("wheelVelocity Average: %0.2f, A: %0.2f, B: %0.2f" % (motion.wheelVelocityAvg, motion.wheelVelocityA, motion.wheelVelocityB))
+                print ("wheelVelocity : [%0.2f cm/s] [%0.2f m/s] [%0.2f km/h]" % (velo, velo/100, (velo/100)*3.6))
+                print "Distance: " + str(motion.getDistance())
+                time.sleep(LP)
+
+    except KeyboardInterrupt:
+        print "Shutdown motor"
+        motion.motorShutDown()
+
+if __name__ == '__main__':
+    TestMotion()

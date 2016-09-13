@@ -60,6 +60,7 @@ class UDP_ClientThread(threading.Thread):
                 #    logging.debug("Duration: " + str(currentTime - lastTime))
 
                 UDP_MSG = self.getMessage() 
+                UDP_MSG = str.encode(UDP_MSG)
                 if UDP_MSG != None:           
                     self.sock.sendto(UDP_MSG, (self.UDP_IP, self.UDP_PORT))
 

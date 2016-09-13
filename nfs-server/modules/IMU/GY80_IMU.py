@@ -29,7 +29,7 @@ class GY80_IMU():
         self.CFanglePitch = 0.0
         self.CFangleYaw = 0.0
 
-        logging.info("GY80 IMU module initialized") 
+        logging.info("GY80 IMU Module initialized") 
 
     def _readAcc(self):
         #

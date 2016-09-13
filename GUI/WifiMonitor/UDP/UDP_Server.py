@@ -60,7 +60,8 @@ class UDP_ServerThread(threading.Thread):
                 #if (self.debug & MODULE_SERVER_UDP):
                 #    logging.debug("Duration: " + str(currentTime - lastTime))
 
-                strData, addr = self.sock.recvfrom(128)    
+                strData, addr = self.sock.recvfrom(128)  
+                strData = strData.decode("utf-8")   
                 data = self.parseData(strData) 
                 self.putMessage(self.name, data)
             except queue.Full:

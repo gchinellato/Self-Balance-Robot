@@ -25,8 +25,6 @@ class PID():
         self._Cp = 0
         self._Ci = 0
         self._Cd = 0
-        self.modePID = PID_CONSERVATIVE
-        self.anglePIDLimit = ANGLE_LIMIT
 
         self.lastTime = 0
         self.lastError = 0
@@ -72,10 +70,13 @@ class PID():
         self.lastTime = currentTime        
 
         #Sum terms
-        output = (self._Cp * self.Kp) + (self._Ci * self.Ki) + (self._Cd * self.Kd)
+        pTerm = (self._Cp * self.Kp)
+        iTerm = (self._Ci * self.Ki)
+        dTerm = (self._Cd * self.Kd)
+        output = pTerm + iTerm + dTerm
 
         if (self.debug & MODULE_MOTION_PID): 
-            logging.debug(("PID output = %0.2f, input: %0.2f, error: %0.2f, Cp: %0.2f, Ci: %0.2f, Cd: %0.2f" % (output, inputValue, error, self._Cp, self._Ci, self._Cd)))
+            logging.debug(("PID %s output = %0.2f, input: %0.2f, error: %0.2f, pTerm: %0.2f, iTerm: %0.2f, dTerm: %0.2f" % (self.name, output, inputValue, error, pTerm, iTerm, dTerm)))
 
         return output
 

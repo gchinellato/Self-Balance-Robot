@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>446</width>
-    <height>570</height>
+    <width>419</width>
+    <height>583</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Mr. Robot Manager</string>
+   <string>Wireless monitor</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QGroupBox" name="groupBox_PID">
@@ -71,7 +71,7 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="minimum">
       <double>0.000000000000000</double>
@@ -90,7 +90,7 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="minimum">
       <double>0.000000000000000</double>
@@ -122,7 +122,7 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
@@ -177,7 +177,7 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
@@ -206,7 +206,7 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="singleStep">
       <double>0.100000000000000</double>
@@ -222,10 +222,10 @@
       </rect>
      </property>
      <property name="decimals">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="singleStep">
-      <double>0.500000000000000</double>
+      <double>0.100000000000000</double>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_sendPID_Zero">
@@ -335,8 +335,8 @@
    <widget class="QGroupBox" name="groupBox_Orientation">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>400</y>
+      <x>290</x>
+      <y>180</y>
       <width>121</width>
       <height>121</height>
      </rect>
@@ -426,10 +426,10 @@
    <widget class="QGroupBox" name="groupBox_Motor">
     <property name="geometry">
      <rect>
-      <x>320</x>
-      <y>180</y>
-      <width>121</width>
-      <height>181</height>
+      <x>10</x>
+      <y>380</y>
+      <width>291</width>
+      <height>151</height>
      </rect>
     </property>
     <property name="mouseTracking">
@@ -449,19 +449,19 @@
       <rect>
        <x>0</x>
        <y>30</y>
-       <width>66</width>
+       <width>71</width>
        <height>17</height>
       </rect>
      </property>
      <property name="text">
-      <string>PID</string>
+      <string>PID Speed</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_speedRun">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>60</y>
+       <x>170</x>
+       <y>30</y>
        <width>66</width>
        <height>17</height>
       </rect>
@@ -473,8 +473,8 @@
     <widget class="QLabel" name="label_speedTurn">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>90</y>
+       <x>170</x>
+       <y>60</y>
        <width>66</width>
        <height>17</height>
       </rect>
@@ -486,7 +486,7 @@
     <widget class="QLineEdit" name="lineEdit_speedPID">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>80</x>
        <y>20</y>
        <width>71</width>
        <height>27</height>
@@ -496,8 +496,8 @@
     <widget class="QLineEdit" name="lineEdit_speedRun">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>50</y>
+       <x>210</x>
+       <y>20</y>
        <width>71</width>
        <height>27</height>
       </rect>
@@ -506,8 +506,8 @@
     <widget class="QLineEdit" name="lineEdit_speedTurn">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>80</y>
+       <x>210</x>
+       <y>50</y>
        <width>71</width>
        <height>27</height>
       </rect>
@@ -516,8 +516,8 @@
     <widget class="QLabel" name="label_speedLeft">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>120</y>
+       <x>170</x>
+       <y>90</y>
        <width>66</width>
        <height>17</height>
       </rect>
@@ -529,8 +529,8 @@
     <widget class="QLineEdit" name="lineEdit_speedLeft">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>110</y>
+       <x>210</x>
+       <y>80</y>
        <width>71</width>
        <height>27</height>
       </rect>
@@ -539,8 +539,8 @@
     <widget class="QLabel" name="label_speedRight">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>150</y>
+       <x>170</x>
+       <y>120</y>
        <width>66</width>
        <height>17</height>
       </rect>
@@ -552,11 +552,80 @@
     <widget class="QLineEdit" name="lineEdit_speedRight">
      <property name="geometry">
       <rect>
-       <x>40</x>
-       <y>140</y>
+       <x>210</x>
+       <y>110</y>
        <width>71</width>
        <height>27</height>
       </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_veloA">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>80</y>
+       <width>71</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_anglePID">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>50</y>
+       <width>71</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_veloB">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>120</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Velo B</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_veloB">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>110</y>
+       <width>71</width>
+       <height>27</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_anglePID">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>60</y>
+       <width>81</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Run Angle</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_veloA">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>90</y>
+       <width>66</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Velo A</string>
      </property>
     </widget>
    </widget>
@@ -766,13 +835,39 @@
      </property>
     </widget>
    </widget>
+   <widget class="QPushButton" name="pushButton_chart">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>400</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Chart...</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_3dModel">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>440</y>
+      <width>101</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>3D Model...</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>446</width>
+     <width>419</width>
      <height>25</height>
     </rect>
    </property>
