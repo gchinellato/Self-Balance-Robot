@@ -9,12 +9,6 @@
 *************************************************
 """
 
-"""
-IMPORTANT
-The balance thread is not managed by Raspberry anymore, now Arduino is responsible for all tasks related to Balance and Motion.
-For this reason, Balance, IMU and Motion modules into NFS-server folder are descontinued, please check Arduino directory
-"""
-
 from Comm.UDP.UDP_Server import UDP_ServerThread
 from Comm.UDP.UDP_Client import UDP_ClientThread
 from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread

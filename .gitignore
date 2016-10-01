@@ -5,6 +5,10 @@ __pycache__/
 *~
 *.pyc
 __pycache__/
+*.clang_complete
+*.gcc-flags.json
+*.travis.yml
+*.pioenvs
 
 # C extensions
 *.so
