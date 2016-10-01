@@ -46,6 +46,11 @@ class HMC5883L
 public:
 	HMC5883L();
 	void getMagVector(float (&data)[3]);
+	void tiltCompensation(float accRoll, float accPitch, float (&data)[3]);
+	void getHeading(float compX, float compY, boolean declinationFlag);
+	void setDeclination(float degree, float minutes);
+	float declination;
+	float heading;
 private:
 	float magVector[3]; // x, y, z
 	void read();
@@ -54,7 +59,7 @@ private:
 	void setGain(float fieldRange);
 	void writeTo(byte address, byte val);
 	void readFrom(byte address, int num, byte buff[]);
-	float HMC5883L_SCALE_FACTOR;    
+	float HMC5883L_SCALE_FACTOR;
 	byte _buff[6];
 };
 

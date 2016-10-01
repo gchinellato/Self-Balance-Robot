@@ -231,6 +231,52 @@ void HMC5883L::applyCalibration()
 	magVector[2] = (magVector[2] - offsetZ) * mag_z_scale;
 }
 
+void HMC5883L::tiltCompensation(float accRoll, float accPitch, float (&data)[3])
+{
+	float cosPitch = cos(accPitch);
+	float sinPitch = sin(accPitch);
+	float cosRoll = cos(accRoll);
+	float sinRoll = sin(accRoll);
+
+	//Tilt Compensation
+	float compMag[3] = {0,0,0};
+	compMag[0] = (magVector[0]*cosPitch) + (magVector[2]*sinPitch);
+	compMag[1] = (magVector[0]*sinRoll*sinPitch) + (magVector[1]*cosRoll) - (magVector[2]*sinRoll*cosPitch);
+	compMag[2] = (-magVector[0]*cosRoll*sinPitch) + (magVector[1]*sinRoll) - (magVector[2]*cosRoll*cosPitch);
+
+	memcpy(data, compMag, sizeof(data));
+}
+
+void HMC5883L::setDeclination(float degree, float minutes)
+{
+	declination = (degree+minutes/60)*(M_PI/180);
+}
+
+void HMC5883L::getHeading(float compX, float compY, boolean declinationFlag)
+{
+		float headingRad;
+
+		//Only needed if the heading value does not increase when the magnetometer is rotated clockwise
+		//compY = -compY;
+
+		headingRad = atan2(compY, compX);
+
+		if (declinationFlag == true)
+		{
+			headingRad += declination;
+		}
+
+		//Correct for reversed heading
+		if (headingRad < 0)
+			headingRad += 2*M_PI;
+
+		//Check for wrap and compensate
+		if (headingRad > 2*M_PI)
+			headingRad -= 2*M_PI;
+
+		heading = headingRad;
+}
+
 /*
  * getOrientationVector method:
  * store calibrated and scaled accelerometer data(x,y,z) in '&data' parameter
