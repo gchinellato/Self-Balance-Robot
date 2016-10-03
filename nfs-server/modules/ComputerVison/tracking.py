@@ -15,12 +15,14 @@ import numpy as np
 from picamera.array import PiRGBArray
 import picamera
 import time
+import threading
 import multiprocessing
+import Queue
 from Utils.traces.trace import *
 
-class ComputerVisionThread(multiprocessing.Process):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=multiprocessing.Queue(), debug=0):
-        multiprocessing.Process.__init__(self, group=group, target=target, name=name)
+class ComputerVisionThread(threading.Thread):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=Queue.Queue(), debug=0):
+        threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
         self.name = name
@@ -28,10 +30,11 @@ class ComputerVisionThread(multiprocessing.Process):
 
         #Queue to communicate between threads
         self._workQueue = queue
-        self._lock = multiprocessing.Lock()        
+        self._lock = threading.Lock()        
         
         #Event to signalize between threads
-        self._stopEvent = multiprocessing.Event()
+        self._stopEvent = threading.Event()
+        self.block = threading.Event()
         self._sleepPeriod = 0.02 
 
         self.width=640
@@ -57,64 +60,64 @@ class ComputerVisionThread(multiprocessing.Process):
 
         try:
             for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-                if self._stopEvent.is_set() != True:
+                if self._stopEvent.isSet() != True:
                     currentTime = time.time()
 
                     #Calculate time since the last time it was called
                     #if (self.debug & MODULE_CV):
                     #    logging.debug("Duration: " + str(currentTime - lastTime))
 
-                    frame = frame.array
+                    #Event to sync the thread with main thread
+                    if self.block.isSet() != True:
+                        frame = frame.array
 
-                    #resize the frame, blur it, and convert it to the HSV color space
-                    frame = imutils.resize(frame, width=self.width, height=self.height)
-                    #blurred = cv2.GaussianBlur(frame, (11, 11), 0)
-                    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                        #resize the frame, blur it, and convert it to the HSV color space
+                        frame = imutils.resize(frame, width=self.width, height=self.height)
+                        #blurred = cv2.GaussianBlur(frame, (11, 11), 0)
+                        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-                    # construct a mask for the color, then perform a series of dilations and erosions to remove any small blobs left in the mask
-                    mask = cv2.inRange(hsv, lower, upper)
-                    mask = cv2.erode(mask, None, iterations=2)
-                    mask = cv2.dilate(mask, None, iterations=2)
+                        # construct a mask for the color, then perform a series of dilations and erosions to remove any small blobs left in the mask
+                        mask = cv2.inRange(hsv, lower, upper)
+                        mask = cv2.erode(mask, None, iterations=2)
+                        mask = cv2.dilate(mask, None, iterations=2)
 
-                    # find contours in the mask and initialize the current (x, y) center of the ball
-                    cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-                    center = None
+                        # find contours in the mask and initialize the current (x, y) center of the ball
+                        cnts = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+                        center = None
 
-                    #Center of the window
-                    cv2.circle(frame, (int(self.width/2), int(self.height/2)), 5, (0, 0, 255), -1)
+                        #Center of the window
+                        cv2.circle(frame, (int(self.width/2), int(self.height/2)), 5, (0, 0, 255), -1)
 
-                    #only proceed if at least one contour was found
-                    if len(cnts) > 0:
-                        # find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
-                        c = max(cnts, key=cv2.contourArea)
-                        ((x, y), radius) = cv2.minEnclosingCircle(c)
+                        #only proceed if at least one contour was found
+                        if len(cnts) > 0:
+                            # find the largest contour in the mask, then use it to compute the minimum enclosing circle and centroid
+                            c = max(cnts, key=cv2.contourArea)
+                            ((x, y), radius) = cv2.minEnclosingCircle(c)
 
-                        M = cv2.moments(c)
-                        if M["m00"] != 0:
-                            center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-                        else:
-                            center = (0, 0)
+                            M = cv2.moments(c)
+                            if M["m00"] != 0:
+                                center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+                            else:
+                                center = (0, 0)
 
-                        #Delta measure from object up to center of the vision
-                        dWidth = center[0]-(self.width/2)
-                        dHeight = center[1]-(self.height/2)
+                            #Delta measure from object up to center of the vision
+                            dWidth = center[0]-(self.width/2)
+                            dHeight = center[1]-(self.height/2)
+ 
+                            #only proceed if the radius meets a minimum size
+                            if radius > 10:
+                                #draw the circle and centroid on the frame,then update the list of tracked points
+                                cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                                cv2.circle(frame, center, 5, (0, 0, 255), -1)
 
-                        #only proceed if the radius meets a minimum size
-                        if radius > 10:
-                            #draw the circle and centroid on the frame,then update the list of tracked points
-                            cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
-                            cv2.circle(frame, center, 5, (0, 0, 255), -1)
+                                if (self.debug & MODULE_CV):
+                                    cv2.putText(frame,"Radius: " + str(radius),(int(x),int(y)),cv2.FONT_HERSHEY_SIMPLEX,.5, (255,255,255),2)
+                                    cv2.putText(frame,"Position X: " + str(center[0]) + ", Y: " + str(center[1]),(int(x),int(y+20)),cv2.FONT_HERSHEY_SIMPLEX,.5, (255,255,255),2)
+                                    logging.debug(("Position X: " + str(center[0]) + ", Y: " + str(center[1])))
+                                    logging.debug(("Distance to center X: " + str(dWidth) + ", Y: " + str(dHeight)))
+                                    logging.debug(("Radius: " + str(radius)))
 
-                            if (self.debug & MODULE_CV):
-                                cv2.putText(frame,"Radius: " + str(radius),(int(x),int(y)),cv2.FONT_HERSHEY_SIMPLEX,.5, (255,255,255),2)
-                                cv2.putText(frame,"Position X: " + str(center[0]) + ", Y: " + str(center[1]),(int(x),int(y+20)),cv2.FONT_HERSHEY_SIMPLEX,.5, (255,255,255),2)
-                                logging.debug(("Position X: " + str(center[0]) + ", Y: " + str(center[1])))
-                                logging.debug(("Distance to center X: " + str(dWidth) + ", Y: " + str(dHeight)))
-                                logging.debug(("Radius: " + str(radius)))
-
-                            self.putEvent(self.name, (dWidth, dHeight, round(radius,2)))
-                        
-                        logging.debug("reading frames...") 
+                                self.putEvent(self.name, (dWidth, dHeight, round(radius,2)))
 
                         #show the frame
                         #cv2.imshow("Frame", frame)
@@ -136,7 +139,7 @@ class ComputerVisionThread(multiprocessing.Process):
         #Stop the thread and wait for it to end
         logging.info("Killing Tracking Thread...") 
         self._stopEvent.set()
-        multiprocessing.Process.join(self, timeout) 
+        threading.Thread.join(self, timeout) 
 
     def getEvent(self, timeout=2):
         return self._workQueue.get(timeout=timeout)  

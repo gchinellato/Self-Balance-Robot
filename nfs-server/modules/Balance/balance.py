@@ -121,7 +121,7 @@ class BalanceThread(threading.Thread):
                 self.anglePID.setTunings(self.angleKpAggr, self.angleKiAggr, self.angleKdAggr)
 
             if (abs(self.imu.CFanglePitch) > ANGLE_IRRECOVERABLE):
-                #so sorry, it is licking the floor :(
+                #so sorry, we're licking the floor :(
                 speedL = 0.0
                 speedR = 0.0
                 pitchPID = 0.0

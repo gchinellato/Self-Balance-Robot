@@ -12,22 +12,29 @@
 #ifndef MOTOR_H
 #define MOTOR_H
 
+#define BRAKEVCC 0
+#define CW   1
+#define CCW  2
+#define BRAKEGND 3
 #define CS_THRESHOLD 100
+
+#define PWM_MIN 0
+#define PWM_MAX 255
 
 class Motor
 {
 public:
-	Motor();
-	void motorGo(int motor, int direct, int pwm);
-    void motorOff(int motor);
-    void Initialize();
-    void CheckCurrentSense();
+	Motor(int pinPWM, int pinCW, int pinCCW, int pinCS);
+	void setSpeedPercentage(float speed);
+    void motorOff();
+    void currentSense();
+	float motorSpeed;
 private:
-    int inApin[2];
-    int inBpin[2];
-    int pwmpin[2];
-    int cspin[2];
-    int statpin;
+	void motorGo(int direct, int pwm);
+    int inApin;
+    int inBpin;
+    int pwmpin;
+    int cspin;
 };
 
 #endif

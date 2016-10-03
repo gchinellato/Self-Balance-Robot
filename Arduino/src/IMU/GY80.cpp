@@ -51,7 +51,6 @@ void GY80::magCalibration()
 
 float* GY80::getOrientation(int algorithm, float G_dt)
 {
-    //dcmAlgorithm(G_dt, false, orientation); 	// pitch, roll, yaw
     complementaryFilder(G_dt, orientation); // roll, pitch, yaw
 	return orientation;
 }

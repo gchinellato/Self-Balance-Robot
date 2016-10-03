@@ -106,7 +106,9 @@ LP = 0.0
 
 def main():
     try:
-        serverThread = UDP_ServerThread(name="Thread-UDP-Server", debug=False)
+        setVerbosity("debug")
+
+        serverThread = UDP_ServerThread(name="Thread-UDP-Server", debug=MODULE_SERVER_UDP)
         serverThread.daemon = True
         serverThread.start()
 

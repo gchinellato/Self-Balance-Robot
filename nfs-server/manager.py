@@ -18,7 +18,7 @@ For this reason, Balance, IMU and Motion modules into NFS-server folder are desc
 from Comm.UDP.UDP_Server import UDP_ServerThread
 from Comm.UDP.UDP_Client import UDP_ClientThread
 from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
-from Balance.balance import BalanceThread
+from Comm.Serial.serialPort import SerialThread
 from PanTilt.panTilt import PanTiltThread
 from ComputerVison.tracking import ComputerVisionThread
 from constants import *
@@ -27,10 +27,11 @@ from PanTilt.constants import *
 from Utils.traces.trace import *
 import time
 import RPi.GPIO as GPIO
-import Queue
-import multiprocessing
+import Queue as queue
 import pygame
 import argparse
+
+import serial
 
 def argParse():
     #Construct the argument parse and parse the arguments
@@ -47,13 +48,13 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER #| MODULE_BALANCE #| MODULE_CV# | MODULE_MOTION # #| MODULE_IMU
+        debug = MODULE_MANAGER | MODULE_SERIAL #| MODULE_CV# | MODULE_MOTION # #| MODULE_IMU
         
         #Message queues to communicate between threads
-        clientUDPQueue = Queue.Queue()
-        eventQueue = Queue.Queue()
-        balanceQueue = Queue.Queue()
-        panTiltQueue = Queue.Queue()
+        clientUDPQueue = queue.Queue()
+        eventQueue = queue.Queue()
+        panTiltQueue = queue.Queue()
+        serialToWrite = queue.Queue()
 
         logging.info("Starting threads and process...")
         threads = []        
@@ -76,11 +77,11 @@ def main(args):
         threads.append(joy)
         joy.start()
 
-        #Balance thread
-        balance = BalanceThread(name=BALANCE_NAME, queue=balanceQueue, debug=debug, callbackUDP=clientUDP.putMessage)
-        balance.daemon = True
-        threads.append(balance)
-        balance.start()
+        #Serial thread
+        serial = SerialThread(name=SERIAL_NAME, queue=serialToWrite, COM="/dev/ttyUSB0", debug=debug, callbackUDP=clientUDP.putMessage)
+        serial.daemon = True
+        threads.append(serial)
+        serial.start() 
 
         #Computer Vision thread
         #tracking = ComputerVisionThread(name=TRACKING_NAME, debug=debug)
@@ -107,6 +108,7 @@ def main(args):
                 #Calculate time since the last time it was called
                 #if (debug & MODULE_MANAGER):
                     #logging.debug("Duration: " + str(currentTime - lastTime))
+                logging.info("loop")
 
                 event = eventQueue.get(timeout=2) 
                 if event != None: 
@@ -123,11 +125,11 @@ def main(args):
                             #Body run speed
                             if event[1].axis == joy.A_L3_V:
                                 runSpeed = event[1].value
-                                balance.putEvent((runSpeed, None)) 
+                                #balance.putEvent((runSpeed, None)) 
                             #Body turn speed
                             if event[1].axis == joy.A_L3_H: 
                                 turnSpeed = event[1].value
-                                balance.putEvent((None, turnSpeed)) 
+                                #balance.putEvent((None, turnSpeed)) 
                         
                         if event[1].type == pygame.JOYBUTTONDOWN or event[1].type == pygame.JOYBUTTONUP:
                             if event[1].button == joy.B_SQR:
@@ -136,7 +138,7 @@ def main(args):
                     #IP controller
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
-                        if event[1][0] == "SET_PID_ANGLE":
+                        '''if event[1][0] == "SET_PID_ANGLE":
                             logging.info("Set PID Angle parameters!")    
                             balance.angleKpCons = float(event[1][2])
                             balance.angleKiCons = float(event[1][3])
@@ -176,12 +178,11 @@ def main(args):
                             panTilt.putEvent((headV/10, None))
 
                             headH = -float(event[1][2])
-                            panTilt.putEvent((None, headH/10))
+                            panTilt.putEvent((None, headH/10))'''
 
                     #OpenCV controller            
-                    elif event[0] == TRACKING_NAME:  
-                        pass                      
-                        '''tracking.block.set() 
+                    elif event[0] == TRACKING_NAME:                       
+                        tracking.block.set() 
 
                         #Delta measure from object up to center of the vision
                         dWidth, dHeight, radius = event[1]   
@@ -219,9 +220,9 @@ def main(args):
                             headH = panTilt.convertTo(angleH+angle, ANGLE_MAX, ANGLE_MIN, ANALOG_MAX, ANALOG_MIN)
                             panTilt.putEvent((None, headH))
 
-                        tracking.block.clear()'''
+                        tracking.block.clear()
               
-            except Queue.Empty:
+            except queue.Empty:
                 #if (debug & MODULE_MANAGER):
                     #logging.debug("Queue Empty")
                 pass

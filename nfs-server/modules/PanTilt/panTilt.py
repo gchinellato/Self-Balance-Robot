@@ -102,7 +102,7 @@ class PanTiltThread(threading.Thread):
                               str(round(pwmVertical,2)) + "," + \
                               str(round(pwmHorizontal,2)) + "#"
                            
-                    # Sending UDP packets...
+                    #Sending UDP packets...
                     if (self.callbackUDP != None):
                         self.callbackUDP(UDP_MSG) 
         
