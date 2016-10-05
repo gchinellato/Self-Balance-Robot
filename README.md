@@ -9,14 +9,18 @@ This project is based on the following topics:
 * Raspberry PI     
 * Linux OS
 * Python programming
+* C++ programming
 * Multithread/Multiprocess programming
 * Robotics concepts
 * IMU sensor fusion
 * Computer Vision
+* Communication protocols (UART, I2C, SPI, TCP, UDP...)
 * Android app (*)
+* PyQT
 
 ## Item list
-* Raspberry Pi 2 B+
+* Raspberry Pi 3
+* Arduino Nano Atmega328
 * PiCam
 * Pan/Tilt kit with micro servo 9g
 * IMU GY80 10DOF sensor
@@ -27,7 +31,6 @@ This project is based on the following topics:
 * VNH2SP30 motor driver (H-bridge)
 * LiPo battery 3S 11.1 2200mAh
 * DC-DC Step down converter
-* Level logic converter 3.3V-5V
 * Bluetooth dongle
 * WiFi dongle   
 * Google Cardboard VR (*)
@@ -38,6 +41,11 @@ This project is based on the following topics:
 
 ## External tools
 * Opencv: http://opencv.org/
+* pySerial: https://github.com/pyserial/pyserial
+* PyQt5: https://sourceforge.net/projects/pyqt/
+* PyOpenGL: http://pyopengl.sourceforge.net/
+* matplotlib: http://matplotlib.org/
 * PS3 Bluetooth Controller driver: http://qtsixa.sourceforge.net/
-* WiringPi-Python: https://github.com/WiringPi/WiringPi-Python
 * Servoblaster: https://github.com/richardghirst/PiBits/tree/master/ServoBlaster
+* PlatformIO: http://platformio.org/
+* Atom IDE: https://atom.io/

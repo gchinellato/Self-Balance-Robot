@@ -31,7 +31,7 @@ class SerialThread(threading.Thread):
 
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.01    
+        self._sleepPeriod = 0.01
 
         self.COM = COM 
         self.port = None 
@@ -43,7 +43,7 @@ class SerialThread(threading.Thread):
         logging.info("Serial Thread Started")
 
         try:
-            self.port = serial.Serial(self.COM, baudrate=115200, timeout=2.0)
+            self.port = serial.Serial(self.COM, baudrate=57600, timeout=2.0)
             logging.info(self.port.name)
 
             lastTime = 0.0
@@ -62,13 +62,15 @@ class SerialThread(threading.Thread):
                     msg = self.getMessage() 
                     if msg != None:           
                         self.port.write(''.join(msg))
+                        time.sleep(0.001)
 
                         if (self.debug & MODULE_SERIAL):
                             logging.debug(("Writing to Arduino: " + str(msg))) 
-
+   
                     recv = self.port.readline()
         
-                    logging.info(("Reading from Arduino: " + str(recv)))
+                    if recv != 0:
+                        logging.info(("Reading from Arduino: " + str(recv)))
 
                     #Parse event
                     msgList = self.parseData(recv)
@@ -87,6 +89,7 @@ class SerialThread(threading.Thread):
                     #Sending UDP packets...
                     if (self.callbackUDP != None and UDP_MSG != None):
                         self.callbackUDP(UDP_MSG)
+
                 except queue.Empty:
                     if (self.debug & MODULE_SERIAL):
                         logging.debug("Queue Empty")
@@ -113,9 +116,10 @@ class SerialThread(threading.Thread):
         else:
             return None
 
-    def putMessage(self, msg):
+    def putMessage(self, command, msg):
         #Bypass if full, to not block the current thread
         if not self._workQueue.full(): 
+            msg = self.checkData(command, msg)
             self._workQueue.put(msg)
 
     def parseData(self, strData):
@@ -129,8 +133,44 @@ class SerialThread(threading.Thread):
             data = strData.split(",")
             return data
         else:
-            logging.warning("Invalid message")
+            #logging.warning("Invalid message")
             return None  
+
+    def checkData(self, command, msg):
+        '''(TRACE_BEGIN)(COMMAND),(NUM_PARAM),(PARAM_1),(PARAM_2),(...)(TRACE_END)'''
+        if command == STARTED:
+            msg = str(command) + "," + "1" + "," + str(msg)
+        elif command == DIRECTION:
+            msg = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
+            msg = str(command) + "," + "1" + "," + str(msg)
+        elif command == STEERING:
+            msg = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
+            msg = str(command) + "," + "1" + "," + str(msg)
+        elif command == SPEED_PID:
+            msg = str(command) + "," + "3" + "," + str(msg[0]) + "," + str(msg[1]) + "," + str(msg[2])
+        elif command == ANGLE_PID_AGGR:
+            msg = str(command) + "," + "3" + "," + str(msg[0]) + "," + str(msg[1]) + "," + str(msg[2])
+        elif command == ANGLE_PID_CONS:
+            msg = str(command) + "," + "3" + "," + str(msg[0]) + "," + str(msg[1]) + "," + str(msg[2])
+        elif command == CALIBRATED_ZERO_ANGLE:
+            msg = str(command) + "," + "1" + "," + str(msg)
+        elif command == ANGLE_LIMIT:
+            msg = str(command) + "," + "1" + "," + str(msg)
+        else:
+            msg = "unknown"
+
+        return TRACE_BEGIN + msg + TRACE_END
+        
+    def convertTo(self, value, fromMax, fromMin, toMax, toMin):
+        if not value >= fromMin and value <= fromMax:        
+            logging.warning("Value out of the range (Max:"+str(fromMax)+" , Min:"+str(fromMin)+")")
+            if value > fromMax:
+                value = fromMax
+            elif value < fromMin:
+                value = fromMin
+
+        factor = (value-fromMin)/(fromMax-fromMin)
+        return factor*(toMax-toMin)+toMin 
 
 def main():
     try:
@@ -145,7 +185,7 @@ def main():
 
         while True:
             logging.info("Seding packet: " + str(i)) 
-            serialThread.putMessage("ABC")
+            serialThread.putMessage("TESTE", "ABC")
             i += 1
             time.sleep(1)
 

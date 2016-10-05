@@ -9,37 +9,42 @@
 """
 
 """
-Arduino
-4x encoder (INT0-D2:32, INT1-D3:1, D4:2. D7:11) 
-4x motor enable (D9:13, D10:14, D11:15, D12:16)
-2x PWM (D5: 9, D6: 10)
-2x I2C (SCL-A5:28, SDA-A4:27)
-2x UART (TX:31, RX:30)
+#
+#Arduino GPIO
+#
+
+4x encoder (INT0-D2, INT1-D3, D4, D7) 
+4x motor enable (D5, D6, D11, D12)
+2x PWM (D9, D10)
+2x I2C (SCL-A5, SDA-A4)
 """
 
+'''
+Deprecated (replaced to Arduino)
 #
 #Motors GPIOs
 #
 
 #Motor A & B PWM outputs (BCM pinout)
-#MA_PWM_GPIO = 19
-#MB_PWM_GPIO = 26
+MA_PWM_GPIO = 19
+MB_PWM_GPIO = 26
 
 #Motor A & B enable outputs (BCM pinout)
-#MA_CLOCKWISE_GPIO = 5
-#MA_ANTICLOCKWISE_GPIO = 6 
-#MB_CLOCKWISE_GPIO = 20
-#MB_ANTICLOCKWISE_GPIO = 21
+MA_CLOCKWISE_GPIO = 5
+MA_ANTICLOCKWISE_GPIO = 6 
+MB_CLOCKWISE_GPIO = 20
+MB_ANTICLOCKWISE_GPIO = 21
 
 #
 #Encoders GPIOs
 #
 
 #Enconders 1 & 2 for each motor (BCM pinout)
-#MA_ENCODER_1 = 12
-#MA_ENCODER_2 = 13
-#MB_ENCODER_1 = 7
-#MB_ENCODER_2 = 8
+MA_ENCODER_1 = 12
+MA_ENCODER_2 = 13
+MB_ENCODER_1 = 7
+MB_ENCODER_2 = 8
+'''
 
 #
 #PanTilt GPIOs

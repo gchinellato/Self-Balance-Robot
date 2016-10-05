@@ -1,27 +1,28 @@
+# Arduino Nano
+
+Instantiate Motors objects
+Instantiate Encoder objetcs
+Instantiate PID objects
+Instantiate IMU objects (Accel, Gyro, Magno, Barom)
+
 setup()
 {
     Configure serial
-    Configure i2c
-    Configure pwm pins
     Configure interrup pins
-    Configure output pins
-    Init IMU Module
-    Init Motion Module
-    Init PID Module
+    Set configuration
 }
 
 loop()
 {
-    read Serial
-    read Sensors
-    Compass Heading
-    Matrix update
-    Normalize
-    Drift correction
-    Euler Angles
+    Read serial trace
+    Read sensors
+    Sensor fusion (Euler angles)   
     Update speeds
-    PID compute
+    Compute speed PID
+    Check angle
+    Define PID mode
+    Compute angle PID
     Motor set speed
-    send Serial  
+    Send serial trace  
 }
 
