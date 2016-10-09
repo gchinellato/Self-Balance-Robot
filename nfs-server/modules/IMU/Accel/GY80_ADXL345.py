@@ -17,7 +17,7 @@ import time
 from Utils.traces.trace import *
 
 class GY80_Accelerometer_ADXL345():
-    def __init__(self, busnum=-1, debug=False):
+    def __init__(self, busnum=-1, debug=0):
         self.i2c = Adafruit_I2C(ADXL345_ADDRESS, busnum, debug)
         self.debug = debug
         self.Roll = None
@@ -43,7 +43,7 @@ class GY80_Accelerometer_ADXL345():
                 g -= 65536
             rawAcc.append(g)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_ACCEL):
             logging.debug(("Acc Raw: x:%d, y:%d, z:%d" % (rawAcc[X], rawAcc[Y], rawAcc[Z])))
 
         return rawAcc
@@ -55,7 +55,7 @@ class GY80_Accelerometer_ADXL345():
         normAcc[Y] = rawAcc[Y]/math.sqrt(rawAcc[X]*rawAcc[X] + rawAcc[Y]*rawAcc[Y] + rawAcc[Z]*rawAcc[Z])
         normAcc[Z] = rawAcc[Z]/math.sqrt(rawAcc[X]*rawAcc[X] + rawAcc[Y]*rawAcc[Y] + rawAcc[Z]*rawAcc[Z])
         
-        if (self.debug):
+        if (self.debug & MODULE_IMU_ACCEL):
             logging.debug(("Acc Normalized: x:%.3f, y:%.3f, z:%.3f" % (normAcc[X], normAcc[Y], normAcc[Z])))
 
         return normAcc
@@ -74,7 +74,7 @@ class GY80_Accelerometer_ADXL345():
             scaledAcc[Y] = scaledAcc[Y] * EARTH_GRAVITY_MS2
             scaledAcc[Z] = scaledAcc[Z] * EARTH_GRAVITY_MS2
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_ACCEL):
             if gForce == True:
                 logging.debug(("Acc Scaled: x:%.3f, y:%.3f, z:%.3f (g)" % (scaledAcc[X], scaledAcc[Y], scaledAcc[Z])))
             else:
@@ -95,7 +95,7 @@ class GY80_Accelerometer_ADXL345():
         self.Roll = round(Roll, 2)
         self.Pitch = round(Pitch, 2)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_ACCEL):
             logging.debug(("Roll:%0.2f, Pitch:%0.2f" % (self.Roll*RAD_TO_DEG, self.Pitch*RAD_TO_DEG)))
         
         return (self.Roll, self.Pitch)

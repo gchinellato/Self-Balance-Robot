@@ -20,7 +20,7 @@ import sys
 from Utils.traces.trace import *
 
 class GY80_Magnetometer_HMC5883L():
-    def __init__(self, gauss=1.3, busnum=-1, cal=False, debug=False):
+    def __init__(self, gauss=1.3, busnum=-1, cal=False, debug=0):
         self.i2c = Adafruit_I2C(HMC5883L_ADDRESS, busnum, debug)
         self.debug = debug
         self.gauss = gauss
@@ -96,7 +96,7 @@ class GY80_Magnetometer_HMC5883L():
         rawMag[Y] = mag[2]
         rawMag[Z] = mag[1]
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Raw: x:%d, y:%d, z:%d" % (rawMag[X], rawMag[Y], rawMag[Z])))
 
         return rawMag
@@ -108,7 +108,7 @@ class GY80_Magnetometer_HMC5883L():
         normMag[Y] = rawMag[Y]/math.sqrt(rawMag[X]*rawMag[X] + rawMag[Y]*rawMag[Y] + rawMag[Z]*rawMag[Z])
         normMag[Z] = rawMag[Z]/math.sqrt(rawMag[X]*rawMag[X] + rawMag[Y]*rawMag[Y] + rawMag[Z]*rawMag[Z])
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Normalized: x:%.3f, y:%.3f, z:%.3f" % (normMag[X], normMag[Y], normMag[Z])))
 
         return normMag
@@ -133,7 +133,7 @@ class GY80_Magnetometer_HMC5883L():
         else:
 		    scaledMag[Z] = round(rawMag[Z] * self.scale, 4)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Scaled: x:%.3f, y:%.3f, z:%.3f (mG)" % (scaledMag[X], scaledMag[Y], scaledMag[Z])))
 
         return scaledMag
@@ -181,7 +181,7 @@ class GY80_Magnetometer_HMC5883L():
         magOffset[Y] = (magYmin + magYmax)/2 
         magOffset[Z] = (magZmin + magZmax)/2 
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Offset: x:%0.3f, y:%0.3f, z:%0.3f" % (magOffset[X], magOffset[Y], magOffset[Z])))
 
         #Store offset in a file
@@ -221,7 +221,7 @@ class GY80_Magnetometer_HMC5883L():
         calMag[Y] = rawMag[Y] - magOffset[Y]
         calMag[Z] = rawMag[Z] - magOffset[Z]
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Calibrated: x:%0.3f, y:%0.3f, z:%0.3f" % (calMag[X], calMag[Y], calMag[Z])))
 
         return calMag 
@@ -238,7 +238,7 @@ class GY80_Magnetometer_HMC5883L():
         compMag[Y] = (rawMag[X]*sinRoll*sinPitch) + (rawMag[Y]*cosRoll) - (rawMag[Z]*sinRoll*cosPitch)
         compMag[Z] = (-rawMag[X]*cosRoll*sinPitch) + (rawMag[Y]*sinRoll) - (rawMag[Z]*cosRoll*cosPitch)
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Tilt: x:%0.2f, y:%0.2f" % (compMag[X], compMag[Y])))
 
         return compMag  
@@ -267,7 +267,7 @@ class GY80_Magnetometer_HMC5883L():
         degrees = math.floor(headingDeg)
         minutes = round(((headingDeg - degrees) * 60))
 
-        if (self.debug):
+        if (self.debug & MODULE_IMU_MAG):
             logging.debug(("Mag Heading: x:%0.2f" % (headingDeg)))
 
         self.Heading = headingDeg
@@ -275,7 +275,7 @@ class GY80_Magnetometer_HMC5883L():
      
 def TestHMC5883L():
     # Enable Magnetometer and Accelerometer
-    mag = GY80_Magnetometer_HMC5883L(debug=True, cal=False)
+    mag = GY80_Magnetometer_HMC5883L(debug=True, cal=True)
     accel = GY80_Accelerometer_ADXL345()
 
     LP = 0.2

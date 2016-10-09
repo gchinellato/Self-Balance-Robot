@@ -35,7 +35,7 @@ class Adafruit_I2C(object):
         # Gets the I2C bus number /dev/i2c#
         return 1 if Adafruit_I2C.getPiRevision() > 1 else 0
 
-    def __init__(self, address, busnum=-1, debug=False):
+    def __init__(self, address, busnum=-1, debug=0):
         self.address = address
         # By default, the correct I2C bus is auto-detected using /proc/cpuinfo
         # Alternatively, you can hard-code the bus version below:
@@ -62,7 +62,7 @@ class Adafruit_I2C(object):
         "Writes an 8-bit value to the specified register/address"
         try:
             self.bus.write_byte_data(self.address, reg, value)
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Wrote 0x%02X to register 0x%02X" % (value, reg)))
         except IOError, err:
             return self.errMsg()
@@ -71,7 +71,7 @@ class Adafruit_I2C(object):
         "Writes a 16-bit value to the specified register/address pair"
         try:
             self.bus.write_word_data(self.address, reg, value)
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Wrote 0x%02X to register pair 0x%02X,0x%02X" % (value, reg, reg+1)))
         except IOError, err:
             return self.errMsg()
@@ -80,7 +80,7 @@ class Adafruit_I2C(object):
         "Writes an 8-bit value on the bus"
         try:
             self.bus.write_byte(self.address, value)
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Wrote 0x%02X" % value))
         except IOError, err:
             return self.errMsg()
@@ -88,7 +88,7 @@ class Adafruit_I2C(object):
     def writeList(self, reg, list):
         "Writes an array of bytes using I2C format"
         try:
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Writing list to register 0x%02X:" % reg))
                 logging.debug((list))
             self.bus.write_i2c_block_data(self.address, reg, list)
@@ -99,7 +99,7 @@ class Adafruit_I2C(object):
         "Read a list of bytes from the I2C device"
         try:
             results = self.bus.read_i2c_block_data(self.address, reg, length)
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Device 0x%02X returned the following from reg 0x%02X" % (self.address, reg)))
                 logging.debug(results)
             return results
@@ -110,7 +110,7 @@ class Adafruit_I2C(object):
         "Read an unsigned byte from the I2C device"
         try:
             result = self.bus.read_byte_data(self.address, reg)
-            if self.debug:
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" % (self.address, result & 0xFF, reg)))
             return result
         except IOError, err:
@@ -120,8 +120,9 @@ class Adafruit_I2C(object):
         "Reads a signed byte from the I2C device"
         try:
             result = self.bus.read_byte_data(self.address, reg)
-            if result > 127: result -= 256
-            if self.debug:
+            if result > 127:
+                result -= 256
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Device 0x%02X returned 0x%02X from reg 0x%02X" % (self.address, result & 0xFF, reg)))
             return result
         except IOError, err:
@@ -135,7 +136,7 @@ class Adafruit_I2C(object):
             # endian on ARM (little endian) systems.
             if not little_endian:
                 result = ((result << 8) & 0xFF00) + (result >> 8)
-            if (self.debug):
+            if (self.debug & MODULE_I2C):
                 logging.debug(("I2C: Device 0x%02X returned 0x%04X from reg 0x%02X" % (self.address, result & 0xFFFF, reg)))
             return result
         except IOError, err:
