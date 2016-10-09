@@ -142,14 +142,17 @@ void loop()
             {
                 // read the incoming byte:
                 msg = Serial.readString();
-                Serial.println("msg: " + msg);
+                //Serial.print(msg);
+            }
 
-                //valid packet?
-                if(msg.startsWith(TRACE_BEGIN) && msg.endsWith(TRACE_END)){
+            if(msg != ""){
+                //valid packet? Start: #BEGIN# End: #END#\r\n
+                if(msg.startsWith(TRACE_BEGIN) && msg.endsWith(TRACE_END+String("\r\n"))){
                     //remove TRACE_BEGIN
                     msg.remove(0,7);
-                    //remove TRACE_END
-                    msg.remove(msg.length()-5,5);
+
+                    //remove TRACE_END\r\n
+                    msg.remove(msg.length()-7,7);
 
                     //convert from string to char array
                     msg.toCharArray(buff, 128);
@@ -159,61 +162,63 @@ void loop()
 
                     //get command
                     command = atoi(ret);
+                    //get number of parameters
                     size = int(strtok(NULL, ","));
 
                     switch (command) {
                         case STARTED:
-                            started = int(strtok(NULL, ","));
-                            Serial.println("STARTED command");
+                            started = atoi(strtok(NULL, ","));
+                            //Serial.println("STARTED command: " + String(started));
                             break;
                         case DIRECTION:
                             userControl.direction = atof(strtok(NULL, ","));
-                            Serial.println("DIRECTION command: " + String(userControl.direction));
+                            //Serial.println("DIRECTION command: " + String(userControl.direction));
                             break;
                         case STEERING:
                             userControl.steering = atof(strtok(NULL, ","));
-                            Serial.println("STEERING command: " + String(userControl.steering));
+                            //Serial.println("STEERING command: " + String(userControl.steering));
                             break;
                         case SPEED_PID:
                             configuration.speedPIDKp = atof(strtok(NULL, ","));
                             configuration.speedPIDKi = atof(strtok(NULL, ","));
                             configuration.speedPIDKd = atof(strtok(NULL, ","));
-                            Serial.println("SPEED_PID command");
+                            //Serial.println("SPEED_PID command: " + String(configuration.speedPIDKp) +","+ String(configuration.speedPIDKi) +","+ String(configuration.speedPIDKd));
+                            speedPID.setTunings(configuration.speedPIDKp, configuration.speedPIDKi, configuration.speedPIDKd);
                             break;
                         case ANGLE_PID_AGGR:
                             configuration.anglePIDAggKp = atof(strtok(NULL, ","));
                             configuration.anglePIDAggKi = atof(strtok(NULL, ","));
                             configuration.anglePIDAggKd = atof(strtok(NULL, ","));
-                            Serial.println("ANGLE_PID_AGGR command");
+                            //Serial.println("ANGLE_PID_AGGR command: " + String(configuration.anglePIDAggKp) +","+ String(configuration.anglePIDAggKi) +","+ String(configuration.anglePIDAggKd));
                             break;
                         case ANGLE_PID_CONS:
                             configuration.anglePIDConKp = atof(strtok(NULL, ","));
                             configuration.anglePIDConKi = atof(strtok(NULL, ","));
                             configuration.anglePIDConKd = atof(strtok(NULL, ","));
-                            Serial.println("ANGLE_PID_CONS command");
+                            //Serial.println("ANGLE_PID_CONS command: " + String(configuration.anglePIDConKp) +","+ String(configuration.anglePIDConKi) +","+ String(configuration.anglePIDConKd));
                             break;
                         case ZERO_ANGLE:
                             configuration.calibratedZeroAngle = atof(strtok(NULL, ","));
-                            Serial.println("ZERO_ANGLE command");
+                            //Serial.println("ZERO_ANGLE command: " + String(configuration.calibratedZeroAngle));
                             break;
                         case ANGLE_LIMITE:
                             configuration.anglePIDLowerLimit = atof(strtok(NULL, ","));
-                            Serial.println("ANGLE_LIMITE command");
+                            //Serial.println("ANGLE_LIMITE command: " + String(configuration.anglePIDLowerLimit));
                             break;
                         default:
-                            Serial.println("Unknown command");
+                            //Serial.println("Unknown command");
                             break;
                     }
                 }
                 else{
                     //Invalid packtet
+                    //Serial.println("Invalid packtet");
                 }
             }
 
             //read sensors and calculate Euler Angles
 			ori = imu.getOrientation(1, dt); //roll pitch yaw
             anglePIDInput = ori[1];
-			//Serial.println("Roll: " + String(ori[0]) + ", Pitch: " + String(ori[1]) + ", Yaw: " + String(ori[2]) + ", DT: " + String(G_Dt) );
 
             //update velocity
             //velocity: derivative of position (Pf - Pi)/dt in m/s
@@ -221,8 +226,8 @@ void loop()
             {
                 distance1 = encoder1.getDistance();
                 distance2 = encoder2.getDistance();
-                velocity1 = (distance1 - lastDistance1)*0.01/(dt/1000.0);
-                velocity2 = (distance2 - lastDistance2)*0.01/(dt/1000.0);
+                velocity1 = ((distance1 - lastDistance1)*0.01)/(dt/1000.0);
+                velocity2 = ((distance2 - lastDistance2)*0.01)/(dt/1000.0);
                 lastDistance1 = distance1;
                 lastDistance2 = distance2;
             }
@@ -234,7 +239,7 @@ void loop()
             encoder2.lastTicks = encoder2.ticks;
 
             //Compute Speed PID (input is wheel speed. output is angleSetpoint)
-            speedPIDInput = motor1.motorSpeed + motor2.motorSpeed;
+            speedPIDInput = (motor1.motorSpeed + motor2.motorSpeed)/2;
             speedPID.setSetpoint(userControl.direction);
             speedPIDOutput = speedPID.compute(speedPIDInput);
 
@@ -242,12 +247,12 @@ void loop()
             anglePID.setSetpoint(speedPIDOutput+configuration.calibratedZeroAngle);
 
             // update angle pid tuning. only update if different from current tuning
-    		if((activePIDTuning == AGGRESSIVE) && (abs(anglePIDInput) < ANGLE_LIMIT)) {
+    		if((activePIDTuning == AGGRESSIVE) && (abs(anglePIDInput) < configuration.anglePIDLowerLimit)) {
     			//we're close to setpoint, use conservative tuning parameters
     			activePIDTuning = CONSERVATIVE;
     			anglePID.setTunings(configuration.anglePIDConKp, configuration.anglePIDConKi, configuration.anglePIDConKd);
     		}
-    		else if ((activePIDTuning == CONSERVATIVE) && (abs(anglePIDInput) >= ANGLE_LIMIT)) {
+    		else if ((activePIDTuning == CONSERVATIVE) && (abs(anglePIDInput) >= configuration.anglePIDLowerLimit)) {
     			//we're far from setpoint, use aggressive tuning parameters
     			activePIDTuning = AGGRESSIVE;
     			anglePID.setTunings(configuration.anglePIDAggKp, configuration.anglePIDAggKi, configuration.anglePIDAggKd);
@@ -263,18 +268,20 @@ void loop()
 
             //Set PWM value
             if (started) {
-                if (userControl.steering > 0) {
-                    motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
-                    motor2.setSpeedPercentage(anglePIDOutput);
+                /*if (userControl.steering > 0) {
+                    //motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
+                    //motor2.setSpeedPercentage(anglePIDOutput);
                 }
                 else if (userControl.steering < 0) {
-                    motor1.setSpeedPercentage(anglePIDOutput);
-                    motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
+                    //motor1.setSpeedPercentage(anglePIDOutput);
+                    //motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
                 }
                 else {
                     motor1.setSpeedPercentage(anglePIDOutput);
                     motor2.setSpeedPercentage(anglePIDOutput);
-                }
+                }*/
+                motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
+                motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
             }
             else {
                 motor1.motorOff();
@@ -282,21 +289,21 @@ void loop()
             }
 
             //write serial trace
-            /*Serial.println(TRACE_BEGIN + \
-                           String(round(ori[0])) + "," + \
-                           String(round(ori[1])) + "," + \
-                           String(round(ori[2])) + "," + \
+            Serial.println(TRACE_BEGIN + \
+                           String(ori[0]) + "," + \
+                           String(ori[1]) + "," + \
+                           String(ori[2]) + "," + \
                            String(encoder1.ticks) + "," + \
                            String(encoder2.ticks) + "," + \
-                           String(encoder1.getDistance()) + "," + \
-                           String(encoder2.getDistance()) + "," + \
-                           String(round(velocity1)) + "," + \
-                           String(round(velocity2)) + "," + \
-                           String(round(speedPIDOutput)) + "," + \
-                           String(round(anglePIDOutput)) + "," + \
-                           String(round(userControl.direction)) + "," + \
-                           String(round(userControl.steering)) + \
-                           TRACE_END);*/
+                           String(distance1) + "," + \
+                           String(distance2) + "," + \
+                           String(motor1.motorSpeed) + "," + \
+                           String(motor2.motorSpeed) + "," + \
+                           String(speedPIDOutput) + "," + \
+                           String(anglePIDOutput) + "," + \
+                           String(userControl.direction) + "," + \
+                           String(userControl.steering) + \
+                           TRACE_END);
         }
 	}
 }

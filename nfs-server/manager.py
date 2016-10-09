@@ -21,11 +21,11 @@ from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
 from Comm.Serial.serialPort import SerialThread
 from PanTilt.panTilt import PanTiltThread
 from ComputerVison.tracking import ComputerVisionThread
-from constants import *
 from IMU.constants import *
 from Comm.Serial.constants import *
 from PanTilt.constants import *
 from Utils.traces.trace import *
+from Utils.constants import *
 import time
 import RPi.GPIO as GPIO
 import Queue as queue
@@ -47,7 +47,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER | MODULE_SERIAL #| MODULE_CV# | MODULE_MOTION # #| MODULE_IMU
+        debug = MODULE_MANAGER | MODULE_SERIAL | MODULE_CV
 
         #Message queues to communicate between threads
         clientUDPQueue = queue.Queue()
@@ -83,10 +83,10 @@ def main(args):
         serial.start()
 
         #Computer Vision thread
-        #tracking = ComputerVisionThread(name=TRACKING_NAME, debug=debug)
-        #tracking.daemon = True
-        #threads.append(tracking)
-        #tracking.start()
+        tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=debug)
+        tracking.daemon = True
+        threads.append(tracking)
+        tracking.start()
 
         #Pan-Tilt thread
         panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug, callbackUDP=clientUDP.putMessage)
@@ -138,55 +138,62 @@ def main(args):
                                 logging.info("Button Circle")
 
                     #IP controller
+                    #[(Thread)][(module),(data1),(data2),(data3),(...)(#)]
                     elif event[0] == SERVER_UDP_NAME:
                         logging.debug(event[1])
-                        if event[1][0] == "SET_PID_ANGLE":
+                        if event[1][0] == CMD_PID_ANGLE:
                             logging.info("Set PID Angle parameters!")
-                            angleKpCons = float(event[1][2])
-                            angleKiCons = float(event[1][3])
-                            angleKdCons = float(event[1][4])
+                            angleKpCons = float(event[1][1])
+                            angleKiCons = float(event[1][2])
+                            angleKdCons = float(event[1][3])
                             serial.putMessage(ANGLE_PID_CONS, (angleKpCons, angleKiCons, angleKdCons))
 
-                            angleKpAggr = float(event[1][5])
-                            angleKiAggr = float(event[1][6])
-                            angleKdAggr = float(event[1][7])
+                            angleKpAggr = float(event[1][4])
+                            angleKiAggr = float(event[1][5])
+                            angleKdAggr = float(event[1][6])
                             serial.putMessage(ANGLE_PID_AGGR, (angleKpAggr, angleKiAggr, angleKdAggr))
 
-                            calibratedZeroAngle = float(event[1][8])
+                            calibratedZeroAngle = float(event[1][7])
                             serial.putMessage(CALIBRATED_ZERO_ANGLE, calibratedZeroAngle)
 
                             angleLimite = float(event[1][8])
                             serial.putMessage(ANGLE_LIMIT, angleLimite)
 
-                        elif event[1][0] == "SET_PID_SPEED":
+                        elif event[1][0] == CMD_PID_SPEED:
                             logging.info("Set PID Speed parameters!")
-                            speedKp = float(event[1][2])
-                            speedKi = float(event[1][3])
-                            speedKd = float(event[1][4])
+                            speedKp = float(event[1][1])
+                            speedKi = float(event[1][2])
+                            speedKd = float(event[1][3])
                             serial.putMessage(SPEED_PID, (speedKp, speedKi, speedKd))
 
-                        elif event[1][0] == "SET_PAN_TILT":
-                            headV = float(event[1][2])
+                        elif event[1][0] == CMD_PAN_TILT:
+                            headV = float(event[1][1])
                             panTilt.putEvent((headV, None))
 
-                            headH = float(event[1][3])
+                            headH = float(event[1][2])
                             panTilt.putEvent((None, headH))
 
-                        elif event[1][0] == "SET_BALANCE":
-                            runSpeed = float(event[1][2])
+                        elif event[1][0] == CMD_SERIAL:
+                            runSpeed = float(event[1][1])
                             serial.putMessage(DIRECTION, runSpeed)
 
-                            turnSpeed = float(event[1][3])
+                            turnSpeed = float(event[1][2])
                             serial.putMessage(STEERING, turnSpeed)
+                        elif event[1][0] == CMD_MANAGER:
+                            enableArduino = int(event[1][1])
+                            enableCV = int(event[1][2])
+
+                            serial.putMessage(STARTED, enableArduino)
                         else:
-                            headV = float(event[1][3])
+                            headV = float(event[1][2])
                             panTilt.putEvent((headV/10, None))
 
-                            headH = -float(event[1][2])
+                            headH = -float(event[1][1])
                             panTilt.putEvent((None, headH/10))
 
                     #OpenCV controller
                     elif event[0] == TRACKING_NAME:
+                        logging.info(event)
                         tracking.block.set()
 
                         #Delta measure from object up to center of the vision

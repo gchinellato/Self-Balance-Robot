@@ -1,10 +1,10 @@
 #!/usr/bin/python
 """
 *************************************************
-* @Project: Self Balance                       
+* @Project: Self Balance
 * @Description: Serial API header file
-* @Owner: Guilherme Chinellato 
-* @Email: guilhermechinellato@gmail.com                                                
+* @Owner: Guilherme Chinellato
+* @Email: guilhermechinellato@gmail.com
 *************************************************
 """
 

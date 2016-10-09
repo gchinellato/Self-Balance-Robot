@@ -1,11 +1,11 @@
 #!/usr/bin/python
 """
 *************************************************
-* @Project: Self Balance  
-* @Platform: Raspberry PI 2 B+                       
+* @Project: Self Balance
+* @Platform: Raspberry PI 2 B+
 * @Description: Balance Controller
-* @Owner: Guilherme Chinellato 
-* @Email: guilhermechinellato@gmail.com                                                
+* @Owner: Guilherme Chinellato
+* @Email: guilhermechinellato@gmail.com
 *************************************************
 """
 
@@ -15,6 +15,7 @@ from Motion.PID.PID import PID
 from Motion.constants import *
 from IMU.constants import *
 from Utils.traces.trace import *
+from Utils.constants import *
 import datetime
 import time
 import threading
@@ -26,12 +27,12 @@ class BalanceThread(threading.Thread):
         self.args = args
         self.kwargs = kwargs
         self.name = name
-        self.debug = debug 
+        self.debug = debug
 
         #Queue to communicate between threads
         self._workQueue = queue
         self._lock = threading.Lock()
-        
+
         #Event to signalize between threads
         self._stopEvent = threading.Event()
         self._sleepPeriod = 0.01
@@ -51,18 +52,18 @@ class BalanceThread(threading.Thread):
         self.angleKiAggr = ANGLE_KI_AGGR
         self.angleKdAggr = ANGLE_KD_AGGR
 
-        self.speedPID = PID("Speed", SPEED_SETPOINT, self.speedKp, self.speedKi, self.speedKd, debug)  
+        self.speedPID = PID("Speed", SPEED_SETPOINT, self.speedKp, self.speedKi, self.speedKd, debug)
         self.anglePID = PID("Angle", ANGLE_SETPOINT, self.angleKpCons, self.angleKiCons, self.angleKdCons, debug)
-        self.anglePIDmode = PID_CONSERVATIVE 
+        self.anglePIDmode = PID_CONSERVATIVE
 
         #apagar *************************
         self.offset = 0
 
-        logging.info("Balance Module initialized")      
+        logging.info("Balance Module initialized")
 
     #Override method
     def run(self):
-        logging.info("Balance Thread started") 
+        logging.info("Balance Thread started")
         lastTime = 0.0
         runSpeed = 0.0
         turnSpeed = 0.0
@@ -75,7 +76,7 @@ class BalanceThread(threading.Thread):
         duration = 0
 
         while not self._stopEvent.wait(self._sleepPeriod):
-            self._lock.acquire() 
+            self._lock.acquire()
 
             currentTime = time.time()
 
@@ -88,26 +89,26 @@ class BalanceThread(threading.Thread):
             #
 
             #Calculate Pitch, Roll and Yaw
-            self.imu.complementaryFilter(CF, self._sleepPeriod) 
+            self.imu.complementaryFilter(CF, self._sleepPeriod)
 
             #
             # Motion
             #
-            
-            #Update wheel velocity each loop, then it is possible to getWheelVelocity
-            self.motion.updateWheelVelocity(dt=self._sleepPeriod)   
-            velocity = self.motion.getWheelVelocity()       
 
-            #Get event for motion, ignore if empty queue                
+            #Update wheel velocity each loop, then it is possible to getWheelVelocity
+            self.motion.updateWheelVelocity(dt=self._sleepPeriod)
+            velocity = self.motion.getWheelVelocity()
+
+            #Get event for motion, ignore if empty queue
             event = self.getEvent()
             if event != None:
-                if event[0] != None:                        
-                    runSpeed = self.motion.convertRange(event[0]) 
+                if event[0] != None:
+                    runSpeed = self.motion.convertRange(event[0])
                 if event[1] != None:
                     turnSpeed = self.motion.convertRange(event[1])
 
             self.speedPID.setSetpoint(runSpeed)
-            output = self.speedPID.compute(velocity, self._sleepPeriod) 
+            output = self.speedPID.compute(velocity, self._sleepPeriod)
             self.anglePID.setSetpoint(output + self.offset)
 
             #Select PID mode and check angles boundaries
@@ -132,10 +133,9 @@ class BalanceThread(threading.Thread):
                 speedR = pitchPID + turnSpeed
                 self.motion.motorMove(speedL, speedR)
 
-            #UDP message   
-            #(module)(timestamp),(data1)(data2),(data3)(...)(#)
-            UDP_MSG = "BALANCE" + "," + \
-                      str(datetime.datetime.now()) + "," + \
+            #UDP message
+            #(module),(data1),(data2),(data3),(...)(#)
+            UDP_MSG = CMD_BALANCE + "," + \
                       str(round(self.imu.CFangleRoll,2)) + "," + \
                       str(round(self.imu.CFanglePitch,2)) + "," + \
                       str(round(self.imu.CFangleYaw,2)) + "," + \
@@ -144,31 +144,30 @@ class BalanceThread(threading.Thread):
                       str(round(speedL,2)) + "," + \
                       str(round(speedR,2)) + "," + \
                       str(round(velocity,2)) + "#"
-                   
+
             # Sending UDP packets...
             if (self.callbackUDP != None):
-                self.callbackUDP(UDP_MSG) 
-        
+                self.callbackUDP(UDP_MSG)
+
             lastTime = currentTime
             self._lock.release()
-        
-    #Override method  
+
+    #Override method
     def join(self, timeout=None):
         #Stop the thread and wait for it to end
-        logging.info("Killing Balance Thread...") 
+        logging.info("Killing Balance Thread...")
         self._stopEvent.set()
-        self.motion.motorShutDown() 
-        threading.Thread.join(self, timeout=timeout) 
+        self.motion.motorShutDown()
+        threading.Thread.join(self, timeout=timeout)
 
     def getEvent(self):
         #Bypass if empty, to not block the current thread
         if not self._workQueue.empty():
             return self._workQueue.get()
         else:
-            return None  
+            return None
 
-    def putEvent(self, event):   
+    def putEvent(self, event):
         #Bypass if full, to not block the current thread
-        if not self._workQueue.full():       
-            self._workQueue.put(event)    
-
+        if not self._workQueue.full():
+            self._workQueue.put(event)
