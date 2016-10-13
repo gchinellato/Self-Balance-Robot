@@ -51,4 +51,10 @@ This project is based on the following topics:
 * Atom IDE: https://atom.io/
 
 ## Block Diagram
+<<<<<<< HEAD
 ![Block Diagram] (/docs/block_diagram.png?raw=true)
+=======
+![Block Diagram]
+(https://github.com/gchinellato/Self-Balance-Robot/tree/master/docs/block_diagram.png)
+(https://github.com/gchinellato/Self-Balance-Robot/tree/dev/docs/block_diagram.png)
+>>>>>>> dev
