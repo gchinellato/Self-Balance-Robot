@@ -49,3 +49,7 @@ This project is based on the following topics:
 * Servoblaster: https://github.com/richardghirst/PiBits/tree/master/ServoBlaster
 * PlatformIO: http://platformio.org/
 * Atom IDE: https://atom.io/
+
+## Block Diagram
+![Block Diagram]
+(https://github.com/gchinellato/Self-Balance-Robot/docs/block_diagram.png)
