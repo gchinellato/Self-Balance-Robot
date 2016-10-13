@@ -52,4 +52,5 @@ This project is based on the following topics:
 
 ## Block Diagram
 ![Block Diagram]
-(https://github.com/gchinellato/Self-Balance-Robot/docs/block_diagram.png)
+(https://github.com/gchinellato/Self-Balance-Robot/tree/master/docs/block_diagram.png)
+(https://github.com/gchinellato/Self-Balance-Robot/tree/dev/docs/block_diagram.png)
