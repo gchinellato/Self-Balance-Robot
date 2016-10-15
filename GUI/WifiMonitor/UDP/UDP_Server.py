@@ -113,8 +113,7 @@ def main():
 
         while True:
             UDP_MSG = serverThread.getMessage()
-            if UDP_MSG != None:
-                logging.info(UDP_MSG)
+            print((UDP_MSG))
             time.sleep(LP)
 
     except KeyboardInterrupt:

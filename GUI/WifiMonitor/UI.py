@@ -18,6 +18,7 @@ from UDP.UDP_Server import UDP_ServerThread
 from UDP.UDP_Client import UDP_ClientThread
 from worker import Worker
 from TriDisplay import TriModel
+from Plot import Plot
 from Utils.traces.trace import *
 from constants import *
 
@@ -44,6 +45,7 @@ class mainWindow(QtWidgets.QMainWindow):
         self.ui.pushButton_angle_zero.clicked.connect(self.pushButton_angleZeroPID_onClicked)
         self.ui.pushButton_speed_zero.clicked.connect(self.pushButton_speedZeroPID_onClicked)
         self.ui.pushButton_control_set.clicked.connect(self.pushButton_controlSet_onClicked)
+        self.ui.pushButton_chart_pid.clicked.connect(self.pushButton_chart_pid_onClicked)
 
         #Initial value
         self.ui.doubleSpinBox_angle_kp.setValue(ANGLE_KP_CONS)
@@ -74,7 +76,6 @@ class mainWindow(QtWidgets.QMainWindow):
 
         self.worker = Worker(self)
         self.serverUDP = UDP_ServerThread(name=SERVER_UDP_NAME, queue=self.serverUDPQueue, UDP_PORT=port)
-        self.serverUDP.daemon = True
         self.threads.append(self.serverUDP)
 
         self.serverUDP.start()
@@ -89,12 +90,15 @@ class mainWindow(QtWidgets.QMainWindow):
             self.clientUDP.join(timeout=1)
 
         self.clientUDP = UDP_ClientThread(name=CLIENT_UDP_NAME, UDP_IP=ip, UDP_PORT=port)
-        self.clientUDP.daemon = True
         self.threads.append(self.clientUDP)
         self.clientUDP.start()
 
     def pushButton_chartOrientation_onClicked(self):
         pass
+
+    def pushButton_chart_pid_onClicked(self):
+        self.pidPlot = Plot(self)
+        self.pidPlot.start()
 
     def pushButton_3D_Model_onClicked(self):
         self.triModel = TriModel(self)

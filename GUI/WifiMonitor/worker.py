@@ -38,7 +38,7 @@ class Worker(QtCore.QThread):
             msg = self.parent.serverUDP.getMessage()
 
             #[(Thread)][(module),(data1),(data2),(data3),(...)(#)]
-            print(msg)
+            #print(msg)
             if msg[0] == SERVER_UDP_NAME:
                 if msg[1][0] == CMD_SERIAL:
                     self.roll = msg[1][1]

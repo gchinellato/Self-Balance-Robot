@@ -47,7 +47,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER | MODULE_SERIAL | MODULE_CV
+        debug = MODULE_MANAGER #| MODULE_CV | MODULE_SERIAL
 
         #Message queues to communicate between threads
         clientUDPQueue = queue.Queue()
@@ -112,6 +112,7 @@ def main(args):
                 if event != None:
                     if event[0] == PS3_CTRL_NAME and joy.joyStatus != None:
                         if (event[1].type == pygame.JOYAXISMOTION) and (event[1].axis != joy.A_ACC_X) and (event[1].axis != joy.A_ACC_Y) and (event[1].axis != joy.A_ACC_Z):
+                            #logging.debug(event[1])
                             #Head Vertical
                             if event[1].axis == joy.A_R3_V:
                                 headV = event[1].value
@@ -140,7 +141,6 @@ def main(args):
                     #IP controller
                     #[(Thread)][(module),(data1),(data2),(data3),(...)(#)]
                     elif event[0] == SERVER_UDP_NAME:
-                        logging.debug(event[1])
                         if event[1][0] == CMD_PID_ANGLE:
                             logging.info("Set PID Angle parameters!")
                             angleKpCons = float(event[1][1])
@@ -186,10 +186,10 @@ def main(args):
                             serial.putMessage(STARTED, enableArduino)
                         else:
                             headV = float(event[1][2])
-                            panTilt.putEvent((headV/10, None))
+                            panTilt.putEvent((headV/100, None))
 
                             headH = -float(event[1][1])
-                            panTilt.putEvent((None, headH/10))
+                            panTilt.putEvent((None, headH/100))
 
                     #OpenCV controller
                     elif event[0] == TRACKING_NAME:

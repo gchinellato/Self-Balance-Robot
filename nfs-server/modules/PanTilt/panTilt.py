@@ -138,12 +138,13 @@ class PanTiltThread(threading.Thread):
         return self.scaledAngleV, self.scaledAngleH
 
     def convertTo(self, value, fromMax, fromMin, toMax, toMin):
-        if not value >= fromMin and value <= fromMax:
+        if not (value > fromMin and value < fromMax):
             logging.warning("Value out of the range (Max:"+str(fromMax)+" , Min:"+str(fromMin)+")")
-            if value > fromMax:
-                value = fromMax
-            elif value < fromMin:
-                value = fromMin
+
+        if value > fromMax:
+            value = fromMax
+        elif value < fromMin:
+            value = fromMin
 
         factor = (value-fromMin)/(fromMax-fromMin)
         return factor*(toMax-toMin)+toMin
