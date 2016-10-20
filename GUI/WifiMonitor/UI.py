@@ -11,14 +11,13 @@
 
 import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
-import pyqtgraph as pg
 from mainWindow import Ui_MainWindow
 
 from UDP.UDP_Server import UDP_ServerThread
 from UDP.UDP_Client import UDP_ClientThread
 from worker import Worker
 from TriDisplay import TriModel
-from Plot import Plot
+from RealTimePlot import Plot
 from Utils.traces.trace import *
 from constants import *
 
