@@ -69,10 +69,10 @@ void Motor::setSpeedPercentage(float speed)
 
     // negative speed
     if (speed > 0) {
-        motorGo(CW, (255/100 * speed));
+        motorGo(CW, (int(255/100.0 * speed)));
     }
     else if (speed < 0){
-        motorGo(CCW, (-255/100 * speed));
+        motorGo(CCW, (int(-255/100.0 * speed)));
     }
     else {
         motorOff();

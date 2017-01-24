@@ -1,10 +1,10 @@
 #!/usr/bin/python
 """
 *************************************************
-* @Project: Self Balance                         
+* @Project: Self Balance
 * @Description: Bluetooth controller API
-* @Owner: Guilherme Chinellato                   
-* @Email: guilhermechinellato@gmail.com                              
+* @Owner: Guilherme Chinellato
+* @Email: guilhermechinellato@gmail.com
 *************************************************
 """
 
@@ -62,16 +62,16 @@ class PS3_ControllerThread(threading.Thread):
         self.args = args
         self.kwargs = kwargs
         self.name = name
-        self.debug = debug 
+        self.debug = debug
 
         #Queue to communicate between threads
         self._workQueue = queue
         self._lock = threading.Lock()
-        
+
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.01
-        
+        self._sleepPeriod = 0.00
+
         self.j = None
         self.joyStatus = None
         self.joyID = None
@@ -80,10 +80,10 @@ class PS3_ControllerThread(threading.Thread):
         self.numButtons = None
 
         logging.info("Joystick Module initialized")
-      
+
     #Override method
-    def run(self): 
-        logging.info("Joystick Thread Started")       
+    def run(self):
+        logging.info("Joystick Thread Started")
         self.initJoy()
         lastTime = 0.0
 
@@ -97,15 +97,16 @@ class PS3_ControllerThread(threading.Thread):
                 #if (self.debug & MODULE_BLUETOOTH):
                 #    logging.debug("Duration: " + str(currentTime - lastTime))
 
-                if self.joyStatus != None:            
-                    # Check for any queued events and then processes each one 
-                    events = pygame.event.get()
-                    for event in events:
-                        #Do not send Accelerometer events to reduce overhead
-                        if (event.type == pygame.JOYAXISMOTION) and (event.axis != self.A_ACC_X) and (event.axis != self.A_ACC_Y) and (event.axis != self.A_ACC_Z):                                     
-                            self.putEvent(self.name, event)
-                        if (event.type == pygame.JOYBUTTONDOWN) or (event.type == pygame.JOYBUTTONUP):
-                            self.putEvent(self.name, event)
+                if self.joyStatus != None:
+                    # Check for any queued events and then processes each one
+                    event = pygame.event.wait()
+
+                    #Do not send Accelerometer events to reduce overhead
+                    #Disable acc event through /var/lib/sixad/profile/default config
+                    if (event.type == pygame.JOYAXISMOTION) and (event.axis != self.A_ACC_X) and (event.axis != self.A_ACC_Y) and (event.axis != self.A_ACC_Z):
+                        self.putEvent(self.name, event)
+                    if (event.type == pygame.JOYBUTTONDOWN) or (event.type == pygame.JOYBUTTONUP):
+                        self.putEvent(self.name, event)
                 else:
                     #Try to connect in the Bluetooth controller again
                     time.sleep(5)
@@ -116,27 +117,27 @@ class PS3_ControllerThread(threading.Thread):
                 pass
             finally:
                 lastTime = currentTime
-                self._lock.release()           
-        
-    #Override method  
+                self._lock.release()
+
+    #Override method
     def join(self, timeout=None):
-        #Stop the thread and wait for it to end  
-        logging.info("Killing Joystick Thread...")     
+        #Stop the thread and wait for it to end
+        logging.info("Killing Joystick Thread...")
         self._stopEvent.set()
         pygame.quit()
-        threading.Thread.join(self, timeout=timeout)  
+        threading.Thread.join(self, timeout=timeout)
 
     def getEvent(self, timeout=2):
         return self._workQueue.get(timeout=timeout)
 
     def putEvent(self, name, event):
         #Bypass if full, to not block the current thread
-        if not self._workQueue.full():       
+        if not self._workQueue.full():
             self._workQueue.put((name, event))
 
     def initJoy(self):
         pygame.quit()
-        pygame.init() 
+        pygame.init()
         if pygame.joystick.get_count() != 0:
             self.j = pygame.joystick.Joystick(pygame.joystick.get_count()-1)
             self.j.init()
@@ -144,7 +145,7 @@ class PS3_ControllerThread(threading.Thread):
             logging.info("Joystick detected")
         else:
             self.getInfo(0)
-            logging.info("Joystick not found")            
+            logging.info("Joystick not found")
 
     def getInfo(self, status):
         if status == 1:
@@ -153,7 +154,7 @@ class PS3_ControllerThread(threading.Thread):
             self.joyName = self.j.get_name()
             self.numAxes = self.j.get_numaxes()
             self.numButtons = self.j.get_numbuttons()
-        
+
             logging.info("Joystick Information")
             logging.info("Joystick Status: {0}".format(self.joyStatus))
             logging.info("Joystick ID: {0}".format(self.joyID))
@@ -253,5 +254,4 @@ class PS3_ControllerThread(threading.Thread):
             return (stringType, string, 0)
         if event.type == pygame.JOYBUTTONDOWN:
             stringType = "JOYBUTTONDOWN"
-            return (stringType, string, 1)  
-
+            return (stringType, string, 1)

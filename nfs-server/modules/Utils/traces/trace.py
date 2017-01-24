@@ -1,10 +1,10 @@
 #!/usr/bin/python
 """
 *************************************************
-* @Project: Self Balance                         
+* @Project: Self Balance
 * @Description: Trace module
-* @Owner: Guilherme Chinellato                   
-* @Email: guilhermechinellato@gmail.com                              
+* @Owner: Guilherme Chinellato
+* @Email: guilhermechinellato@gmail.com
 *************************************************
 """
 
@@ -55,7 +55,7 @@ def setVerbosity(level):
         logging.basicConfig(level=logging.INFO, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
         #logging.basicConfig(level=logging.INFO, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) (%(filename)s) (Fct: %(funcName)s) (Line:%(lineno)d) %(message)s')
     elif (level == "debug"):
-        logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
+        logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
         #logging.basicConfig(level=logging.DEBUG, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) (%(filename)s) (Fct: %(funcName)s) (Line:%(lineno)d) %(message)s')
     elif (level == "warning"):
         logging.basicConfig(level=logging.WARNING, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
@@ -66,4 +66,3 @@ def setVerbosity(level):
     elif (level == "critical"):
         logging.basicConfig(level=logging.CRITICAL, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) %(message)s')
         #logging.basicConfig(level=logging.CRITICAL, format='[%(levelname)s] (%(processName)s) (%(threadName)s) (%(module)s) (%(filename)s) (Fct: %(funcName)s) (Line:%(lineno)d) %(message)s')
-

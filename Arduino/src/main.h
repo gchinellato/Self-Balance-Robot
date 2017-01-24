@@ -11,7 +11,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#define SERIAL_BAUDRATE 	19200
+#define SERIAL_BAUDRATE 	38400
 #define CALIBRATION_MAGNETO	0
 #define DATA_INTERVAL 	    20 // ms
 

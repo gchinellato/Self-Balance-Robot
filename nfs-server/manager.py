@@ -47,7 +47,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER #| MODULE_CV | MODULE_SERIAL
+        debug = MODULE_MANAGER | MODULE_SERIAL #| MODULE_CV 
 
         #Message queues to communicate between threads
         clientUDPQueue = queue.Queue()

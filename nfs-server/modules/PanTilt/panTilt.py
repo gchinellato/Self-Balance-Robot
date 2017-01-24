@@ -40,7 +40,8 @@ class PanTiltThread(threading.Thread):
         self.scaledAngleV = 0.0
         self.scaledAngleH = 0.0
 
-        os.system('sudo servod')
+        #See gpio_mapping.py to check pins 
+        os.system('sudo servod --p1pins=7,11')
         time.sleep(0.1)
 
         logging.info("Pan-Tilt Module initialized")

@@ -28,11 +28,10 @@ class SerialThread(threading.Thread):
 
         #Queue to communicate between threads
         self._workQueue = queue
-        self._lock = threading.Lock()
 
         #Event to signalize between threads
         self._stopEvent = threading.Event()
-        self._sleepPeriod = 0.0
+        self._sleepPeriod = 0.00
 
         self.COM = COM
         self.port = None
@@ -43,86 +42,47 @@ class SerialThread(threading.Thread):
     def run(self):
         logging.info("Serial Thread Started")
 
-        try:
-            self.port = serial.Serial(self.COM, baudrate=19200)
-            logging.info(self.port.name)
+        self.port = serial.Serial(self.COM, baudrate=38400)
+        logging.info(self.port.name)
 
-            lastTime = 0.0
-            i = 0
+        lastTime = 0.0
 
-            while not self._stopEvent.wait(self._sleepPeriod):
-                try:
-                    self._lock.acquire()
+        while not self._stopEvent.wait(self._sleepPeriod):
+            currentTime = time.time()
 
-                    currentTime = time.time()
+            #Calculate time since the last time it was called
+            #if (self.debug & MODULE_SERIAL):
+            #    logging.debug("Duration: " + str(currentTime - lastTime))
 
-                    #Calculate time since the last time it was called
-                    #if (self.debug & MODULE_SERIAL):
-                    #    logging.debug("Duration: " + str(currentTime - lastTime))
+            msg = self.getMessage()
+            if msg != None:
+                size = self.port.write(''.join(msg))
+                if (self.debug & MODULE_SERIAL):
+                    logging.debug(("Writing to Arduino >>>: " + str(msg) + " msgLen: " + str(size)))
 
-                    msg = self.getMessage()
-                    if msg != None:
-                        size = self.port.write(''.join(msg))
+            #Read trace from arduino
+            recv = self.port.readline()
 
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Writing to Arduino: " + str(msg)))
-                            #logging.debug(("Writing to Arduino: " + self.converStrToHex(msg)))
-
-                        '''#read ack from arduino and check the size of the received message
-                        recvAck = self.port.readline()
-
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Reading from Arduino ACK: " + str(recvAck)))
-                            #logging.debug(("Reading to Arduino ACK: " + self.converStrToHex(str(recvAck))))
-
-                        if (self.debug & MODULE_SERIAL):
-                            if(len(msg) == len(recvAck)):
-                                logging.debug("ACK OK: Written size: " + str(size) + ", read size: " + str(len(recvAck)))
-                            else:
-                                logging.debug("ACK NOK: Written size: " + str(size) + ", read size: " + str(len(recvAck)))
-
-                        #read command from arduino
-                        recvCmd = self.port.readline()
-
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Reading from Arduino command: " + str(recvCmd)))
-                            #logging.debug(("Reading to Arduino ACK: " + self.converStrToHex(str(recvCmd))))*/'''
-
-                    #Read trace from arduino
-                    recv = self.port.readline()
-
-                    if (self.debug & MODULE_SERIAL):
-                        logging.debug(("Reading from Arduino: " + str(recv)))
-                        #logging.debug(("Reading to Arduino: " + self.converStrToHex(str(recv))))
-
-                    #Parse event
-                    msgList = self.parseData(recv)
-                    UDP_MSG = None
-
-                    if msgList != None:
-                        #UDP message
-                        #(module),(data1),(data2),(data3),(...)(#)
-                        UDP_MSG = CMD_SERIAL
-
-                        for msg in msgList:
-                            UDP_MSG += ("," + msg)
-
-                        UDP_MSG += "#"
-
-                    #Sending UDP packets...
-                    if (self.callbackUDP != None and UDP_MSG != None):
-                        self.callbackUDP(UDP_MSG)
-
-                except queue.Empty:
-                    if (self.debug & MODULE_SERIAL):
-                        logging.debug("Queue Empty")
-                    pass
-                finally:
-                    lastTime = currentTime
-                    self._lock.release()
-        except serial.SerialException:
             if (self.debug & MODULE_SERIAL):
-                logging.debug("Serial Exception")
+                logging.debug(("Reading from Arduino <<<: " + str(recv)))
+
+            #Parse event
+            msgList = self.parseData(recv)
+            UDP_MSG = None
+
+            if msgList != None:
+                #UDP message
+                #(module),(data1),(data2),(data3),(...)(#)
+                UDP_MSG = CMD_SERIAL
+                for msg in msgList:
+                    UDP_MSG += ("," + msg)
+                UDP_MSG += "#"
+
+            #Sending UDP packets...
+            if (self.callbackUDP != None and UDP_MSG != None):
+                self.callbackUDP(UDP_MSG)
+
+            lastTime = currentTime
 
     #Override method
     def join(self, timeout=2):
@@ -146,43 +106,48 @@ class SerialThread(threading.Thread):
             self._workQueue.put(msg)
 
     def parseData(self, strData):
-        #Check if message is completed
-        if (TRACE_BEGIN in strData) and (TRACE_END in strData):
-            #Remove begin and end chars
-            strData = strData.replace(TRACE_BEGIN,"")
-            strData = strData.replace(TRACE_END,"")
-            strData = strData.replace("\r","")
-            strData = strData.replace("\n","")
-            data = strData.split(",")
-            return data
-        else:
-            #logging.warning("Invalid message")
-            return None
+        #Remove begin and end chars
+        strData = strData.replace("\r","")
+        strData = strData.replace("\n","")
+        data = strData.split(",")
+        return data
 
     def checkData(self, command, msg):
-        '''(TRACE_BEGIN)(COMMAND),(NUM_PARAM),(PARAM_1),(PARAM_2),(...)(TRACE_END)'''
-        if command == STARTED:
-            msg = str(command) + "," + "1" + "," + str(msg)
-        elif command == DIRECTION:
-            msg = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
-            msg = str(command) + "," + "1" + "," + str(round(msg,2))
-        elif command == STEERING:
-            msg = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
-            msg = str(command) + "," + "1" + "," + str(round(msg,2))
-        elif command == SPEED_PID:
-            msg = str(command) + "," + "3" + "," + str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
-        elif command == ANGLE_PID_AGGR:
-            msg = str(command) + "," + "3" + "," + str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
-        elif command == ANGLE_PID_CONS:
-            msg = str(command) + "," + "3" + "," + str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
-        elif command == CALIBRATED_ZERO_ANGLE:
-            msg = str(command) + "," + "1" + "," + str(round(msg,2))
-        elif command == ANGLE_LIMIT:
-            msg = str(command) + "," + "1" + "," + str(round(msg,2))
-        else:
-            msg = "unknown"
+        '''(SIZE)(COMMAND),(PARAM_1),(PARAM_2),(...),(END_CHAR)'''
 
-        return TRACE_BEGIN + msg + TRACE_END + "\r\n"
+        ret = str(command) + ","
+
+        if command == STARTED:
+            ret += str(msg) + ","
+        elif command == DIRECTION:
+            param = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
+            ret += str(round(param,2)) + ","
+        elif command == STEERING:
+            param = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
+            ret += str(round(param,2)) + ","
+        elif command == SPEED_PID:
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+        elif command == ANGLE_PID_AGGR:
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+        elif command == ANGLE_PID_CONS:
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+        elif command == CALIBRATED_ZERO_ANGLE:
+            ret += str(round(msg,2)) + ","
+        elif command == ANGLE_LIMIT:
+            ret += str(round(msg,2)) + ","
+        else:
+            ret += "unknown" + ","
+
+        ret += "\0"
+
+        msgSize = len(ret) + 1 #9
+        digits = len(str(msgSize)) #1
+        size = msgSize + digits #10
+
+        if len(str(msgSize)) != len(str(size)):
+             size += (size - msgSize)
+
+        return str(size) + "," + ret
 
     def converStrToHex(self, msg):
         return ":".join("{:02x}".format(ord(c)) for c in msg)
@@ -197,27 +162,3 @@ class SerialThread(threading.Thread):
 
         factor = (value-fromMin)/(fromMax-fromMin)
         return factor*(toMax-toMin)+toMin
-
-def main():
-    try:
-        setVerbosity("debug")
-
-        queueToWrite = queue.Queue()
-
-        serialThread = SerialThread(name="Thread-Serial", queue=queueToWrite, debug=MODULE_SERIAL)
-        serialThread.start()
-
-        i = 0
-
-        while True:
-            logging.info("Seding packet: " + str(i))
-            serialThread.putMessage("TESTE", "ABC")
-            i += 1
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        logging.info("Exiting...")
-        serialThread.join()
-
-if __name__ == '__main__':
-    main()
