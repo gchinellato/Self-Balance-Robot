@@ -19,7 +19,7 @@
 #define CS_THRESHOLD 100
 
 #define PWM_MIN 0
-#define PWM_MAX 255
+#define PWM_MAX 799
 
 class Motor
 {

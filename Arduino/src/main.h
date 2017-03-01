@@ -32,9 +32,6 @@
 #define ENCODERA2_PIN 3
 #define ENCODERB2_PIN 7
 
-#define TRACE_BEGIN "#BEGIN#"
-#define TRACE_END "#END#"
-
 enum cmd{
 	STARTED = 0,
 	DIRECTION,

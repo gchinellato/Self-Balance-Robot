@@ -55,7 +55,14 @@ void Motor::motorGo(int direct, int pwm)
       else
         digitalWrite(inBpin, LOW);
 
-      analogWrite(pwmpin, pwm);
+      //analogWrite(pwmpin, pwm);
+      //Do no use analogWrite to change PWM value..instead of change OCRnx, where n = Timer/Counter and (0/1) x = Output Compare Unit (A/B)
+      //TIMER 1 -> D9/D10 PWM1_PIN/PWM2_PIN
+      if (pwmpin == 9)
+          OCR1A = pwm;
+
+      if (pwmpin == 10)
+          OCR1B = pwm;
     }
 }
 /* set speed in percentage from -100 to 100 */
@@ -69,10 +76,10 @@ void Motor::setSpeedPercentage(float speed)
 
     // negative speed
     if (speed > 0) {
-        motorGo(CW, (int(255/100.0 * speed)));
+        motorGo(CW, (int(PWM_MAX/100.0 * speed)));
     }
     else if (speed < 0){
-        motorGo(CCW, (int(-255/100.0 * speed)));
+        motorGo(CCW, (int(-PWM_MAX/100.0 * speed)));
     }
     else {
         motorOff();
@@ -84,7 +91,15 @@ void Motor::motorOff()
     // Initialize braked
     digitalWrite(inApin, LOW);
     digitalWrite(inBpin, LOW);
-    analogWrite(pwmpin, 0);
+    //analogWrite(pwmpin, 0);
+
+    //Do no use analogWrite to change PWM value..instead of change OCRnx, where n = Timer/Counter and (0/1) x = Output Compare Unit (A/B)
+    //TIMER 1 -> D9/D10 PWM1_PIN/PWM2_PIN
+    if (pwmpin == 9)
+        OCR1A = 0;
+
+    if (pwmpin == 10)
+        OCR1B = 0;
 }
 
 void Motor::currentSense()

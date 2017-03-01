@@ -51,11 +51,11 @@ void GY80::magCalibration()
 
 float* GY80::getOrientation(int algorithm, float G_dt)
 {
-    complementaryFilder(G_dt, orientation); // roll, pitch, yaw
+    complementaryFilter(G_dt, orientation); // roll, pitch, yaw
 	return orientation;
 }
 
-void GY80::complementaryFilder(float G_dt, float (&orientationDeg)[3])
+void GY80::complementaryFilter(float G_dt, float (&orientationDeg)[3])
 {
     accelerometer.getAccVector(accVector);
 

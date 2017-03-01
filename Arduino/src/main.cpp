@@ -73,18 +73,86 @@ void setConfiguration()
     configuration.calibratedZeroAngle = CALIBRATED_ZERO_ANGLE;
 }
 
+void analogWrite_Init(void)
+{
+    // Stop the timer while we muck with it
+    TCCR1B = (0 << ICNC1) | (0 << ICES1) | (0 << WGM13) | (0 << WGM12) | (0 << CS12) | (0 << CS11) | (0 << CS10);
+
+    // Set the timer to mode 14...
+    //
+    // Mode  WGM13  WGM12  WGM11  WGM10  Timer/Counter Mode of Operation  TOP   Update of OCR1x at TOV1  Flag Set on
+    //              CTC1   PWM11  PWM10
+    // ----  -----  -----  -----  -----  -------------------------------  ----  -----------------------  -----------
+    // 14    1      1      1      0      Fast PWM                         ICR1  BOTTOM                   TOP
+
+    // Set output on Channel A and B to...
+    //
+    // COM1z1  COM1z0  Description
+    // ------  ------  -----------------------------------------------------------
+    // 1       0       Clear OC1A/OC1B on Compare Match (Set output to low level).
+    TCCR1A = (1 << COM1A1) | (0 << COM1A0) | (1 << COM1B1) | (0 << COM1B0) | (1 << WGM11) | (0 << WGM10);
+
+    // Set TOP to...
+    //
+    // fclk_I/O = 16000000
+    // N        = 1
+    // TOP      = 799
+    //
+    // fOCnxPWM = fclk_I/O / (N * (1 + TOP))
+    // fOCnxPWM = 16000000 / (1 * (1 + 799))
+    // fOCnxPWM = 16000000 / 800
+    // fOCnxPWM = 20000
+    ICR1 = PWM_MAX;
+
+    // Ensure the first slope is complete
+    TCNT1 = 0;
+
+    // Ensure Channel A and B start at zero / off
+    OCR1A = 0;
+    OCR1B = 0;
+
+    // We don't need no stinkin interrupts
+    TIMSK1 = (0 << ICIE1) | (0 << OCIE1B) | (0 << OCIE1A) | (0 << TOIE1);
+
+    // Ensure the Channel A and B pins are configured for output
+    DDRB |= (1 << DDB1);
+    DDRB |= (1 << DDB2);
+
+    // Start the timer...
+    //
+    // CS12  CS11  CS10  Description
+    // ----  ----  ----  ------------------------
+    // 0     0     1     clkI/O/1 (No prescaling)
+    TCCR1B = (0 << ICNC1) | (0 << ICES1) | (1 << WGM13) | (1 << WGM12) | (0 << CS12) | (0 << CS11) | (1 << CS10);
+}
+
+void analogWrite_Timer1(uint8_t pin, int val)
+{
+    if ((val >= 0) && (val < 800))
+    {
+        if (pin == 9)
+            OCR1A = val;
+
+        if (pin == 10)
+            OCR1B = val;
+    }
+}
+
 void setup()
 {
     timestamp=millis();
     Serial.begin(SERIAL_BAUDRATE);
-    Serial.setTimeout(1);
     while(!Serial) {}
 
     //Caution: beware to change TIMER0 default register.
     //Millis, delay and other functions uses the same TIMER0 as PWM pin 5 and 6.
     //Check https://arduino-info.wikispaces.com/Arduino-PWM-Frequency
-    //define PWM pre-scaler to 3921.16 Hz in TIMER1
-    TCCR1B = (TCCR1B & B11111000) | B00000010;
+    //define PWM pre-scaler to 31372.55 Hz in TIMER1
+    //TCCR1B = (TCCR1B & B11111000) | B00000001;
+
+    //define PWM to 20KHz in TIMER1
+    //do not use default analogWrite..instead of change OCR1A and OCR1A for D9 and D10 (range 0 up to TOP:ICR1), respectively.
+    analogWrite_Init();
 
     //interrupt pins
     pinMode(encoder1.pin1, INPUT_PULLUP);
@@ -94,15 +162,13 @@ void setup()
 
     setConfiguration();
 
-/*
-    GY80 imu;
+/*  GY80 imu;
 	if (CALIBRATION_MAGNETO == 1)
 	{
 		Serial.println("MAGNETOMETER CALIBRATION STARTED");
 		imu.magCalibration();
 		Serial.println("CALIBRATION FINISHED");
-	}
-*/
+	}*/
 }
 
 void loop()
@@ -113,8 +179,8 @@ void loop()
     String msg;
     char buff[128];
     char *ret;
-    int size;
-    int msgLen;
+    int size = 0;
+    int msgLen = 0;
 
     GY80 imu;
 
@@ -134,34 +200,23 @@ void loop()
 				dt = 0;
 			}
 
-            msg = "";
-            size=0;
-
-            //read serial trace
-            //(COMMAND),(PARAM_1),(PARAM_2),(...)
-
-            while(Serial.available() > 0)
-            {
-                // read the incoming byte:
-                msg = Serial.readString();
+            //read serial
+            while (Serial.available() > 0){
+                msg = Serial.readStringUntil('\n');
                 size = msg.length();
-            }
 
-            if(msg != ""){
-                //valid packet?
-                if(msg.endsWith(String("\0"))){
-                    //convert from string to char array
-                    msg.toCharArray(buff, 128);
+                //convert from string to char array
+                msg.toCharArray(buff, 128);
 
-                    //split string into tokens
-                    ret = strtok(buff, ",");
+                //split string into tokens
+                ret = strtok(buff, ",");
 
-                    //get message length
-                    msgLen = atoi(ret);
+                //get message length
+                msgLen = atoi(ret);
 
-                    /*if (msgLen != size)
-                        break;*/
-
+                //check valid package? received bytes == first parameter?
+                if (msgLen == size)
+                {
                     //get command
                     command = atoi(strtok(NULL, ","));
 
@@ -202,9 +257,6 @@ void loop()
                             break;
                     }
                 }
-                else{
-                    //Invalid packtet
-                }
             }
 
             //read sensors and calculate Euler Angles
@@ -239,20 +291,39 @@ void loop()
             anglePID.setSetpoint(speedPIDOutput+configuration.calibratedZeroAngle);
 
             // update angle pid tuning. only update if different from current tuning
-    		if((activePIDTuning == AGGRESSIVE) && (abs(anglePIDInput) < configuration.anglePIDLowerLimit)) {
+    		if((activePIDTuning == AGGRESSIVE) && (((anglePIDInput) > (-configuration.anglePIDLowerLimit+configuration.calibratedZeroAngle)) \
+                                               && ((anglePIDInput) < (configuration.anglePIDLowerLimit+configuration.calibratedZeroAngle)))) {
     			//we're close to setpoint, use conservative tuning parameters
-    			activePIDTuning = CONSERVATIVE;
+                activePIDTuning = CONSERVATIVE;
     			anglePID.setTunings(configuration.anglePIDConKp, configuration.anglePIDConKi, configuration.anglePIDConKd);
     		}
-    		else if ((activePIDTuning == CONSERVATIVE) && (abs(anglePIDInput) >= configuration.anglePIDLowerLimit)) {
+    		else if ((activePIDTuning == CONSERVATIVE) && (((anglePIDInput) <= (-configuration.anglePIDLowerLimit+configuration.calibratedZeroAngle)) \
+                                                       || ((anglePIDInput) >= (configuration.anglePIDLowerLimit+configuration.calibratedZeroAngle)))) {
     			//we're far from setpoint, use aggressive tuning parameters
-    			activePIDTuning = AGGRESSIVE;
+                activePIDTuning = AGGRESSIVE;
     			anglePID.setTunings(configuration.anglePIDAggKp, configuration.anglePIDAggKi, configuration.anglePIDAggKd);
     		}
-    		else if (abs(anglePIDInput) > ANGLE_IRRECOVERABLE){
+
+            if (((anglePIDInput) > (ANGLE_IRRECOVERABLE+configuration.calibratedZeroAngle)) || ((anglePIDInput) < (-ANGLE_IRRECOVERABLE+configuration.calibratedZeroAngle))){
     			// so sorry, we're licking the floor :(
-    			started = false;
+                started = false;
     		}
+/*
+            // update angle pid tuning. only update if different from current tuning
+            if((activePIDTuning == AGGRESSIVE) && (abs(anglePIDInput) < configuration.anglePIDLowerLimit)) {
+                //we're close to setpoint, use conservative tuning parameters
+                activePIDTuning = CONSERVATIVE;
+                anglePID.setTunings(configuration.anglePIDConKp, configuration.anglePIDConKi, configuration.anglePIDConKd);
+            }
+            else if ((activePIDTuning == CONSERVATIVE) && (abs(anglePIDInput) >= configuration.anglePIDLowerLimit)) {
+                //we're far from setpoint, use aggressive tuning parameters
+                activePIDTuning = AGGRESSIVE;
+                anglePID.setTunings(configuration.anglePIDAggKp, configuration.anglePIDAggKi, configuration.anglePIDAggKd);
+            }
+            else if (abs(anglePIDInput) > ANGLE_IRRECOVERABLE){
+                // so sorry, we're licking the floor :(
+                started = false;
+            }*/
 
             // Compute Angle PID (input is current angle, output is angleSetpoint)
     		anglePIDOutput = anglePID.compute(anglePIDInput);
@@ -267,8 +338,7 @@ void loop()
                 motor2.motorOff();
             }
 
-            //write serial trace
-            //Serial.println(msg + " size: " + String(size));
+            //write serial
             Serial.println(String(ori[0]) + "," + \
                            String(ori[1]) + "," + \
                            String(ori[2]) + "," + \

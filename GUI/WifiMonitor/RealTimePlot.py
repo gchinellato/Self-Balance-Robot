@@ -28,7 +28,6 @@ class Plot(QtCore.QThread):
         ax1=plt.axes()
         line1, = plt.plot(ydata1)
         line2, = plt.plot(ydata2)
-        plt.ylim([10,40])
 
         LP = 0.1
 
@@ -39,8 +38,8 @@ class Plot(QtCore.QThread):
             #Max and min values
             #ymin = float(min(ydata1))-10
             #ymax = float(max(ydata1))+10
-            ymin = -100.0-10
-            ymax = 100.0+10
+            ymin = -100.0
+            ymax = 100.0
 
             plt.ylim([ymin,ymax])
             ydata1.append(anglePID)

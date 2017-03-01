@@ -47,7 +47,7 @@ def main(args):
             logging.info("Verboseity level: " + str(args.get("verbosity")))
 
         #Set modules to print according verbosity level
-        debug = MODULE_MANAGER | MODULE_SERIAL #| MODULE_CV 
+        debug = MODULE_MANAGER | MODULE_SERIAL #| MODULE_CV
 
         #Message queues to communicate between threads
         clientUDPQueue = queue.Queue()
@@ -86,7 +86,7 @@ def main(args):
         tracking = ComputerVisionThread(name=TRACKING_NAME, queue=eventQueue, debug=debug)
         tracking.daemon = True
         threads.append(tracking)
-        tracking.start()
+        #tracking.start()
 
         #Pan-Tilt thread
         panTilt = PanTiltThread(name=PAN_TILT_NAME, queue=panTiltQueue, debug=debug, callbackUDP=clientUDP.putMessage)

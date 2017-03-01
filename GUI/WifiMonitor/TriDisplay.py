@@ -169,7 +169,7 @@ class Cube(object):
         # Draw all 6 faces of the cube
         glBegin(GL_QUADS)
 
-        for face_no in xrange(self.num_faces):
+        for face_no in range(self.num_faces):
             #Color of faces
             if face_no == 1:
                 glColor(1.0, 0.0, 0.0)

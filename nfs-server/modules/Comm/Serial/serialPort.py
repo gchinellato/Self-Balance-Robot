@@ -42,7 +42,7 @@ class SerialThread(threading.Thread):
     def run(self):
         logging.info("Serial Thread Started")
 
-        self.port = serial.Serial(self.COM, baudrate=38400)
+        self.port = serial.Serial(self.COM, timeout=1, baudrate=38400)
         logging.info(self.port.name)
 
         lastTime = 0.0
@@ -58,7 +58,7 @@ class SerialThread(threading.Thread):
             if msg != None:
                 size = self.port.write(''.join(msg))
                 if (self.debug & MODULE_SERIAL):
-                    logging.debug(("Writing to Arduino >>>: " + str(msg) + " msgLen: " + str(size)))
+                    logging.debug(("Writing to Arduino >>>: " + str(msg) + ", " + str(len(msg))))
 
             #Read trace from arduino
             recv = self.port.readline()
@@ -113,36 +113,36 @@ class SerialThread(threading.Thread):
         return data
 
     def checkData(self, command, msg):
-        '''(SIZE)(COMMAND),(PARAM_1),(PARAM_2),(...),(END_CHAR)'''
+        '''(SIZE),(COMMAND),(PARAM_1),(PARAM_2),(...),(END_CHAR)'''
 
         ret = str(command) + ","
 
         if command == STARTED:
-            ret += str(msg) + ","
+            ret += str(msg)
         elif command == DIRECTION:
             param = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
-            ret += str(round(param,2)) + ","
+            ret += str(round(param,2))
         elif command == STEERING:
             param = self.convertTo(msg, ANALOG_MAX, ANALOG_MIN, PWM_MAX, PWM_MIN)
-            ret += str(round(param,2)) + ","
+            ret += str(round(param,2))
         elif command == SPEED_PID:
-            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
         elif command == ANGLE_PID_AGGR:
-            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
         elif command == ANGLE_PID_CONS:
-            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2)) + ","
+            ret += str(round(msg[0],2)) + "," + str(round(msg[1],2)) + "," + str(round(msg[2],2))
         elif command == CALIBRATED_ZERO_ANGLE:
-            ret += str(round(msg,2)) + ","
+            ret += str(round(msg,2))
         elif command == ANGLE_LIMIT:
-            ret += str(round(msg,2)) + ","
+            ret += str(round(msg,2))
         else:
-            ret += "unknown" + ","
+            ret += "unknown"
 
-        ret += "\0"
+        ret += "\n"
 
-        msgSize = len(ret) + 1 #9
-        digits = len(str(msgSize)) #1
-        size = msgSize + digits #10
+        msgSize = len(ret)
+        digits = len(str(msgSize))
+        size = msgSize + digits
 
         if len(str(msgSize)) != len(str(size)):
              size += (size - msgSize)

@@ -50,10 +50,10 @@ class Worker(QtCore.QThread):
                     self.distance2 = msg[1][7]
                     self.velocity1 = msg[1][8]
                     self.velocity2 = msg[1][9]
-                    self.outputPIDSpeed = msg[1][10]
-                    self.outputPIDAngle = msg[1][11]
-                    self.direction = msg[1][12]
-                    self.steering = msg[1][13]
+                    self.outputPIDSpeed = msg[1][12]
+                    self.outputPIDAngle = msg[1][13]
+                    self.direction = msg[1][14]
+                    self.steering = msg[1][15]
 
                     self.parent.ui.lineEdit_roll.setText(self.roll)
                     self.parent.ui.lineEdit_pitch.setText(self.pitch)
