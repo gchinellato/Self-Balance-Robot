@@ -107,8 +107,6 @@ void setup()
 
 void loop()
 {
-    //unsigned int start;
-    //unsigned int end;
     float velocity1=0, velocity2=0;
     float distance1, distance2;
     int command = 0;
@@ -221,7 +219,7 @@ void loop()
             anglePIDInput = ori[1];
 
             //update velocity
-            //velocity: derivative of position (Pf - Pi)/dt in m/s
+            //velocity: derivative of position (Pf - Pi)/dt, from cm/ms to m/s
             if(dt > 0)
             {
                 distance1 = encoder1.getDistance();
@@ -237,7 +235,7 @@ void loop()
             encoder1.lastTicks = encoder1.ticks;
             motor2.motorSpeed = (float)(encoder2.ticks - encoder2.lastTicks);
             encoder2.lastTicks = encoder2.ticks;
-
+/*
             //Compute Speed PID (input is wheel speed. output is angleSetpoint)
             speedPIDInput = (motor1.motorSpeed + motor2.motorSpeed)/2;
             speedPID.setSetpoint(userControl.direction);
@@ -265,21 +263,15 @@ void loop()
             // Compute Angle PID (input is current angle, output is angleSetpoint)
     		anglePIDOutput = anglePID.compute(anglePIDInput);
             //Serial.println("Pitch: " + String(anglePIDInput) + ", anglePIDOutput: " + String(anglePIDOutput));
+*/
+            //Set angle setpoint and compensate to reach equilibrium point
+            anglePID.setSetpoint(configuration.calibratedZeroAngle);
+            anglePID.setTunings(configuration.anglePIDConKp, configuration.anglePIDConKi, configuration.anglePIDConKd);
+            //Compute Angle PID (input is current angle)
+            anglePIDOutput = anglePID.compute(anglePIDInput);
 
             //Set PWM value
-            if (started) {
-                /*if (userControl.steering > 0) {
-                    //motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
-                    //motor2.setSpeedPercentage(anglePIDOutput);
-                }
-                else if (userControl.steering < 0) {
-                    //motor1.setSpeedPercentage(anglePIDOutput);
-                    //motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
-                }
-                else {
-                    motor1.setSpeedPercentage(anglePIDOutput);
-                    motor2.setSpeedPercentage(anglePIDOutput);
-                }*/
+            if (started && (abs(anglePIDInput) < ANGLE_IRRECOVERABLE)) {
                 motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
                 motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
             }
@@ -290,6 +282,8 @@ void loop()
 
             //write serial trace
             Serial.println(TRACE_BEGIN + \
+						   String(timestamp) + "," + \
+						   String(dt) + "," + \
                            String(ori[0]) + "," + \
                            String(ori[1]) + "," + \
                            String(ori[2]) + "," + \
@@ -297,6 +291,8 @@ void loop()
                            String(encoder2.ticks) + "," + \
                            String(distance1) + "," + \
                            String(distance2) + "," + \
+                           String(velocity1) + "," + \
+                           String(velocity2) + "," + \
                            String(motor1.motorSpeed) + "," + \
                            String(motor2.motorSpeed) + "," + \
                            String(speedPIDOutput) + "," + \

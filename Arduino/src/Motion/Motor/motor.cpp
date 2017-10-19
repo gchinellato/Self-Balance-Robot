@@ -61,7 +61,7 @@ void Motor::motorGo(int direct, int pwm)
 /* set speed in percentage from -100 to 100 */
 void Motor::setSpeedPercentage(float speed)
 {
-    // anothing above 100 or below -100 is invalid
+    // anything above 100 or below -100 is invalid
     if (speed > 100)
         speed = 100;
     else if (speed < -100)

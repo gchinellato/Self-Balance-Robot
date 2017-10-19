@@ -13,7 +13,7 @@
 
 #define SERIAL_BAUDRATE 	19200
 #define CALIBRATION_MAGNETO	0
-#define DATA_INTERVAL 	    20 // ms
+#define DATA_INTERVAL 	    10 // ms
 
 /* GPIO mapping */
 
@@ -47,8 +47,8 @@ enum cmd{
 };
 
 float dt=0; // duration time
-unsigned int timestamp;
-unsigned int timestamp_old;
+unsigned long timestamp;
+unsigned long timestamp_old;
 float *ori; // orientation vector (roll, pitch, yaw)
 
 struct Configuration {

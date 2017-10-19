@@ -40,7 +40,7 @@ public:
     void getParameters(float *setpoint, float *Kp, float *Ki, float *Kd);
 private:
 	float lastError;
-	float lastTime;
+	unsigned long lastTime;
     float setpoint;
     float Kp;
     float Ki;

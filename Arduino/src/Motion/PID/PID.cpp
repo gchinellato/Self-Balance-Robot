@@ -21,8 +21,8 @@ float PID::compute(float input)
     /* Performs a PID computation and returns a control value based on
     the elapsed time (dt) and the error signal from a summing junction
     (the error parameter)*/
-    unsigned int now = millis();
-    unsigned int dt;
+    unsigned long now = millis();
+    float dt;
     float error;
     float de;
     float Cp;
@@ -30,49 +30,42 @@ float PID::compute(float input)
     float Cd;
     float output;
 
-    //Calculate delta time
-    dt = (now - lastTime)/1000;
+    /* Calculate delta time (seconds) */
+    dt = (float)(now - lastTime)/1000.0f;
     //Serial.println("dt: " + String(dt));
 
-    //Calculate delta error
+    /* Calculate delta error */
     error = setpoint - input;
     de = error - lastError;
     //Serial.println("input: " + String(input));
     //Serial.println("de: " + String(de));
 
-    //Proportional Term
+    /* Proportional Term */
     Cp = error;
     //Serial.println("cp: " + String(Cp));
 
-    //Integral Term
+    /* Integral Term */
     Ci += error*dt;
     //Serial.println("ci: " + String(Ci));
 
-    //Windup guard for Integral term do not reach very large values
-    if(Ci > WINDUP_GUARD){
-        Ci = WINDUP_GUARD;
-    }
-    else if (Ci < -WINDUP_GUARD){
-        Ci = -WINDUP_GUARD;
-    }
-
     Cd = 0;
-    //to avoid division by zero
+    /* to avoid division by zero */
     if(dt>0)
     {
-        //Derivative term
+        /* Derivative term */
         Cd = de/dt;
         //Serial.println("cd: " + String(Cd));
     }
 
-    //Save for the next iteration
+    /* Save for the next iteration */
     lastError = error;
     lastTime = now;
 
-    //Sum terms: pTerm+iTerm+dTerm
+    /* Sum terms: pTerm+iTerm+dTerm */
     output = Cp*Kp + Ci*Ki + Cd*Kd;
     //Serial.println("output: " + String(output));
 
+    /* Saturation - Windup guard for Integral term do not reach very large values */
     if(output > WINDUP_GUARD){
         output = WINDUP_GUARD;
     }
@@ -85,7 +78,7 @@ float PID::compute(float input)
 
 void PID::setSetpoint(float value)
 {
-    setpoint = value;
+    this->setpoint = value;
 }
 
 void PID::setTunings(float Kp, float Ki, float Kd)
