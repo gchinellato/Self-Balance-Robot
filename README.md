@@ -50,4 +50,4 @@ This project is based on the following topics:
 * PlatformIO: http://platformio.org/
 * Atom IDE: https://atom.io/
 
-![Screenshot](docs/block_diagram.png)
+![Screenshot](docs/Diagram.jpg)
