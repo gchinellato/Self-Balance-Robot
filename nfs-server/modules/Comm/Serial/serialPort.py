@@ -93,7 +93,7 @@ class SerialThread(threading.Thread):
 
                     if (self.debug & MODULE_SERIAL):
                         logging.debug(("Reading from Arduino: " + str(recv)))
-                        #logging.debug(("Reading to Arduino: " + self.converStrToHex(str(recv))))
+                        #logging.debug(("Reading from Arduino: " + self.converStrToHex(str(recv))))
 
                     #Parse event
                     msgList = self.parseData(recv)

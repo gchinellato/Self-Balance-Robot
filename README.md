@@ -49,3 +49,5 @@ This project is based on the following topics:
 * Servoblaster: https://github.com/richardghirst/PiBits/tree/master/ServoBlaster
 * PlatformIO: http://platformio.org/
 * Atom IDE: https://atom.io/
+
+![Screenshot](docs/block_diagram.png)
