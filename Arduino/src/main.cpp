@@ -64,18 +64,17 @@ void setConfiguration()
     configuration.speedPIDOutputLowerLimit = -10.00;
     configuration.speedPIDOutputHigherLimit = 10.00;
     configuration.anglePIDAggKp = ANGLE_KP_AGGR;
-    configuration.anglePIDAggKi = ANGLE_KP_AGGR;
-    configuration.anglePIDAggKd = ANGLE_KP_AGGR;
+    configuration.anglePIDAggKi = ANGLE_KI_AGGR;
+    configuration.anglePIDAggKd = ANGLE_KD_AGGR;
     configuration.anglePIDConKp = ANGLE_KP_CONS;
-    configuration.anglePIDConKi = ANGLE_KP_CONS;
-    configuration.anglePIDConKd = ANGLE_KP_CONS;
+    configuration.anglePIDConKi = ANGLE_KI_CONS;
+    configuration.anglePIDConKd = ANGLE_KD_CONS;
     configuration.anglePIDLowerLimit = ANGLE_LIMIT;
     configuration.calibratedZeroAngle = CALIBRATED_ZERO_ANGLE;
 }
 
 void setup()
 {
-    timestamp=millis();
     Serial.begin(SERIAL_BAUDRATE);
     Serial.setTimeout(10);
     while(!Serial) {}
@@ -98,7 +97,7 @@ void setup()
     GY80 imu;
 	if (CALIBRATION_MAGNETO == 1)
 	{
-		Serial.println("MAGNETOMETER CALIBRATION STARTED");
+		Serial.println("MAGNETO/1000.0fMETER CALIBRATION STARTED");
 		imu.magCalibration();
 		Serial.println("CALIBRATION FINISHED");
 	}
@@ -119,19 +118,12 @@ void loop()
 
     while(1)
 	{
-        if ((millis() - timestamp) >= DATA_INTERVAL)
-		{
-			timestamp_old = timestamp;
-			timestamp = millis();
-
-			if (timestamp > timestamp_old)
-			{
-				dt = (float)(timestamp - timestamp_old) / 1000.0f;
-			}
-			else
-			{
-				dt = 0;
-			}
+        timestamp = millis();
+        if ((timestamp - timestamp_old) >= DATA_INTERVAL)
+		{    
+            //convert from ms to sec
+            dt = (float)(timestamp - timestamp_old)/1000.0f; 
+            timestamp_old = timestamp;
 
             msg = "";
             //read serial trace
@@ -152,7 +144,7 @@ void loop()
                     //remove TRACE_END\r\n
                     msg.remove(msg.length()-7,7);
 
-                    //convert from string to char array
+                    //conver75t from string to char array
                     msg.toCharArray(buff, 128);
 
                     //split string into tokens
@@ -265,13 +257,20 @@ void loop()
             //Serial.println("Pitch: " + String(anglePIDInput) + ", anglePIDOutput: " + String(anglePIDOutput));
 */
             //Set angle setpoint and compensate to reach equilibrium point
-            anglePID.setSetpoint(configuration.calibratedZeroAngle);
+            anglePID.setSetpoint(userControl.direction+configuration.calibratedZeroAngle);
             anglePID.setTunings(configuration.anglePIDConKp, configuration.anglePIDConKi, configuration.anglePIDConKd);
             //Compute Angle PID (input is current angle)
             anglePIDOutput = anglePID.compute(anglePIDInput);
 
             //Set PWM value
             if (started && (abs(anglePIDInput) < ANGLE_IRRECOVERABLE)) {
+                //compensate dead band
+                if(anglePIDOutput >= 0) {
+                    anglePIDOutput += DEAD_BAND;
+                }else {
+                    anglePIDOutput -= DEAD_BAND;
+                }
+
                 motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
                 motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
             }
@@ -287,7 +286,7 @@ void loop()
                            String(ori[0]) + "," + \
                            String(ori[1]) + "," + \
                            String(ori[2]) + "," + \
-                           String(encoder1.ticks) + "," + \
+                           /*String(encoder1.ticks) + "," + \
                            String(encoder2.ticks) + "," + \
                            String(distance1) + "," + \
                            String(distance2) + "," + \
@@ -295,7 +294,7 @@ void loop()
                            String(velocity2) + "," + \
                            String(motor1.motorSpeed) + "," + \
                            String(motor2.motorSpeed) + "," + \
-                           String(speedPIDOutput) + "," + \
+                           String(speedPIDOutput) + "," + \*/
                            String(anglePIDOutput) + "," + \
                            String(userControl.direction) + "," + \
                            String(userControl.steering) + \

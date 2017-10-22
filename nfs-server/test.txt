@@ -1,0 +1,505 @@
+Reading from Arduino: 03,-0.04,10.69,88.86,-21.37,0.00rº²bÿ#BEGIN#51,0.05,0.07,10.71,88.77,-21.42,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#61,0.01,0.06,10.69,88.74,-21.37,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#83,0.02,0.06,10.68,88.76,-21.36,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#112,0.03,0.06,10.67,88.72,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#141,0.03,0.07,10.67,88.73,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#169,0.03,0.08,10.67,88.76,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#199,0.03,0.07,10.67,88.74,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#228,0.03,0.08,10.66,88.77,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#258,0.03,0.07,10.66,88.78,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#286,0.03,0.07,10.65,88.77,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#316,0.03,0.07,10.65,88.80,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#345,0.03,0.07,10.65,88.78,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#374,0.03,0.07,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#403,0.03,0.07,10.64,88.83,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#432,0.03,0.08,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#461,0.03,0.09,10.65,88.84,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#490,0.03,0.09,10.66,88.81,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#520,0.03,0.09,10.65,88.85,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#548,0.03,0.09,10.65,88.87,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#578,0.03,0.10,10.65,88.86,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#607,0.03,0.10,10.65,88.89,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#635,0.03,0.09,10.66,88.85,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#665,0.03,0.09,10.66,88.84,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#694,0.03,0.09,10.66,88.85,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#723,0.03,0.10,10.66,88.82,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#752,0.03,0.10,10.65,88.86,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#782,0.03,0.11,10.65,88.81,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#811,0.03,0.09,10.64,88.81,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#840,0.03,0.09,10.64,88.81,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#869,0.03,0.10,10.65,88.77,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#898,0.03,0.09,10.64,88.78,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#927,0.03,0.07,10.64,88.79,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#956,0.03,0.08,10.64,88.78,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#986,0.03,0.08,10.64,88.82,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1014,0.03,0.07,10.65,88.78,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1044,0.03,0.08,10.65,88.81,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1074,0.03,0.07,10.65,88.82,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1103,0.03,0.08,10.64,88.82,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1133,0.03,0.07,10.65,88.84,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1163,0.03,0.05,10.65,88.82,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1192,0.03,0.06,10.64,88.85,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1222,0.03,0.05,10.65,88.85,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1252,0.03,0.06,10.65,88.85,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1282,0.03,0.06,10.65,88.88,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1311,0.03,0.05,10.63,88.86,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1341,0.03,0.05,10.64,88.88,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1371,0.03,0.56,10.65,88.88,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1399,0.03,0.52,10.66,88.87,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1429,0.03,0.50,10.66,88.92,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1459,0.03,0.49,10.66,88.89,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1488,0.03,0.47,10.65,88.94,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1518,0.03,0.46,10.65,88.96,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1548,0.03,0.43,10.65,88.93,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1577,0.03,0.41,10.63,88.97,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1607,0.03,0.40,10.63,88.93,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1637,0.03,0.38,10.64,88.91,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1667,0.03,0.37,10.64,88.91,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1696,0.03,0.36,10.66,88.90,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1726,0.03,0.35,10.66,88.93,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1756,0.03,0.34,10.66,88.90,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1785,0.03,0.33,10.66,88.89,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1815,0.03,0.33,10.66,88.91,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1845,0.03,0.32,10.67,88.91,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1874,0.03,0.31,10.68,88.94,-21.36,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1904,0.03,0.30,10.67,88.90,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1933,0.03,0.30,10.68,88.89,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1963,0.03,0.28,10.67,88.91,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#1992,0.03,0.27,10.65,88.87,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2022,0.03,0.27,10.65,88.89,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2052,0.03,-0.25,10.65,88.86,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2082,0.03,-0.24,10.65,88.85,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2112,0.03,-0.24,10.66,88.86,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2143,0.03,-0.23,10.66,88.82,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2172,0.03,-0.22,10.67,88.85,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2203,0.03,-0.21,10.67,88.81,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2233,0.03,-0.19,10.68,88.80,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2263,0.03,-0.18,10.70,88.80,-21.39,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2293,0.03,-0.16,10.69,88.78,-21.39,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2323,0.03,-0.15,10.69,88.79,-21.37,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2354,0.03,-0.14,10.67,88.76,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2383,0.03,-0.13,10.67,88.77,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2414,0.03,-0.11,10.67,88.80,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2444,0.03,-0.09,10.68,88.79,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2475,0.03,-0.08,10.68,88.82,-21.37,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2504,0.03,-0.08,10.68,88.80,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2534,0.03,-0.06,10.67,88.79,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2565,0.03,-0.06,10.67,88.79,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2594,0.03,-0.06,10.66,88.77,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2625,0.03,-0.05,10.67,88.79,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2655,0.03,-0.03,10.67,88.74,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2685,0.03,-0.04,10.67,88.75,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2715,0.03,-0.04,10.67,88.76,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2746,0.03,-0.04,10.66,88.74,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2776,0.03,-0.03,10.66,88.77,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2806,0.03,-0.02,10.66,88.75,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2836,0.03,-0.03,10.67,88.76,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2866,0.03,-0.04,10.68,88.74,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2896,0.03,-0.03,10.68,88.73,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2926,0.03,-0.02,10.68,88.74,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2957,0.03,-0.02,10.67,88.70,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#2987,0.03,-0.02,10.69,88.71,-21.38,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3017,0.03,-0.02,10.70,88.69,-21.39,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3047,0.03,-0.01,10.69,88.67,-21.38,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3078,0.03,-0.00,10.69,88.69,-21.38,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3107,0.03,0.01,10.69,88.66,-21.39,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3137,0.03,0.01,10.67,88.70,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3167,0.03,0.01,10.66,88.67,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3196,0.03,0.01,10.67,88.67,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3226,0.03,0.01,10.67,88.69,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3256,0.03,0.02,10.67,88.66,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3286,0.03,0.02,10.67,88.70,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3315,0.03,0.02,10.66,88.72,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3345,0.03,0.02,10.67,88.71,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3375,0.03,0.03,10.67,88.73,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3404,0.03,0.01,10.67,88.70,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3434,0.03,0.02,10.67,88.75,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3463,0.03,0.03,10.66,88.78,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3492,0.03,0.01,10.66,88.74,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3522,0.03,0.02,10.66,88.78,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3552,0.03,0.03,10.66,88.77,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3581,0.03,0.01,10.65,88.82,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3611,0.03,0.01,10.65,88.82,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3641,0.03,0.01,10.64,88.82,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3671,0.03,0.02,10.62,88.83,-21.25,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3700,0.03,0.02,10.60,88.82,-21.20,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3730,0.03,0.02,10.59,88.86,-21.19,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3760,0.03,0.03,10.60,88.87,-21.19,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3789,0.03,0.03,10.59,88.85,-21.17,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3819,0.03,0.03,10.60,88.87,-21.21,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3849,0.03,0.03,10.61,88.87,-21.21,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3878,0.03,0.03,10.61,88.90,-21.22,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3908,0.03,0.05,10.62,88.90,-21.24,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3938,0.03,0.05,10.62,88.88,-21.23,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3968,0.03,0.05,10.62,88.91,-21.24,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#3996,0.03,0.05,10.62,88.89,-21.24,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4026,0.03,0.06,10.61,88.94,-21.22,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4056,0.03,0.05,10.63,88.93,-21.25,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4085,0.03,0.05,10.63,88.91,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4115,0.03,0.05,10.63,88.92,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4145,0.03,0.05,10.64,88.89,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4174,0.03,0.06,10.64,88.88,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4204,0.03,0.06,10.64,88.86,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4234,0.03,0.05,10.64,88.84,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4263,0.03,0.05,10.64,88.87,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4293,0.03,0.06,10.64,88.84,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4323,0.03,0.05,10.64,88.83,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4353,0.03,0.04,10.63,88.87,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4382,0.03,0.05,10.63,88.84,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4412,0.03,0.05,10.63,88.86,-21.25,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4442,0.03,0.05,10.63,88.84,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4471,0.03,-0.45,10.63,88.83,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4501,0.03,-0.44,10.64,88.84,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4531,0.03,-0.43,10.64,88.82,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4561,0.03,-0.41,10.64,88.83,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4591,0.03,-0.40,10.63,88.79,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4622,0.03,-0.38,10.64,88.80,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4652,0.03,-0.35,10.63,88.82,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4682,0.03,-0.32,10.63,88.80,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4712,0.03,-0.32,10.65,88.82,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4743,0.03,-0.31,10.65,88.79,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4772,0.03,-0.29,10.65,88.79,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4803,0.03,-0.27,10.66,88.81,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4833,0.03,-0.26,10.66,88.80,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4862,0.03,-0.24,10.65,88.83,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4893,0.03,-0.22,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4923,0.03,-0.22,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4954,0.03,-0.20,10.66,88.77,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#4983,0.03,-0.18,10.66,88.78,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5014,0.03,-0.17,10.66,88.80,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5044,0.03,-0.15,10.67,88.75,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5074,0.03,-0.14,10.66,88.77,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5104,0.03,-0.13,10.66,88.75,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5135,0.03,-0.11,10.66,88.72,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5165,0.03,-0.10,10.65,88.75,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5194,0.03,-0.10,10.65,88.74,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5225,0.03,-0.09,10.64,88.78,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5255,0.03,-0.08,10.64,88.73,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5285,0.03,-0.07,10.65,88.72,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5315,0.03,-0.07,10.64,88.74,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5346,0.03,-0.06,10.63,88.71,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5376,0.03,-0.05,10.63,88.74,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5406,0.03,-0.06,10.63,88.71,-21.25,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5436,0.03,-0.05,10.64,88.70,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5467,0.03,-0.04,10.64,88.73,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5496,0.03,-0.02,10.65,88.69,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5526,0.03,0.49,10.64,88.71,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5556,0.03,0.47,10.65,88.68,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5585,0.03,0.45,10.65,88.70,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5615,0.03,0.42,10.65,88.73,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5645,0.03,0.40,10.65,88.71,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5675,0.03,0.38,10.64,88.75,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5704,0.03,0.37,10.64,88.72,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5734,0.03,0.35,10.64,88.71,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5764,0.03,0.33,10.65,88.73,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5793,0.03,0.32,10.65,88.70,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5823,0.03,0.31,10.66,88.73,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5853,0.03,0.30,10.67,88.75,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5882,0.03,0.30,10.66,88.75,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5912,0.03,0.28,10.66,88.77,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5942,0.03,0.27,10.66,88.75,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#5971,0.03,0.27,10.65,88.80,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6001,0.03,0.27,10.67,88.81,-21.33,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6031,0.03,0.26,10.67,88.79,-21.34,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6060,0.03,0.25,10.66,88.79,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6089,0.03,0.24,10.65,88.78,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6119,0.03,0.24,10.64,88.81,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6149,0.03,0.23,10.63,88.81,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6178,0.03,0.23,10.63,88.80,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6208,0.03,0.23,10.64,88.82,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6238,0.03,0.22,10.63,88.81,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6267,0.03,0.21,10.64,88.83,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6297,0.03,0.21,10.66,88.82,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6327,0.03,0.21,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6356,0.03,0.20,10.64,88.82,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6386,0.03,0.19,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6416,0.03,0.18,10.65,88.84,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6446,0.03,0.18,10.64,88.82,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6475,0.03,0.19,10.64,88.81,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6505,0.03,0.19,10.64,88.82,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6535,0.03,0.18,10.63,88.80,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6564,0.03,0.18,10.63,88.85,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6593,0.03,0.18,10.64,88.81,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6623,0.03,0.18,10.63,88.80,-21.25,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6652,0.03,0.18,10.63,88.85,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6682,0.03,0.17,10.63,88.80,-21.26,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6712,0.03,0.17,10.64,88.81,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6742,0.03,0.15,10.64,88.79,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6771,0.03,0.14,10.64,88.78,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6801,0.03,0.15,10.64,88.81,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6831,0.03,0.14,10.64,88.79,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6860,0.03,0.14,10.64,88.79,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6890,0.03,0.14,10.64,88.77,-21.27,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6920,0.03,0.14,10.64,88.76,-21.28,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6949,0.03,0.14,10.65,88.78,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#6979,0.03,0.14,10.65,88.75,-21.29,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7009,0.03,0.15,10.65,88.77,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7038,0.03,0.15,10.65,88.80,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7068,0.03,0.15,10.65,88.80,-21.31,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7098,0.03,0.16,10.65,88.82,-21.30,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7127,0.03,0.14,10.66,88.78,-21.32,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7156,0.03,0.14,10.68,88.79,-21.35,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7186,0.03,0.15,10.68,88.80,-21.36,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7216,0.03,0.14,10.69,88.78,-21.38,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7245,0.03,0.14,10.70,88.79,-21.40,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7275,0.03,0.14,10.70,88.76,-21.40,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7305,0.03,0.14,10.70,88.79,-21.39,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7334,0.03,0.14,10.70,88.80,-21.41,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7364,0.03,0.13,10.71,88.78,-21.42,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7394,0.03,0.13,10.72,88.82,-21.44,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7424,0.03,0.13,10.73,88.79,-21.46,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7453,0.03,0.13,10.72,88.83,-21.43,0.00,0.00#END#
+
+Reading from Arduino: #BEGIN#7483,0.03,0.13,10.73,88.83,-21.45,0.00,0.00#END#
+
+SerialException

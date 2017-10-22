@@ -21,6 +21,8 @@
 #define PWM_MIN 0
 #define PWM_MAX 255
 
+#define DEAD_BAND 8
+
 class Motor
 {
 public:

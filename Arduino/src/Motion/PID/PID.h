@@ -17,15 +17,15 @@
 #define SPEED_KI 			0.0
 #define SPEED_KD 			0.0
 #define ANGLE_SETPOINT 		0.0
-#define ANGLE_LIMIT 		5.0
-#define ANGLE_KP_AGGR 		10.0
+#define ANGLE_LIMIT 		0.0
+#define ANGLE_KP_AGGR 		0.0
 #define ANGLE_KI_AGGR 		0.0
 #define ANGLE_KD_AGGR 		0.0
-#define ANGLE_KP_CONS 		6.0
-#define ANGLE_KI_CONS 		0.7
-#define ANGLE_KD_CONS 		0.2
-#define ANGLE_IRRECOVERABLE 30.0
-#define CALIBRATED_ZERO_ANGLE -2.0
+#define ANGLE_KP_CONS 		2.0
+#define ANGLE_KI_CONS 		0.0
+#define ANGLE_KD_CONS 		0.0
+#define ANGLE_IRRECOVERABLE 45.0
+#define CALIBRATED_ZERO_ANGLE 0.0
 #define WINDUP_GUARD 		100
 
 enum PIDTuning {CONSERVATIVE, AGGRESSIVE};
@@ -42,6 +42,9 @@ private:
 	float lastError;
 	unsigned long lastTime;
     float setpoint;
+    float Cp;
+    float Ci;
+    float Cd;
     float Kp;
     float Ki;
     float Kd;

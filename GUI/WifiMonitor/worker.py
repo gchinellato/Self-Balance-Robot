@@ -22,8 +22,8 @@ class Worker(QtCore.QThread):
         self.parent = parent
         self.stop = False
 
-		self.timestamp = 0
-		self.dt = 0
+        self.timestamp = 0
+        self.dt = 0
         self.roll = 0
         self.pitch = 0
         self.yaw = 0
@@ -50,8 +50,8 @@ class Worker(QtCore.QThread):
             print(msg)
             if msg[0] == SERVER_UDP_NAME:
                 if msg[1][0] == CMD_SERIAL:
-					self.timestamp = msg[1][1]
-					self.dt = msg[1][2]
+                    '''self.timestamp = msg[1][1]
+                    self.dt = msg[1][2]
                     self.roll = msg[1][3]
                     self.pitch = msg[1][4]
                     self.yaw = msg[1][5]
@@ -67,6 +67,16 @@ class Worker(QtCore.QThread):
                     self.outputPIDAngle = msg[1][15]
                     self.direction = msg[1][16]
                     self.steering = msg[1][17]
+                    '''
+
+                    self.timestamp = msg[1][1]
+                    self.dt = msg[1][2]
+                    self.roll = msg[1][3]
+                    self.pitch = msg[1][4]
+                    self.yaw = msg[1][5]                    
+                    self.outputPIDAngle = msg[1][6]
+                    self.direction = msg[1][7]
+                    self.steering = msg[1][8]
 
                     self.parent.ui.lineEdit_roll.setText(self.roll)
                     self.parent.ui.lineEdit_pitch.setText(self.pitch)

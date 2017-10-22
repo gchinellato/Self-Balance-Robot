@@ -12,6 +12,7 @@ import threading
 import datetime
 import time
 import serial
+import serial.tools.list_ports as prtlst
 import Queue as queue
 from constants import *
 from Utils.traces.trace import *
@@ -43,93 +44,72 @@ class SerialThread(threading.Thread):
     def run(self):
         logging.info("Serial Thread Started")
 
-        try:
-            self.port = serial.Serial(self.COM, baudrate=19200)
-            logging.info(self.port.name)
+        self.ser = serial.Serial()
 
-            lastTime = 0.0
-            i = 0
+        lastTime = 0.0
+        i = 0
 
-            while not self._stopEvent.wait(self._sleepPeriod):
-                try:
-                    self._lock.acquire()
+        while not self._stopEvent.wait(self._sleepPeriod):
+            try:
+                currentTime = time.time()
 
-                    currentTime = time.time()
+                if not self.ser.isOpen():				
+                    time.sleep(2)
+                    self.ser.port = prtlst.comports()[0][0]
+                    self.ser.baudrate = 19200
+                    self.ser.timeout = 5
+                    logging.info(("Opening serial port " + str(self.ser.port) + "," + str(self.ser.baudrate)))
+                    self.ser.open()
 
-                    #Calculate time since the last time it was called
-                    #if (self.debug & MODULE_SERIAL):
-                    #    logging.debug("Duration: " + str(currentTime - lastTime))
-
-                    msg = self.getMessage()
-                    if msg != None:
-                        size = self.port.write(''.join(msg))
-
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Writing to Arduino: " + str(msg)))
-                            #logging.debug(("Writing to Arduino: " + self.converStrToHex(msg)))
-
-                        '''#read ack from arduino and check the size of the received message
-                        recvAck = self.port.readline()
-
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Reading from Arduino ACK: " + str(recvAck)))
-                            #logging.debug(("Reading to Arduino ACK: " + self.converStrToHex(str(recvAck))))
-
-                        if (self.debug & MODULE_SERIAL):
-                            if(len(msg) == len(recvAck)):
-                                logging.debug("ACK OK: Written size: " + str(size) + ", read size: " + str(len(recvAck)))
-                            else:
-                                logging.debug("ACK NOK: Written size: " + str(size) + ", read size: " + str(len(recvAck)))
-
-                        #read command from arduino
-                        recvCmd = self.port.readline()
-
-                        if (self.debug & MODULE_SERIAL):
-                            logging.debug(("Reading from Arduino command: " + str(recvCmd)))
-                            #logging.debug(("Reading to Arduino ACK: " + self.converStrToHex(str(recvCmd))))*/'''
-
-                    #Read trace from arduino
-                    recv = self.port.readline()
+                msg = self.getMessage()
+                if msg != None:
+                    size = self.ser.write(''.join(msg))
 
                     if (self.debug & MODULE_SERIAL):
-                        logging.debug(("Reading from Arduino: " + str(recv)))
-                        #logging.debug(("Reading from Arduino: " + self.converStrToHex(str(recv))))
+                        logging.debug(("Writing to Arduino: " + str(msg)))
+                        #logging.debug(("Writing to Arduino: " + self.converStrToHex(msg)))
 
-                    #Parse event
-                    msgList = self.parseData(recv)
-                    UDP_MSG = None
+                #Read trace from arduino
+                recv = self.ser.readline()
 
-                    if msgList != None:
-                        #UDP message
-                        #(module),(data1),(data2),(data3),(...)(#)
-                        UDP_MSG = CMD_SERIAL
+                if (self.debug & MODULE_SERIAL):
+                    logging.debug(("Reading from Arduino: " + str(recv)))
+                    #logging.debug(("Reading from Arduino: " + self.converStrToHex(str(recv))))
 
-                        for msg in msgList:
-                            UDP_MSG += ("," + msg)
+                #Parse event
+                msgList = self.parseData(recv)
+                UDP_MSG = None
 
-                        UDP_MSG += "#"
+                if msgList != None:
+                    #UDP message
+                    #(module),(data1),(data2),(data3),(...)(#)
+                    UDP_MSG = CMD_SERIAL
 
-                    #Sending UDP packets...
-                    if (self.callbackUDP != None and UDP_MSG != None):
-                        self.callbackUDP(UDP_MSG)
+                    for msg in msgList:
+                        UDP_MSG += ("," + msg)
 
-                except queue.Empty:
-                    if (self.debug & MODULE_SERIAL):
-                        logging.debug("Queue Empty")
-                    pass
-                finally:
-                    lastTime = currentTime
-                    self._lock.release()
-        except serial.SerialException:
-            if (self.debug & MODULE_SERIAL):
-                logging.debug("Serial Exception")
+                    UDP_MSG += "#"
+
+                #Sending UDP packets...
+                if (self.callbackUDP != None and UDP_MSG != None):
+                    self.callbackUDP(UDP_MSG)
+            except queue.Empty:
+                if (self.debug & MODULE_SERIAL):
+                    logging.debug("Queue Empty")
+                pass
+            except serial.SerialException:
+                logging.warning("SerialException")
+                self.ser.close()
+                pass
+            finally:
+                lastTime = currentTime
 
     #Override method
     def join(self, timeout=2):
         #Stop the thread and wait for it to end
         logging.info("Killing Serial Thread...")
         self._stopEvent.set()
-        self.port.close()
+        self.ser.close()
         threading.Thread.join(self, timeout=timeout)
 
     def getMessage(self, timeout=2):

@@ -13,7 +13,9 @@
 
 PID::PID()
 {
-
+    this->Ci=0;
+    this->lastTime=0;
+    this->lastError=0;
 }
 
 float PID::compute(float input)
@@ -25,9 +27,6 @@ float PID::compute(float input)
     float dt;
     float error;
     float de;
-    float Cp;
-    float Ci;
-    float Cd;
     float output;
 
     /* Calculate delta time (seconds) */
@@ -36,8 +35,10 @@ float PID::compute(float input)
 
     /* Calculate delta error */
     error = setpoint - input;
+   
     de = error - lastError;
     //Serial.println("input: " + String(input));
+    //Serial.println("error: " + String(error));
     //Serial.println("de: " + String(de));
 
     /* Proportional Term */
@@ -71,7 +72,7 @@ float PID::compute(float input)
     }
     else if (output < -WINDUP_GUARD){
         output = -WINDUP_GUARD;
-     }
+    }
 
     return output;
 }
@@ -86,6 +87,9 @@ void PID::setTunings(float Kp, float Ki, float Kd)
     this->Kp = Kp;
     this->Ki = Ki;
     this->Kd = Kd;
+    //Serial.println("Kp: " + String(Kp));
+    //Serial.println("Ki: " + String(Ki));
+    //Serial.println("Kd: " + String(Kd));
 }
 
 void PID::getParameters(float *setpoint, float *Kp, float *Ki, float *Kd)

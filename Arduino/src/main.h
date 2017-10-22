@@ -47,8 +47,8 @@ enum cmd{
 };
 
 float dt=0; // duration time
-unsigned long timestamp;
-unsigned long timestamp_old;
+unsigned long timestamp=0;
+unsigned long timestamp_old=0;
 float *ori; // orientation vector (roll, pitch, yaw)
 
 struct Configuration {
