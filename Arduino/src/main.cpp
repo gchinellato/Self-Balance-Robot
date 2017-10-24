@@ -162,10 +162,12 @@ void loop()
                             break;
                         case DIRECTION:
                             userControl.direction = atof(strtok(NULL, ","));
+                            userControl.direction /= 10;
                             //Serial.println("DIRECTION command: " + String(userControl.direction));
                             break;
                         case STEERING:
                             userControl.steering = atof(strtok(NULL, ","));
+                            userControl.steering /= 10;
                             //Serial.println("STEERING command: " + String(userControl.steering));
                             break;
                         case SPEED_PID:
@@ -265,11 +267,11 @@ void loop()
             //Set PWM value
             if (started && (abs(anglePIDInput) < ANGLE_IRRECOVERABLE)) {
                 //compensate dead band
-                if(anglePIDOutput >= 0) {
+                /*if(anglePIDOutput >= 0) {
                     anglePIDOutput += DEAD_BAND;
                 }else {
                     anglePIDOutput -= DEAD_BAND;
-                }
+                }*/
 
                 motor1.setSpeedPercentage(anglePIDOutput+userControl.steering);
                 motor2.setSpeedPercentage(anglePIDOutput-userControl.steering);
@@ -295,6 +297,7 @@ void loop()
                            String(motor1.motorSpeed) + "," + \
                            String(motor2.motorSpeed) + "," + \
                            String(speedPIDOutput) + "," + \*/
+                           String(anglePID.getSetpoint()) + "," + \
                            String(anglePIDOutput) + "," + \
                            String(userControl.direction) + "," + \
                            String(userControl.steering) + \

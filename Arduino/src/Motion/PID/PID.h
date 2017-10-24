@@ -36,8 +36,8 @@ public:
 	PID();
 	float compute (float input);
     void setSetpoint(float setpoint);
+    float getSetpoint();
     void setTunings(float Kp, float Ki, float Kd);
-    void getParameters(float *setpoint, float *Kp, float *Ki, float *Kd);
 private:
 	float lastError;
 	unsigned long lastTime;

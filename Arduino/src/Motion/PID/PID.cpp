@@ -82,20 +82,14 @@ void PID::setSetpoint(float value)
     this->setpoint = value;
 }
 
+float PID::getSetpoint()
+{
+    return setpoint;
+}
+
 void PID::setTunings(float Kp, float Ki, float Kd)
 {
     this->Kp = Kp;
     this->Ki = Ki;
     this->Kd = Kd;
-    //Serial.println("Kp: " + String(Kp));
-    //Serial.println("Ki: " + String(Ki));
-    //Serial.println("Kd: " + String(Kd));
-}
-
-void PID::getParameters(float *setpoint, float *Kp, float *Ki, float *Kd)
-{
-    *setpoint = this->setpoint;
-    *Kp = this->Kp;
-    *Ki = this->Ki;
-    *Kd = this->Kd;
 }

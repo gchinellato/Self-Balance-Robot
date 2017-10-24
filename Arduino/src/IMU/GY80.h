@@ -36,7 +36,7 @@ private:
 	float compMagVector[3];
 	float gyroVector[3];
 	float magnetoHeading(float magnetometer[3], float accelerometer[3]);
-	void complementaryFilder(float G_dt, float (&orientationDeg)[3]);
+	void complementaryFilter(float G_dt, float (&orientationDeg)[3]);
 };
 
 

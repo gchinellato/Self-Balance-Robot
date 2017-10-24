@@ -51,11 +51,11 @@ void GY80::magCalibration()
 
 float* GY80::getOrientation(int algorithm, float G_dt)
 {
-    complementaryFilder(G_dt, orientation); // roll, pitch, yaw
+    complementaryFilter(G_dt, orientation); // roll, pitch, yaw
 	return orientation;
 }
 
-void GY80::complementaryFilder(float G_dt, float (&orientationDeg)[3])
+void GY80::complementaryFilter(float G_dt, float (&orientationDeg)[3])
 {
     accelerometer.getAccVector(accVector);
 
@@ -68,7 +68,7 @@ void GY80::complementaryFilder(float G_dt, float (&orientationDeg)[3])
 
     // CF = tau / (tau+LP)
     // tau = CF*LP/(1-CF)
-    //i.e: 0.98*0.01sec/(1-0.98) = 0.49sec
+	//i.e: 0.98*0.01sec/(1-0.98) = 0.49tau
     //(if the loop period is shorter than this value, gyro take precedence, otherwise, acceleromter is given more weighting than gyro)
     // orientation in degrees (pitch, roll, yaw from rotation matrix)
     orientationDeg[0] = CF*(orientationDeg[0] + gyro.rateVector[0]*G_dt) + (1-CF)*accelerometer.roll*RAD_TO_DEG;
