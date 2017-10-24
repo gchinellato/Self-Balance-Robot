@@ -14,18 +14,20 @@ import time
 import serial
 import serial.tools.list_ports as prtlst
 import Queue as queue
+from logFile import * 
 from constants import *
 from Utils.traces.trace import *
 from Utils.constants import *
 
 class SerialThread(threading.Thread):
-    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=queue.Queue(), debug=0, COM="/dev/ttyUSB0", callbackUDP=None):
+    def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, queue=queue.Queue(), debug=0, COM="/dev/ttyUSB0", callbackUDP=None, callbackFile=None):
         threading.Thread.__init__(self, group=group, target=target, name=name)
         self.args = args
         self.kwargs = kwargs
         self.name = name
         self.debug = debug
         self.callbackUDP = callbackUDP
+        self.callbackFile = callbackFile
 
         #Queue to communicate between threads
         self._workQueue = queue
@@ -79,15 +81,20 @@ class SerialThread(threading.Thread):
                 #Parse event
                 msgList = self.parseData(recv)
                 UDP_MSG = None
+                LOG_MSG = ""
+
+                #write file...
+                if (self.callbackFile != None and msgList != None):
+                    for msg in msgList:
+                        LOG_MSG += (msg + ";")
+                    self.callbackFile(str(LOG_MSG))
 
                 if msgList != None:
                     #UDP message
                     #(module),(data1),(data2),(data3),(...)(#)
                     UDP_MSG = CMD_SERIAL
-
                     for msg in msgList:
                         UDP_MSG += ("," + msg)
-
                     UDP_MSG += "#"
 
                 #Sending UDP packets...

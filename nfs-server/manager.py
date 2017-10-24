@@ -19,6 +19,7 @@ from Comm.UDP.UDP_Server import UDP_ServerThread
 from Comm.UDP.UDP_Client import UDP_ClientThread
 from Comm.Bluetooth.controller_ps3 import PS3_ControllerThread
 from Comm.Serial.serialPort import SerialThread
+from Comm.Serial.serialPort import LogFileThread
 from PanTilt.panTilt import PanTiltThread
 from ComputerVison.tracking import ComputerVisionThread
 from IMU.constants import *
@@ -54,12 +55,13 @@ def main(args):
         eventQueue = queue.Queue()
         panTiltQueue = queue.Queue()
         serialToWrite = queue.Queue()
+        logFileQueue = queue.Queue()
 
         logging.info("Starting threads and process...")
         threads = []
 
         #UDP Client thread
-        clientUDP = UDP_ClientThread(name=CLIENT_UDP_NAME, queue=clientUDPQueue, debug=debug, UDP_IP="192.168.1.35", UDP_PORT=5000)
+        clientUDP = UDP_ClientThread(name=CLIENT_UDP_NAME, queue=clientUDPQueue, debug=debug, UDP_IP="192.168.1.39", UDP_PORT=5000)
         clientUDP.daemon = True
         threads.append(clientUDP)
         clientUDP.start()
@@ -76,8 +78,14 @@ def main(args):
         threads.append(joy)
         joy.start()
 
+        #Log File thread
+        logFile = LogFileThread(name=LOG_FILE_NAME, queue=logFileQueue, debug=debug)
+        logFile.daemon = True
+        threads.append(logFile)
+        logFile.start()
+
         #Serial thread
-        serial = SerialThread(name=SERIAL_NAME, queue=serialToWrite, COM="/dev/ttyUSB0", debug=debug, callbackUDP=clientUDP.putMessage)
+        serial = SerialThread(name=SERIAL_NAME, queue=serialToWrite, COM="/dev/ttyUSB0", debug=debug, callbackUDP=clientUDP.putMessage, callbackFile=logFile.putMessage)
         serial.daemon = True
         threads.append(serial)
         serial.start()
