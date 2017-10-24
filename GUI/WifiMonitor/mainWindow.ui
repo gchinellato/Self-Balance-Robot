@@ -33,7 +33,7 @@
      <bool>false</bool>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -99,7 +99,7 @@
          </rect>
         </property>
         <property name="text">
-         <string>192.168.1.35</string>
+         <string>192.168.1.39</string>
         </property>
        </widget>
        <widget class="QLineEdit" name="lineEdit_port_server">
@@ -320,6 +320,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_pitch">
        <property name="geometry">
@@ -329,6 +332,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_6">
@@ -352,6 +358,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_7">
@@ -428,6 +437,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_velocB">
        <property name="geometry">
@@ -437,6 +449,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_9">
@@ -460,6 +475,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_10">
@@ -497,6 +515,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLabel" name="label_11">
        <property name="geometry">
@@ -520,6 +541,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_distanceA">
        <property name="geometry">
@@ -529,6 +553,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_12">
@@ -579,6 +606,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_panTilt_Horiz">
        <property name="geometry">
@@ -588,6 +618,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
      </widget>
@@ -685,7 +718,7 @@
          </rect>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
         </property>
        </widget>
        <widget class="QDoubleSpinBox" name="doubleSpinBox_angle_kp_Aggr">
@@ -714,7 +747,7 @@
          </rect>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_21">
@@ -808,7 +841,7 @@
          </rect>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_13">
@@ -834,7 +867,7 @@
          </rect>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.010000000000000</double>
         </property>
        </widget>
        <widget class="QLabel" name="label_15">
@@ -955,7 +988,7 @@
         </rect>
        </property>
        <property name="singleStep">
-        <double>0.100000000000000</double>
+        <double>0.010000000000000</double>
        </property>
       </widget>
       <widget class="QDoubleSpinBox" name="doubleSpinBox_speed_kd">
@@ -968,7 +1001,7 @@
         </rect>
        </property>
        <property name="singleStep">
-        <double>0.100000000000000</double>
+        <double>0.010000000000000</double>
        </property>
       </widget>
       <widget class="QPushButton" name="pushButton_speed_zero">
@@ -1032,6 +1065,9 @@
          <height>27</height>
         </rect>
        </property>
+       <property name="text">
+        <string>0</string>
+       </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_pid_out_angle">
        <property name="geometry">
@@ -1041,6 +1077,9 @@
          <width>71</width>
          <height>27</height>
         </rect>
+       </property>
+       <property name="text">
+        <string>0</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_27">
@@ -1112,11 +1151,14 @@
      <widget class="QLineEdit" name="lineEdit_pitch_tab_PID">
       <property name="geometry">
        <rect>
-        <x>250</x>
+        <x>220</x>
         <y>270</y>
         <width>71</width>
         <height>27</height>
        </rect>
+      </property>
+      <property name="text">
+       <string>0</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_31">
@@ -1130,6 +1172,58 @@
       </property>
       <property name="text">
        <string>Pitch</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_32">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>280</y>
+        <width>81</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Timestamp</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_timestamp">
+      <property name="geometry">
+       <rect>
+        <x>400</x>
+        <y>270</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_dt">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>270</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_33">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>280</y>
+        <width>21</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>dt</string>
       </property>
      </widget>
     </widget>
@@ -1198,7 +1292,7 @@
      <x>0</x>
      <y>0</y>
      <width>620</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

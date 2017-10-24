@@ -18,6 +18,7 @@ from UDP.UDP_Server import UDP_ServerThread
 from UDP.UDP_Client import UDP_ClientThread
 from worker import Worker
 from TriDisplay import TriModel
+from plot import Plot
 from Utils.traces.trace import *
 from constants import *
 
@@ -94,7 +95,8 @@ class mainWindow(QtWidgets.QMainWindow):
         self.clientUDP.start()
 
     def pushButton_chartOrientation_onClicked(self):
-        pass
+        self.plot = Plot(self)
+        self.plot.start()
 
     def pushButton_3D_Model_onClicked(self):
         self.triModel = TriModel(self)

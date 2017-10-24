@@ -44,11 +44,11 @@ try:
             logging.debug(data)
             if data != None:
                 #(timestamp),(data1),(data2)(#)
-                timestamp = data[0]
-                CFRoll = float(data[1])
-                CFPitch = float(data[2])
-                CFYaw = float(data[3])
-                PID = float(data[4])
+                timestamp = float(data[1][1])
+                CFRoll = float(data[1][3])
+                CFPitch = float(data[1][4])
+                CFYaw = float(data[1][5])
+                PID = float(data[1][6])
 
                 #Max and min values
                 ymin = float(min(ydata))-10

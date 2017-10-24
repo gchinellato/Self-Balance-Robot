@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # NOTE: This will not run on the Raspberry PI itself
 # It is just a simple OpenGL program to visualise the orientation of the sensors
@@ -37,8 +37,8 @@ class TriModel(QtCore.QThread):
                 if event.type == KEYUP and event.key == K_ESCAPE:
                     return
     
-            roll = -float(self.parent.ui.lineEdit_roll.text())*DEG_TO_RAD
-            pitch = float(self.parent.ui.lineEdit_pitch.text())*DEG_TO_RAD
+            pitch = -float(self.parent.ui.lineEdit_roll.text())*DEG_TO_RAD
+            roll = float(self.parent.ui.lineEdit_pitch.text())*DEG_TO_RAD
             yaw = float(self.parent.ui.lineEdit_yaw.text())*DEG_TO_RAD
             
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)    
@@ -105,7 +105,7 @@ class TriModel(QtCore.QThread):
             cube.render()
             glPopMatrix()
             pygame.display.flip()
-            #print math.degrees(float(pitch)), math.degrees(-float(roll)), math.degrees(-float(yaw))
+            print(math.degrees(float(pitch)), math.degrees(-float(roll)), math.degrees(-float(yaw)))
             time.sleep(0.02)
 
     def resize(self, width, height):
@@ -140,14 +140,14 @@ class Cube(object):
     # Cube information
     num_faces = 6
 
-    vertices = [ (-0.5, -0.05, 1.0),
-                 (0.5, -0.05, 1.0),
-                 (0.5, 0.05, 1.0),
-                 (-0.5, 0.05, 1.0),
-                 (-0.5, -0.05, -1.0),
-                 (0.5, -0.05, -1.0),
-                 (0.5, 0.05, -1.0),
-                 (-0.5, 0.05, -1.0) ]
+    vertices = [ (-0.5, -0.8, 0.5),
+                 (0.5, -0.8, 0.5),
+                 (0.5, 0.8, 0.5),
+                 (-0.5, 0.8, 0.5),
+                 (-0.5, -0.8, -0.5),
+                 (0.5, -0.8, -0.5),
+                 (0.5, 0.8, -0.5),
+                 (-0.5, 0.8, -0.5) ]
 
     normals = [ (0.0, 0.0, +1.0),  # front
                 (0.0, 0.0, -1.0),  # back
@@ -169,7 +169,7 @@ class Cube(object):
         # Draw all 6 faces of the cube
         glBegin(GL_QUADS)
 
-        for face_no in xrange(self.num_faces):
+        for face_no in range(self.num_faces):
             #Color of faces
             if face_no == 1:
                 glColor(1.0, 0.0, 0.0)
