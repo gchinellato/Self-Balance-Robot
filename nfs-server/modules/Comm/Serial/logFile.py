@@ -41,7 +41,7 @@ class LogFileThread(threading.Thread):
         logging.info("Log File Thread Started")
 
         lastTime = 0.0
-        self.file = open("data.txt", "w")
+        self.file = open("data.csv", "w")
 
         while not self._stopEvent.wait(self._sleepPeriod):
             try:
