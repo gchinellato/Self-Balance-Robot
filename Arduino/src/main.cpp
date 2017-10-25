@@ -285,9 +285,9 @@ void loop()
             Serial.println(TRACE_BEGIN + \
 						   String(timestamp) + "," + \
 						   String(dt) + "," + \
-                           String(ori[0]) + "," + \
-                           String(ori[1]) + "," + \
-                           String(ori[2]) + "," + \
+                           String(ori[0],1) + "," + \
+                           String(ori[1],1) + "," + \
+                           String(ori[2],1) + "," + \
                            /*String(encoder1.ticks) + "," + \
                            String(encoder2.ticks) + "," + \
                            String(distance1) + "," + \

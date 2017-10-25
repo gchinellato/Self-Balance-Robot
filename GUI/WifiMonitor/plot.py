@@ -43,10 +43,10 @@ class Plot(QtCore.QThread):
             #PID = random.randrange(0,80,1)
 
             #Max and min values
-            ymin = float(min(ydata1))-10
-            ymax = float(max(ydata1))+10
-            #ymin = -100.0-10
-            #ymax = 100.0+10
+            #ymin = float(min(ydata1))-10
+            #ymax = float(max(ydata1))+10
+            ymin = -100.0-10
+            ymax = 100.0+10
 
             plt.ylim([ymin,ymax])
             ydata1.append(CFPitch)
